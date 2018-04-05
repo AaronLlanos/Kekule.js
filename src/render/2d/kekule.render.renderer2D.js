@@ -568,6 +568,7 @@ Kekule.Render.Base2DRenderer = Class.create(Kekule.Render.CompositeRenderer,  //
 	},
 	drawRichText: function(context, coord, richText, options)  // note: return {drawnObj, boundRect}
 	{
+		var metrics = context.measureText(richText.anchorItem.anchorItem.text);
 		var drawer = this.getRichTextDrawer();
 		// debug
 		//console.log('draw richText', richText, options);
@@ -2652,6 +2653,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			//console.log('draw node label', nodeRenderOptions, label);
 			var actualDrawOptions = Object.create(nodeRenderOptions);
 			actualDrawOptions.charDirection = labelCharDirection;
+			actualDrawOptions.verticalAlign = Kekule.Render.TextAlign.CENTER;
 			var elemEx = this.drawRichText(context, coord, label,
 					actualDrawOptions/*nodeRenderOptions/*richTextDrawOptions*/);
 			var elem = elemEx.drawnObj;
@@ -3623,17 +3625,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			// calculate line offset adjustment
 			// positive value means to right side of curr direction, negative value means left side
 			var adjusts = [];
-			var initialBondAlign = 1;
-			if (!(lineCount & 1))  // line count is even, must decide which direction should put one more lines
-			{
-				if (isCross)  // cross multiple bonds, always align to center
-					initialBondAlign = 0;
-				else
-					initialBondAlign = Kekule.ObjUtils.isUnset(lineParams.bondAlign)?
-						this._decideEvenBondAlign(context, node1, node2):
-						lineParams.bondAlign;
-				//console.log(initialBondAlign);
-			}
+			var initialBondAlign = 0;
 			for (var i = 0; i < lineCount; ++i)
 			{
 				if (Kekule.ObjUtils.notUnset(lineParams[i].offsetAdjust))
