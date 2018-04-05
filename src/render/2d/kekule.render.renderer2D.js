@@ -2628,7 +2628,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			 var renderOptions = Object.extend(renderConfigs, localOptions);
 			 */
 			// if a label is drawn, all hydrogens should be marked
-			var hdisplayLevel = Kekule.Render.HydrogenDisplayLevel.ALL; //this._getNodeHydrogenDisplayLevel(node);
+			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node); // turn this back on
 			//console.log(hdisplayLevel);
 			var needShowChargeInLabel = !!(needDrawCharge || needDrawRadical);
 			//console.log(node.getCharge(), node.getRadical(), needDrawCharge, needDrawRadical, needShowChargeInLabel);
@@ -2793,15 +2793,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 	_getNodeHydrogenDisplayLevel: function(node, drawOptions)
 	{
 		//if (this.getMoleculeDisplayType() === Kekule.Render.MoleculeDisplayType.CONDENSED)  // condensed, need display all hydrogens defaultly
-		var localRenderOptions = node.getOverriddenRenderOptions();
-		var localLevel = Kekule.Render.RenderOptionUtils.getHydrogenDisplayLevel(localRenderOptions);
-		var hdisplayLevel = Kekule.ObjUtils.notUnset(localLevel)?
-			localLevel:
-			((drawOptions.moleculeDisplayType === Kekule.Render.MoleculeDisplayType.CONDENSED)?
-					Kekule.Render.HydrogenDisplayLevel.ALL:
-					drawOptions.hydrogenDisplayLevel);
-					//this.getRenderConfigs().getMoleculeDisplayConfigs().getDefHydrogenDisplayLevel());
-		return hdisplayLevel;
+		return Kekule.Render.HydrogenDisplayLevel.NONE;
 	},
 
 	/**
@@ -4369,7 +4361,7 @@ Kekule.Render.StructFragment2DRenderer = Class.create(Kekule.Render.ChemObj2DRen
 	doDrawSelf: function($super, context, baseCoord, options)
 	{
 		//this.applyConfigs();
-
+		context.textBaseline = 'hanging';
 		$super(context, baseCoord, options);
 		/*
 		var transformOptions = this.calcActualTransformOptions(context, this.getChemObj(), baseCoord, options);
