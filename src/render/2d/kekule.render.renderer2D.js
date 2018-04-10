@@ -2628,7 +2628,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			 var renderOptions = Object.extend(renderConfigs, localOptions);
 			 */
 			// if a label is drawn, all hydrogens should be marked
-			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node); // turn this back on
+			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node, options); // turn this back on
 			//console.log(hdisplayLevel);
 			var needShowChargeInLabel = !!(needDrawCharge || needDrawRadical);
 			//console.log(node.getCharge(), node.getRadical(), needDrawCharge, needDrawRadical, needShowChargeInLabel);
@@ -2793,7 +2793,10 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 	 */
 	_getNodeHydrogenDisplayLevel: function(node, drawOptions)
 	{
-		//if (this.getMoleculeDisplayType() === Kekule.Render.MoleculeDisplayType.CONDENSED)  // condensed, need display all hydrogens defaultly
+		if (drawOptions.moleculeDisplayType === Kekule.Render.MoleculeDisplayType.SKELETAL) {
+			return Kekule.Render.MoleculeDisplayType.SKELETAL
+		}
+		// Override to not show hydrogens
 		return Kekule.Render.HydrogenDisplayLevel.NONE;
 	},
 
