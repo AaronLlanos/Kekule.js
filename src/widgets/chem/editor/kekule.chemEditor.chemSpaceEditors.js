@@ -71,10 +71,11 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 	/** @private */
 	CLASS_NAME: 'Kekule.Editor.ChemSpaceEditor',
 	/** @constructs */
-	initialize: function($super, parentOrElementOrDocument, chemObj, renderType, editorConfigs)
+	initialize: function($super, parentOrElementOrDocument, chemObj, renderType, editorConfigs, screenSize)
 	{
 		this.setPropStoreFieldValue('allowCreateNewChild', true);
 		this.setPropStoreFieldValue('autoCreateNewStructFragment', true);
+		this._screenSize = screenSize;
 		$super(parentOrElementOrDocument, chemObj, renderType, editorConfigs);
 		this._containerChemSpace = null;  // private field, used to mark that a extra chem space container is used
 
@@ -440,12 +441,12 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		var chemSpaceConfigs = configs.getChemSpaceConfigs();
 		if (this.getCoordMode() === Kekule.CoordMode.COORD2D)  // now only handles 2D size
 		{
-			var screenSize = chemSpace.getScreenSize();
+			var screenSize = this._screenSize;
 			if (!screenSize.x && !screenSize.y)
 			{
 				screenSize = chemSpaceConfigs.getDefScreenSize2D();
-				chemSpace.setScreenSize(screenSize);
 			}
+			chemSpace.setScreenSize(screenSize);
 			if (!chemSpace.getDefAutoScaleRefLength())
 			{
 				var refLength;
