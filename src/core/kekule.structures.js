@@ -1439,11 +1439,7 @@ Kekule.Atom = Class.create(Kekule.AbstractAtom,
 	 */
 	getHydrogenCount: function(includingBondedHydrogen)
 	{
-		var result;
-		if (Kekule.ObjUtils.isUnset(this.getExplicitHydrogenCount()))
-			result = this.getImplicitHydrogenCount() || 0;
-		else
-			result = this.getExplicitHydrogenCount() || 0;
+		var result = this.getExplicitHydrogenCount() || 0;
 		if (includingBondedHydrogen)
 			result += this.getLinkedHydrogenAtoms().length || 0;
 		return result;

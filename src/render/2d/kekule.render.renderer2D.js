@@ -2797,7 +2797,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			return Kekule.Render.MoleculeDisplayType.SKELETAL
 		}
 		// Override to not show hydrogens
-		return Kekule.Render.HydrogenDisplayLevel.NONE;
+		return Kekule.Render.HydrogenDisplayLevel.EXPLICIT;
 	},
 
 	/**
