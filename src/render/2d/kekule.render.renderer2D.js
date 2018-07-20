@@ -2796,8 +2796,8 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 		if (drawOptions.moleculeDisplayType === Kekule.Render.MoleculeDisplayType.SKELETAL) {
 			return Kekule.Render.MoleculeDisplayType.SKELETAL
 		}
-		// Override to not show hydrogens
-		return Kekule.Render.HydrogenDisplayLevel.EXPLICIT;
+
+		return this.getDrawBridge().showImplicitHydrogens ? Kekule.Render.HydrogenDisplayLevel.ALL : Kekule.Render.HydrogenDisplayLevel.EXPLICIT;
 	},
 
 	/**

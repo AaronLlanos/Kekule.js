@@ -1060,7 +1060,7 @@ module.exports = function(Kekule) {
 					hcount = 0;
 					break;
 				case R.HydrogenDisplayLevel.ALL:
-					hcount = this.getHydrogenCount();
+					hcount = this.getIsotope().getName() === 'Hydrogen' ? 0 : this.getImplicitHydrogenCount();
 					break;
 				case R.HydrogenDisplayLevel.EXPLICIT:
 					hcount = this.getExplicitHydrogenCount();

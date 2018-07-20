@@ -81,6 +81,7 @@ Kekule.Render.Render2DConfigs = Class.create(Kekule.AbstractConfigs,
 		this.addConfigProp('textFontConfigs', 'Kekule.Render.TextFontConfigs');
 		this.addConfigProp('lengthConfigs', 'Kekule.Render.LengthConfigs');
 		this.addConfigProp('colorConfigs', 'Kekule.Render.ColorConfigs');
+		this.addConfigProp('nodeViewConfigs', 'Kekule.Render.NodeViewConfigs');
 		//this.addConfigProp('interactStyleMap', 'Kekule.Render.PredefinedConfigsMap');
 	},
 	/** @private */
@@ -93,6 +94,7 @@ Kekule.Render.Render2DConfigs = Class.create(Kekule.AbstractConfigs,
 		this.setPropStoreFieldValue('textFontConfigs', new Kekule.Render.TextFontConfigs());
 		this.setPropStoreFieldValue('lengthConfigs', new Kekule.Render.LengthConfigs());
 		this.setPropStoreFieldValue('colorConfigs', new Kekule.Render.ColorConfigs());
+		this.setPropStoreFieldValue('nodeViewConfigs', new Kekule.Render.NodeViewConfigs());
 		//this.setPropStoreFieldValue('interactStyleMap', new Kekule.Render.PredefinedConfigsMap());
 	},
 
@@ -423,6 +425,18 @@ Kekule.Render.ColorConfigs = Class.create(Kekule.AbstractConfigs,
 		// color for glyphs
 		this.addStrConfigProp('glyphStrokeColor', '#999999');
 		this.addStrConfigProp('glyphFillColor', '#999999');
+	}
+});
+
+Kekule.Render.NodeViewConfigs = Class.create(Kekule.AbstractConfigs,
+/** @lends Kekule.Render.NodeViewConfigs# */
+{
+	/** @private */
+	CLASS_NAME: 'Kekule.Render.NodeViewConfigs',
+	/** @private */
+	initProperties: function()
+	{
+		this.addBoolConfigProp('showImplicitHydrogens', false);
 	}
 });
 

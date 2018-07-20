@@ -1048,6 +1048,7 @@ Kekule.ChemWidget.ChemObjDisplayer = Class.create(Kekule.ChemWidget.AbstractWidg
 	 */
 	getActualDrawOptions: function()
 	{
+		this.getDrawBridge().showImplicitHydrogens = this.getRenderConfigs().getNodeViewConfigs().getShowImplicitHydrogens();
 		return this.getDrawOptions();
 	},
 
