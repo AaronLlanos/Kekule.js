@@ -126,7 +126,7 @@ Kekule.MolStereoUtils = {
 			if (centerNode && centerCoord)
 			{
 				var connector = node.getConnectorTo(centerNode);
-				if (connector.getStereo)
+				if (connector && connector.getStereo)
 				{
 					var bondStereo = connector.getStereo();
 					var BS = Kekule.BondStereo;
@@ -141,9 +141,9 @@ Kekule.MolStereoUtils = {
 						result.z = distance * zFactors[wedgeDirs.indexOf(bondStereo)];
 						//console.log(node.getId(), result);
 						/*
-						 if (axisIsDoubleBond)
-						 result.y = 0;
-						 */
+						if (axisIsDoubleBond)
+							result.y = 0;
+						*/
 					}
 					else if ([BS.UP_OR_DOWN, BS.UP_OR_DOWN_INVERTED].indexOf(bondStereo) >= 0)  // direction not certain
 						return null;  // return a special mark, can determinate angle calculation
