@@ -6191,6 +6191,10 @@ Kekule.Editor.MolNodeChargeIaController = Class.create(Kekule.Editor.AttachedMar
 			modifiedData.radical = this.getRadical();
 			radicalModified = true;
 		}
+		if (modifiedData.charge === 0) {
+			modifiedData.radical = undefined;
+			radicalModified = true;
+		}
 
 		var result = [];
 		// add or remove marker operation
