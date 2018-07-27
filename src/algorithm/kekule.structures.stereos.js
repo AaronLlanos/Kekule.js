@@ -1406,7 +1406,7 @@ Kekule.CanonicalizationMorganExIndexer = Class.create(Kekule.CanonicalizationMor
 		// do a normal morgan indexer first
 		$super(ctab);
 		//var nodes = ctab.getNodes();
-		var nodes = ctab.getNonHydrogenNodes();
+		var nodes = ctab.getNodes();
 		var sortedNodes = this._groupNodesByCanoIndex(nodes);
 		// then detect stereo factors based on indexes
 		var stereoObjs = null;
