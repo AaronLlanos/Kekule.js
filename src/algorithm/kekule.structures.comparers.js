@@ -203,10 +203,10 @@ Kekule.UnivChemStructObjComparer = {
 		var result =  v1 - v2;
 		if (obj1 && obj2)
 		{
-			if ((result === 0) && (obj1.getNodes && obj2.getNodes))  // structure fragment, if with same node and connector count, compare nodes and connectors
+			if ((result === 0) && (obj1.getNonHydrogenNodes && obj2.getNonHydrogenNodes))  // structure fragment, if with same node and connector count, compare nodes and connectors
 			{
-				var nodes1 = obj1.getNodes(); // obj1.getNodes();
-				var nodes2 = obj2.getNodes(); // obj2.getNodes();
+				var nodes1 = obj1.getNonHydrogenNodes(); // obj1.getNodes();
+				var nodes2 = obj2.getNonHydrogenNodes(); // obj2.getNodes();
 				result = nodes1.length - nodes2.length;
 				if (result === 0)
 				{
@@ -218,10 +218,10 @@ Kekule.UnivChemStructObjComparer = {
 					}
 				}
 			}
-			if ((result === 0) && (obj1.getConnectors && obj2.getConnectors))
+			if ((result === 0) && (obj1.getNonHydrogenConnectors && obj2.getNonHydrogenConnectors))
 			{
-				var connectors1 = obj1.getConnectors(); //obj1.getConnectors();
-				var connectors2 = obj2.getConnectors(); //obj2.getConnectors();
+				var connectors1 = obj1.getNonHydrogenConnectors(); //obj1.getConnectors();
+				var connectors2 = obj2.getNonHydrogenConnectors(); //obj2.getConnectors();
 				result = connectors1.length - connectors2.length;
 				if (result === 0)
 				{

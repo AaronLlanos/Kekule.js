@@ -299,8 +299,8 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 		{
 			if (this._getComparisonOptionFlagValue(options, 'linkedConnectorCount'))
 			{
-				var c1 = this.getLinkedConnectors();
-				var c2 = targetObj.getLinkedConnectors && targetObj.getLinkedConnectors();
+				var c1 = this.getLinkedNonHydrogenConnectors();
+				var c2 = targetObj.getLinkedNonHydrogenConnectors && targetObj.getLinkedNonHydrogenConnectors();
 				result = this.doCompareOnValue(c1.length, c2 && c2.length, options);
 			}
 		}
@@ -514,13 +514,14 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 	 * Returns connectors that connected to a non hydrogen node.
 	 * @returns {Array}
 	 */
-	getLinkedConnectors: function()
+	getLinkedNonHydrogenConnectors: function()
 	{
 		var result = [];
 		for (var i = 0, l = this.getLinkedConnectorCount(); i < l; ++i)
 		{
 			var connector = this.getLinkedConnectorAt(i);
-			Kekule.ArrayUtils.pushUnique(result, connector);
+			if (!connector.isNormalConnectorToHydrogen || !connector.isNormalConnectorToHydrogen())
+				Kekule.ArrayUtils.pushUnique(result, connector);
 		}
 		return result;
 	},
@@ -528,7 +529,7 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 	 * Returns linked objects except hydrogen atoms.
 	 * @returns {Array}
 	 */
-	getLinkedObjs: function()
+	getLinkedNonHydrogenObjs: function()
 	{
 		var result = [];
 		for (var i = 0, l = this.getLinkedConnectorCount(); i < l; ++i)
@@ -537,7 +538,7 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 			var objs = connector.getConnectedObjs();
 			for (var j = 0, k = objs.length; j < k; ++j)
 			{
-				if (objs[j] !== this)
+				if (objs[j] !== this && (!objs[j].isHydrogenAtom || !objs[j].isHydrogenAtom()))
 				{
 					Kekule.ArrayUtils.pushUnique(result, objs[j]);
 				}
@@ -984,22 +985,6 @@ Kekule.AbstractAtom = Class.create(Kekule.ChemStructureNode,
 	getStructureRelatedPropNames: function($super)
 	{
 		return $super().concat(['explicitHydrogenCount']);
-	},
-
-	/** @ignore */
-	doCompare: function($super, targetObj, options)
-	{
-		var result = $super(targetObj, options);
-		if (!result && options.method === Kekule.ComparisonMethod.CHEM_STRUCTURE)
-		{
-			if (this._getComparisonOptionFlagValue(options, 'hydrogenCount'))
-			{
-				var c1 = this.getHydrogenCount(true);
-				var c2 = targetObj.getHydrogenCount && targetObj.getHydrogenCount(true);
-				result = this.doCompareOnValue(c1, c2, options);
-			}
-		}
-		return result;
 	},
 
 	/**
@@ -2146,6 +2131,75 @@ Kekule.StructureConnectionTable = Class.create(ObjectEx,
 
 		// Usually you are not to set connectors property directly. But some canonicalizers may need to replace the while connector field.
 		this.defineProp('connectors', {'dataType': DataType.ARRAY});
+
+		this.defineProp('nonHydrogenNodes', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				var result = [];
+				for (var i = 0, l = this.getNodeCount(); i < l; ++i)
+				{
+					var node = this.getNodeAt(i);
+					if (!node.isHydrogenAtom || !node.isHydrogenAtom())
+						result.push(node);
+				}
+				return result;
+			}
+		});
+		this.defineProp('nonHydrogenConnectors', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				var result = [];
+				for (var i = 0, l = this.getConnectorCount(); i < l; ++i)
+				{
+					var conn = this.getConnectorAt(i);
+					if (!conn.isNormalConnectorToHydrogen || !conn.isNormalConnectorToHydrogen())
+						result.push(conn);
+				}
+				return result;
+			}
+		});
+		this.defineProp('hydrogenNodes', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				var result = [];
+				for (var i = 0, l = this.getNodeCount(); i < l; ++i)
+				{
+					var node = this.getNodeAt(i);
+					if (node.isHydrogenAtom || node.isHydrogenAtom())
+						result.push(node);
+				}
+				return result;
+			}
+		});
+		this.defineProp('hydrogenConnectors', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				var result = [];
+				for (var i = 0, l = this.getConnectorCount(); i < l; ++i)
+				{
+					var conn = this.getConnectorAt(i);
+					if (conn.isNormalConnectorToHydrogen || conn.isNormalConnectorToHydrogen())
+						result.push(conn);
+				}
+				return result;
+			}
+		});
 	},
 	/** @private */
 	initPropValues: function($super)
@@ -4032,6 +4086,46 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					return result;
 				}
 		});
+		this.defineProp('nonHydrogenNodes', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				return this.hasCtab()? this.getCtab().getNonHydrogenNodes(): [];
+			}
+		});
+		this.defineProp('nonHydrogenConnectors', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				return this.hasCtab()? this.getCtab().getNonHydrogenConnectors(): [];
+			}
+		});
+		this.defineProp('hydrogenNodes', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				return this.hasCtab()? this.getCtab().getHydrogenNodes(): [];
+			}
+		});
+		this.defineProp('hydrogenConnectors', {
+			'dataType': DataType.ARRAY,
+			'scope': Class.PropertyScope.PUBLIC,
+			'serializable': false,
+			'setter': null,
+			'getter': function()
+			{
+				return this.hasCtab()? this.getCtab().getHydrogenConnectors(): [];
+			}
+		});
 		this.defineProp('canonicalizationInfo', {
 			'dataType': DataType.OBJECT,
 			'serializable': false,
@@ -4132,33 +4226,81 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				// both has ctab, comparing child nodes and connectors
 				if (!result && this.hasCtab())
 				{
-					if ((result === 0) && (this.getNodes && targetObj.getNodes))  // structure fragment, if with same node and connector count, compare nodes and connectors
+					if ((result === 0) && (this.getNonHydrogenNodes && targetObj.getNonHydrogenNodes))  // structure fragment, if with same node and connector count, compare nodes and connectors
 					{
-						var nodes1 = this.getNodes();
-						var nodes2 = targetObj.getNodes();
-						result = nodes1.length - nodes2.length;
-						if (result === 0)
+						if (this._getComparisonOptionFlagValue(options, 'hydrogenCount'))
 						{
-							for (var i = 0, l = nodes1.length; i < l; ++i)
+							var nodes1 = this.getNonHydrogenNodes();
+							var nodes2 = targetObj.getNonHydrogenNodes();
+							result = nodes1.length - nodes2.length;
+							if (result === 0)
 							{
-								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
-								if (result !== 0)
-									break;
-							}
-						}
-					}
-					if ((result === 0) && (this.getConnectors && targetObj.getConnectors))
-					{
-						var connectors1 = this.getConnectors();
-						var connectors2 = targetObj.getConnectors();
-						result = connectors1.length - connectors2.length;
-						if (result === 0)
-						{
-							for (var i = 0, l = connectors1.length; i < l; ++i)
-							{
-								result = this.doCompareOnValue(connectors1[i], connectors2[i], options);
-								if (result !== 0)
-									break;
+								for (var i = 0, l = nodes1.length; i < l; ++i)
+								{	
+									var tmpResult = 0;
+									// we can't rely on the order being the same, so we have to see if any of the nodes
+									// in the other structure match.  if we find matches for all of the nodes in the 
+									// original structure, we can say with confidence that the structures are equivalent
+									for (var j = 0, l = nodes2.length; j < l; ++j)
+									{	
+										tmpResult = this.doCompareOnValue(nodes1[i], nodes2[j], options);
+										// normalize hydrogens for comparison
+										var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
+										var explicitHydrogens2 = nodes2[j].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
+										var implicitHydrogens1 = nodes1[i].getImplicitHydrogenCount();
+										var implicitHydrogens2 = nodes2[j].getImplicitHydrogenCount();
+										var hydrogenConnectors1 = this.getHydrogenConnectors();
+										var hydrogenConnectors2 = targetObj.getHydrogenConnectors();
+										var connectors1 = hydrogenConnectors1.filter((connector) => {
+											var connectedObjs = connector.getConnectedObjs();
+											if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+												var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+													connectedObjs[1] : connectedObjs[0];
+												return nonHydrogen === nodes1[i];
+											} 
+											return false;
+										});
+										var connectors2 = hydrogenConnectors2.filter((connector) => {
+											var connectedObjs = connector.getConnectedObjs();
+											if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+												var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+													connectedObjs[1] : connectedObjs[0];
+												return nonHydrogen === nodes2[j];
+											} 
+											return false;
+										});
+
+										var hydrogenOnlyConnectors1 = hydrogenConnectors1.filter((connector) => {
+											var connectedObjs = connector.getConnectedObjs();
+											return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+										});
+										var hydrogenOnlyConnectors2 = hydrogenConnectors2.filter((connector) => {
+											var connectedObjs = connector.getConnectedObjs();
+											return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+										});
+										tmpResult = (explicitHydrogens1 + implicitHydrogens1 + connectors1.length + hydrogenOnlyConnectors1.length) -
+											(explicitHydrogens2 + implicitHydrogens2 + connectors2.length + hydrogenOnlyConnectors2.length);
+
+										// if tmpResult is 0, we found a match and we can exit the inner loop
+										if (tmpResult === 0)
+										{
+											result = 0;
+											break;
+										}
+									}
+
+									// if tmpResult is not 0, no match was found and the structures are not equivalent
+									// we need to save this value in 'result' for the code below
+									if (tmpResult !== 0)
+									{
+										result = tmpResult;
+										break;
+									}
+
+									// result is not 0, no match was found and the structures are not equivalent
+									if (result !== 0)
+										break;
+								}
 							}
 						}
 					}
@@ -6303,6 +6445,30 @@ Kekule.ChemStructureConnector = Class.create(Kekule.BaseStructureConnector,
 	getConnectedChemNodeCount: function()
 	{
 		return this.getConnectedChemNodes().length;
+	},
+	/**
+	 * Returns connected objects except hydrogen atoms.
+	 * @returns {Array}
+	 */
+	getConnectedNonHydrogenObjs: function()
+	{
+		var result = [];
+		var objs = this.getConnectedObjs();
+		for (var i = 0, l = objs.length; i < l; ++i)
+		{
+			var obj = objs[i];
+			if (!obj.isHydrogenAtom || !obj.isHydrogenAtom())
+				result.push(obj);
+		}
+		return result;
+	},
+	/**
+	 * Whether this connector connect hydrogen atom to another node.
+	 * @returns {Bool}
+	 */
+	isNormalConnectorToHydrogen: function()
+	{
+		return this.getConnectedNonHydrogenObjs().length <= 1;
 	}
 });
 
