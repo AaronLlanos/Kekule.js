@@ -4235,6 +4235,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							result = nodes1.length - nodes2.length;
 							if (result === 0)
 							{
+								var usedNodes = [];
 								for (var i = 0, l = nodes1.length; i < l; ++i)
 								{	
 									var tmpResult = 0;
@@ -4243,6 +4244,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 									// original structure, we can say with confidence that the structures are equivalent
 									for (var j = 0, l = nodes2.length; j < l; ++j)
 									{	
+										if (usedNodes.includes(j)) {
+											continue;
+										}
 										tmpResult = this.doCompareOnValue(nodes1[i], nodes2[j], options);
 										// normalize hydrogens for comparison
 										var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
@@ -4284,7 +4288,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 										// if tmpResult is 0, we found a match and we can exit the inner loop
 										if (tmpResult === 0)
 										{
-											result = 0;
+											usedNodes.push(j);
+											result = this.doCompareOnValue(nodes1[i], nodes2[j], options);
 											break;
 										}
 									}
