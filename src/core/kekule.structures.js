@@ -1409,8 +1409,11 @@ Kekule.Atom = Class.create(Kekule.AbstractAtom,
 				var radical = Kekule.RadicalOrder.getRadicalElectronCount(this.getRadical());
 				valence -= radical;
 
+				var explicitHydrogens = this.getExplicitHydrogenCount() ? this.getExplicitHydrogenCount() : 0;
+				var implicitHydrogens = Math.max(valence - coValentBondsInfo.valenceSum - ionicBondsInfo.valenceSum /* + charge */, 0);
+				
 				// DONE: some atoms such as C should be treat differently, as C+ can only link 3 bonds
-				return Math.max(valence - coValentBondsInfo.valenceSum - ionicBondsInfo.valenceSum /* + charge */, 0);
+				return Math.max(0, implicitHydrogens - explicitHydrogens);
 			}
 		}
 		else
