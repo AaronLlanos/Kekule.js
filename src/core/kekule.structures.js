@@ -4210,11 +4210,12 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 	{
 		var connectedObjs = connector.getConnectedObjs();
 		var hydrogenObj = connectedObjs[0].getIsotope().getSymbol() === "H" ? connectedObjs[0] : connectedObjs[1];
-		var electrons = hydrogenObj.getAttachedMarkers() !== undefined ? hydrogenObj.getAttachedMarkers().filter((marker) => {
-			return marker.getElectronCount !== undefined;
-		}) : [];
+		var electrons = hydrogenObj.getAttachedMarkers ? hydrogenObj.getAttachedMarkers().reduce((acc, marker) => {
+			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+			return acc + electronCount;
+		}, 0) : 0;
 		var charge = hydrogenObj.getCharge() === undefined ? 0 : hydrogenObj.getCharge();
-		return [ charge , electrons.length ];
+		return [ charge , electrons ];
 	},
 
 	getHydrogenNodeData: function (connector)
@@ -4222,15 +4223,17 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		var connectedObjs = connector.getConnectedObjs();
 		var hydrogenObj1 = connectedObjs[0];
 		var hydrogenObj2 = connectedObjs[1];
-		var electrons1 = hydrogenObj1.getAttachedMarkers() !== undefined ? hydrogenObj1.getAttachedMarkers().filter((marker) => {
-			return marker.getElectronCount !== undefined;
-		}) : [];
-		var electrons2 = hydrogenObj2.getAttachedMarkers() !== undefined ? hydrogenObj2.getAttachedMarkers().filter((marker) => {
-			return marker.getElectronCount !== undefined;
-		}) : [];
+		var electrons1 = hydrogenObj1.getAttachedMarkers ? hydrogenObj1.getAttachedMarkers().reduce((acc, marker) => {
+			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+			return acc + electronCount;
+		}, 0) : 0;
+		var electrons2 = hydrogenObj2.getAttachedMarkers ? hydrogenObj2.getAttachedMarkers().reduce((acc, marker) => {
+			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+			return acc + electronCount;
+		}, 0) : 0;
 		var charge1 = hydrogenObj1.getCharge() === undefined ? 0 : hydrogenObj1.getCharge();
 		var charge2 = hydrogenObj2.getCharge() === undefined ? 0 : hydrogenObj2.getCharge();
-		return [ charge1 , electrons1.length, charge2 , electrons2.length ];
+		return [ charge1 , electrons1, charge2 , electrons2 ];
 	},
 
 	resolveHydrogenDecorations: function(explicitHydrogens1, explicitHydrogens2, implicitHydrogens1, implicitHydrogens2,
