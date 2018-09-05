@@ -4206,11 +4206,31 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return $super().concat(['ctab', 'formula', 'nodes', 'anchorNodes', 'connectors']);
 	},
 
-	getNodeData: function (connector)
+	getNonHydrogenNodeData: function (node)
+	{
+		var electrons = node.getAttachedMarkers() ? node.getAttachedMarkers().reduce((acc, marker) => {
+			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+			return acc + electronCount;
+		}, 0) : 0;
+		var charge = node.getCharge() === undefined ? 0 : node.getCharge();
+		return [ charge , electrons ];
+	},
+
+	compareNonHydrogenNodes: function (node1, node2)
+	{
+		var [ charge1, electrons1 ] = this.getNonHydrogenNodeData(node1);
+		var [ charge2, electrons2 ] = this.getNonHydrogenNodeData(node2);
+		if (node1.getIsotopeId() === node2.getIsotopeId() && charge1 === charge2 && electrons1 === electrons2) {
+			return 0;
+		}
+		return 1;
+	},
+
+	getHydrogenNodeData: function (connector)
 	{
 		var connectedObjs = connector.getConnectedObjs();
 		var hydrogenObj = connectedObjs[0].getIsotope().getSymbol() === "H" ? connectedObjs[0] : connectedObjs[1];
-		var electrons = hydrogenObj.getAttachedMarkers ? hydrogenObj.getAttachedMarkers().reduce((acc, marker) => {
+		var electrons = hydrogenObj.getAttachedMarkers() ? hydrogenObj.getAttachedMarkers().reduce((acc, marker) => {
 			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
 			return acc + electronCount;
 		}, 0) : 0;
@@ -4218,16 +4238,16 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return [ charge , electrons ];
 	},
 
-	getHydrogenNodeData: function (connector)
+	getHydrogenOnlyNodeData: function (connector)
 	{
 		var connectedObjs = connector.getConnectedObjs();
 		var hydrogenObj1 = connectedObjs[0];
 		var hydrogenObj2 = connectedObjs[1];
-		var electrons1 = hydrogenObj1.getAttachedMarkers ? hydrogenObj1.getAttachedMarkers().reduce((acc, marker) => {
+		var electrons1 = hydrogenObj1.getAttachedMarkers() ? hydrogenObj1.getAttachedMarkers().reduce((acc, marker) => {
 			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
 			return acc + electronCount;
 		}, 0) : 0;
-		var electrons2 = hydrogenObj2.getAttachedMarkers ? hydrogenObj2.getAttachedMarkers().reduce((acc, marker) => {
+		var electrons2 = hydrogenObj2.getAttachedMarkers() ? hydrogenObj2.getAttachedMarkers().reduce((acc, marker) => {
 			var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
 			return acc + electronCount;
 		}, 0) : 0;
@@ -4263,12 +4283,12 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		var usedConnectors = [];
 		for (var index1 = 0; index1 < connectors1.length; index1++) {
 			var matchedConnector = false;
-			var [ charge1, electrons1 ] = this.getNodeData(connectors1[index1]);
+			var [ charge1, electrons1 ] = this.getHydrogenNodeData(connectors1[index1]);
 			for (var index2 = 0; index2 < connectors2.length; index2++) {
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				var [ charge2, electrons2 ] = this.getNodeData(connectors2[index2]);
+				var [ charge2, electrons2 ] = this.getHydrogenNodeData(connectors2[index2]);
 				// if the hydrogens in both structures have the same charges and number of electrons, assume we have a match
 				if (charge1 === charge2 && electrons1 === electrons2) {
 						matchedConnector = true;
@@ -4310,12 +4330,12 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		usedConnectors = [];
 		for (var index1 = 0; index1 < connectors2.length; index1++) {
 			var matchedConnector = false;
-			var [ charge1, electrons1 ] = this.getNodeData(connectors2[index1]);
+			var [ charge1, electrons1 ] = this.getHydrogenNodeData(connectors2[index1]);
 			for (var index2 = 0; index2 < connectors1.length; index2++) {
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				var [ charge2, electrons2 ] = this.getNodeData(connectors1[index2]);
+				var [ charge2, electrons2 ] = this.getHydrogenNodeData(connectors1[index2]);
 				// if the hydrogens in both structures have the same charges and number of electrons, assume we have a match
 				if (charge1 === charge2 && electrons1 === electrons2) {
 					matchedConnector = true;
@@ -4345,12 +4365,12 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		usedConnectors = [];
 		for (var index1 = 0; index1 < hydrogenOnlyConnectors1.length; index1++) {
 			var matchedConnector = false;
-			var [ charge11, electrons11, charge12, electrons12 ] = this.getHydrogenNodeData(hydrogenOnlyConnectors1[index1]);
+			var [ charge11, electrons11, charge12, electrons12 ] = this.getHydrogenOnlyNodeData(hydrogenOnlyConnectors1[index1]);
 			for (var index2 = 0; index2 < hydrogenOnlyConnectors2.length; index2++) {
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				var [ charge21, electrons21, charge22, electrons22 ] = this.getHydrogenNodeData(hydrogenOnlyConnectors2[index2]);
+				var [ charge21, electrons21, charge22, electrons22 ] = this.getHydrogenOnlyNodeData(hydrogenOnlyConnectors2[index2]);
 				if (((charge11 === charge21 && electrons11 === electrons21) &&
 					(charge12 === charge22 && electrons12 === electrons22)) || 
 					((charge11 === charge22 && electrons11 === electrons22) &&
@@ -4386,9 +4406,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				// original structure, we can say with confidence that the structures are equivalent
 				for (var j = 0, l = nodes2.length; j < l; ++j)
 				{	
-					if (usedNodes.includes(j) || nodes1[i].getIsotopeId() !== nodes2[j].getIsotopeId()) {
+					if (usedNodes.includes(j)) {
 						continue;
 					}
+
+					tmpResult = this.compareNonHydrogenNodes(nodes1[i], nodes2[j]);
+					if (tmpResult !== 0) continue;
+					
 					// normalize hydrogens for comparison
 					var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
 					var explicitHydrogens2 = nodes2[j].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
