@@ -4206,6 +4206,251 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return $super().concat(['ctab', 'formula', 'nodes', 'anchorNodes', 'connectors']);
 	},
 
+	resolveHydrogenDecorations: function(explicitHydrogens1, explicitHydrogens2, implicitHydrogens1, implicitHydrogens2,
+							connectors1, connectors2, hydrogenOnlyConnectors1, hydrogenOnlyConnectors2)
+	{
+		// compare the bonded hydrogens in the first structure to the hyrogens
+		// in the second structure.  However, the hydrogens in the second structure
+		// may be condensed, and in that case the structure will be different.
+		// If the bonded hydrogens have no charge and no electrons, we can assume that
+		// they are equivalent to a condensed hydrogen (that's what a freebie is)
+		
+
+
+		// FIRST we iterate over the hydrogens in the context and compare them to the
+		// hydrogens in the student response
+		var freebies1 = implicitHydrogens2 + explicitHydrogens2;
+		
+		// if there are any bonded electrons in the context, we must find a match for them in the student response,
+		// so we default to matched being false
+		var matchedContextBondedHs = true;	
+
+		// this will iterate over all of the bonds in the context containing a single 
+		// hydrogen (and something else), and then identify the hydrogen node and figure
+		// out how many electrons it has.  
+		// the inner loop will then iterate over the student response looking doing the same
+		// thing, and will compare the bonded hydrogens it finds to each other.
+		for (var index1 = 0; index1 < connectors1.length; index1++) {
+			var matchedConnector = false;
+			var connectedObjs = connectors1[index1].getConnectedObjs();
+			var hydrogenObj1 = connectedObjs[0].getIsotope().getSymbol() === "H" ? connectedObjs[0] : connectedObjs[1];
+			var electrons1 = hydrogenObj1.getAttachedMarkers() !== undefined ? hydrogenObj1.getAttachedMarkers().filter((marker) => {
+				return marker.getElectronCount !== undefined;
+			}) : [];
+			for (var index2 = 0; index2 < connectors2.length; index2++) {
+				var connectedObjs2 = connectors2[index2].getConnectedObjs();
+				var hydrogenObj2 = connectedObjs2[0].getIsotope().getSymbol() === "H" ? connectedObjs2[0] : connectedObjs2[1];
+				var electrons2 = hydrogenObj2.getAttachedMarkers() !== undefined ? hydrogenObj2.getAttachedMarkers().filter((marker) => {
+					return marker.getElectronCount !== undefined;
+				}) : [];
+				// if the hydrogens in both structures have the same charges and number of electrons, assume we have a match
+				if (hydrogenObj1.getCharge() === hydrogenObj2.getCharge() &&
+					electrons1.length === electrons2.length) {
+						matchedConnector = true;
+					break;
+				}
+			}
+			if (matchedConnector) {
+				break;
+			} else if ((hydrogenObj1.getCharge() === undefined || hydrogenObj1.getCharge() === 0) &&
+						(electrons1.length === 0)) {
+				// if there are no charges or electrons on the node in the context, we can use one of our freebies.
+				// this assumes that the bonded hydrogen with no decoration is equivalent to a condensed hydrogen
+				freebies1--;
+				matchedConnector = freebies1 >= 0;
+			}
+			// all nodes much match
+			matchedContextBondedHs = matchedContextBondedHs && matchedConnector
+			if (!matchedContextBondedHs) {
+				break;
+			}
+		}
+
+
+
+		
+		// SECOND we iterate over the hydrogens in the student response and compare 
+		// them to the hydrogens in the context
+		var freebies2 = implicitHydrogens1 + explicitHydrogens1;
+		
+		// if there are any bonded electrons in the student response, we must find a match for them in the context,
+		// so we default to matched being false
+		var matchedResponseBondedHs = true;
+			
+		// this will iterate over all of the bonds in the student response containing a single 
+		// hydrogen (and something else), and then identify the hydrogen node and figure
+		// out how many electrons it has.  
+		// the inner loop will then iterate over the context looking doing the same
+		// thing, and will compare the bonded hydrogens it finds to each other.
+		for (var index1 = 0; index1 < connectors2.length; index1++) {
+			var matchedConnector = false;
+			var connectedObjs = connectors2[index1].getConnectedObjs();
+			var hydrogenObj1 = connectedObjs[0].getIsotope().getSymbol() === "H" ? connectedObjs[0] : connectedObjs[1];
+			var electrons1 = hydrogenObj1.getAttachedMarkers() !== undefined ? hydrogenObj1.getAttachedMarkers().filter((marker) => {
+				return marker.getElectronCount !== undefined;
+			}) : [];
+			for (var index2 = 0; index2 < connectors1.length; index2++) {
+				var connectedObjs2 = connectors1[index2].getConnectedObjs();
+				var hydrogenObj2 = connectedObjs2[0].getIsotope().getSymbol() === "H" ? connectedObjs2[0] : connectedObjs2[1];
+				var electrons2 = hydrogenObj2.getAttachedMarkers() !== undefined ? hydrogenObj2.getAttachedMarkers().filter((marker) => {
+					return marker.getElectronCount !== undefined;
+				}) : [];
+				// if the hydrogens in both structures have the same charges and number of electrons, assume we have a match
+				if (hydrogenObj1.getCharge() === hydrogenObj2.getCharge() &&
+					electrons1.length === electrons2.length) {
+					matchedConnector = true;
+					break;
+				}
+			}
+			if (matchedConnector) {
+				break;
+			} else if ((hydrogenObj1.getCharge() === undefined || hydrogenObj1.getCharge() === 0) &&
+						(electrons1.length === 0)) {
+				// if there are no charges or electrons on the node in the student response, we can use one of our freebies.
+				// this assumes that the bonded hydrogen with no decoration is equivalent to a condensed hydrogen
+				freebies2--;
+				matchedConnector = freebies2 >= 0;
+			}
+			// all nodes much match
+			matchedResponseBondedHs = matchedResponseBondedHs && matchedConnector
+			if (!matchedResponseBondedHs) {
+				break;
+			}
+		}
+
+
+		// THIRD we iterate over the hydrogen only bonds in the in the context and compare 
+		// them to the hydrogens only bonds in the student response
+		var matchedContextHydrogenOnlyBonds = true;	
+		for (var index1 = 0; index1 < hydrogenOnlyConnectors1.length; index1++) {
+			var matchedConnector = false;
+			var connectedObjs1 = hydrogenOnlyConnectors1[index1].getConnectedObjs();
+			var hydrogenObj11 = connectedObjs1[0];
+			var hydrogenObj12 = connectedObjs1[1];
+			var electrons11 = hydrogenObj11.getAttachedMarkers() !== undefined ? hydrogenObj11.getAttachedMarkers().filter((marker) => {
+				return marker.getElectronCount !== undefined;
+			}) : [];
+			var electrons12 = hydrogenObj12.getAttachedMarkers() !== undefined ? hydrogenObj12.getAttachedMarkers().filter((marker) => {
+				return marker.getElectronCount !== undefined;
+			}) : [];
+			for (var index2 = 0; index2 < hydrogenOnlyConnectors2.length; index2++) {
+				var connectedObjs2 = hydrogenOnlyConnectors2[index2].getConnectedObjs();
+				var hydrogenObj21 = connectedObjs2[0];
+				var hydrogenObj22 = connectedObjs2[1];
+				var electrons21 = hydrogenObj21.getAttachedMarkers() !== undefined ? hydrogenObj21.getAttachedMarkers().filter((marker) => {
+					return marker.getElectronCount !== undefined;
+				}) : [];
+				var electrons22 = hydrogenObj22.getAttachedMarkers() !== undefined ? hydrogenObj22.getAttachedMarkers().filter((marker) => {
+					return marker.getElectronCount !== undefined;
+				}) : [];
+				if (((hydrogenObj11.getCharge() === hydrogenObj21.getCharge() && electrons11.length === electrons21.length) &&
+					(hydrogenObj12.getCharge() === hydrogenObj22.getCharge() && electrons12.length === electrons22.length)) || 
+					((hydrogenObj11.getCharge() === hydrogenObj22.getCharge() && electrons11.length === electrons22.length) &&
+					(hydrogenObj12.getCharge() === hydrogenObj21.getCharge() && electrons12.length === electrons21.length))) 
+				{
+					matchedConnector = true;
+					break;
+				}
+			}
+			matchedContextHydrogenOnlyBonds = matchedConnector;
+			if (!matchedContextHydrogenOnlyBonds) {
+				break;
+			}
+		}
+
+		return matchedContextBondedHs && matchedResponseBondedHs && matchedContextHydrogenOnlyBonds;
+	},
+
+	compareHydrogens: function(targetObj, options, result)
+	{
+		var nodes1 = this.getNonHydrogenNodes();
+		var nodes2 = targetObj.getNonHydrogenNodes();
+		var result = nodes1.length - nodes2.length;
+		if (result === 0)
+		{
+			var usedNodes = [];
+			for (var i = 0, l = nodes1.length; i < l; ++i)
+			{	
+				var tmpResult = 0;
+				// we can't rely on the order being the same, so we have to see if any of the nodes
+				// in the other structure match.  if we find matches for all of the nodes in the 
+				// original structure, we can say with confidence that the structures are equivalent
+				for (var j = 0, l = nodes2.length; j < l; ++j)
+				{	
+					if (usedNodes.includes(j)) {
+						continue;
+					}
+					tmpResult = this.doCompareOnValue(nodes1[i], nodes2[j], options);
+					// normalize hydrogens for comparison
+					var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
+					var explicitHydrogens2 = nodes2[j].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
+					var implicitHydrogens1 = explicitHydrogens1 === 0 ? nodes1[i].getImplicitHydrogenCount() : 0;
+					var implicitHydrogens2 = explicitHydrogens2 === 0 ? nodes2[j].getImplicitHydrogenCount() : 0;
+					var hydrogenConnectors1 = this.getHydrogenConnectors();
+					var hydrogenConnectors2 = targetObj.getHydrogenConnectors();
+					var connectors1 = hydrogenConnectors1.filter((connector) => {
+						var connectedObjs = connector.getConnectedObjs();
+						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+							var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+								connectedObjs[1] : connectedObjs[0];
+							return nonHydrogen === nodes1[i];
+						} 
+						return false;
+					});
+					var connectors2 = hydrogenConnectors2.filter((connector) => {
+						var connectedObjs = connector.getConnectedObjs();
+						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+							var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+								connectedObjs[1] : connectedObjs[0];
+							return nonHydrogen === nodes2[j];
+						} 
+						return false;
+					});
+
+					var hydrogenOnlyConnectors1 = hydrogenConnectors1.filter((connector) => {
+						var connectedObjs = connector.getConnectedObjs();
+						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+					});
+					var hydrogenOnlyConnectors2 = hydrogenConnectors2.filter((connector) => {
+						var connectedObjs = connector.getConnectedObjs();
+						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+					});
+					tmpResult = (explicitHydrogens1 + implicitHydrogens1 + connectors1.length + hydrogenOnlyConnectors1.length) -
+						(explicitHydrogens2 + implicitHydrogens2 + connectors2.length + hydrogenOnlyConnectors2.length);
+
+					// if tmpResult is 0, we found a potential match, but we still need to resolve the decorators for the Hydrogens, which could be explictly bonded or not
+					if (tmpResult === 0)
+					{
+						var hydrogenDecorationsMatch = this.resolveHydrogenDecorations(explicitHydrogens1, explicitHydrogens2, implicitHydrogens1, implicitHydrogens2,
+							connectors1, connectors2, hydrogenOnlyConnectors1, hydrogenOnlyConnectors2);
+
+						if (hydrogenDecorationsMatch) {
+							// we found a match and we can exit the inner loop
+							usedNodes.push(j);
+							result = this.doCompareOnValue(nodes1[i], nodes2[j], options);
+							break;
+						} else {
+							tmpResult = -1;
+						}
+					}
+				}
+
+				// if tmpResult is not 0, no match was found and the structures are not equivalent
+				// we need to save this value in 'result' for the code below
+				if (tmpResult !== 0)
+				{
+					result = tmpResult;
+					break;
+				}
+
+				// result is not 0, no match was found and the structures are not equivalent
+				if (result !== 0)
+					break;
+			}
+		}
+		return result;
+	},
+
 	/** @ignore */
 	doCompare: function($super, targetObj, options)
 	{
@@ -4233,83 +4478,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					{
 						if (this._getComparisonOptionFlagValue(options, 'hydrogenCount'))
 						{
-							var nodes1 = this.getNonHydrogenNodes();
-							var nodes2 = targetObj.getNonHydrogenNodes();
-							result = nodes1.length - nodes2.length;
-							if (result === 0)
-							{
-								var usedNodes = [];
-								for (var i = 0, l = nodes1.length; i < l; ++i)
-								{	
-									var tmpResult = 0;
-									// we can't rely on the order being the same, so we have to see if any of the nodes
-									// in the other structure match.  if we find matches for all of the nodes in the 
-									// original structure, we can say with confidence that the structures are equivalent
-									for (var j = 0, l = nodes2.length; j < l; ++j)
-									{	
-										if (usedNodes.includes(j)) {
-											continue;
-										}
-										tmpResult = this.doCompareOnValue(nodes1[i], nodes2[j], options);
-										// normalize hydrogens for comparison
-										var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
-										var explicitHydrogens2 = nodes2[j].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
-										var implicitHydrogens1 = nodes1[i].getImplicitHydrogenCount();
-										var implicitHydrogens2 = nodes2[j].getImplicitHydrogenCount();
-										var hydrogenConnectors1 = this.getHydrogenConnectors();
-										var hydrogenConnectors2 = targetObj.getHydrogenConnectors();
-										var connectors1 = hydrogenConnectors1.filter((connector) => {
-											var connectedObjs = connector.getConnectedObjs();
-											if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
-												var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
-													connectedObjs[1] : connectedObjs[0];
-												return nonHydrogen === nodes1[i];
-											} 
-											return false;
-										});
-										var connectors2 = hydrogenConnectors2.filter((connector) => {
-											var connectedObjs = connector.getConnectedObjs();
-											if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
-												var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
-													connectedObjs[1] : connectedObjs[0];
-												return nonHydrogen === nodes2[j];
-											} 
-											return false;
-										});
-
-										var hydrogenOnlyConnectors1 = hydrogenConnectors1.filter((connector) => {
-											var connectedObjs = connector.getConnectedObjs();
-											return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
-										});
-										var hydrogenOnlyConnectors2 = hydrogenConnectors2.filter((connector) => {
-											var connectedObjs = connector.getConnectedObjs();
-											return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
-										});
-										tmpResult = (explicitHydrogens1 + implicitHydrogens1 + connectors1.length + hydrogenOnlyConnectors1.length) -
-											(explicitHydrogens2 + implicitHydrogens2 + connectors2.length + hydrogenOnlyConnectors2.length);
-
-										// if tmpResult is 0, we found a match and we can exit the inner loop
-										if (tmpResult === 0)
-										{
-											usedNodes.push(j);
-											result = this.doCompareOnValue(nodes1[i], nodes2[j], options);
-											break;
-										}
-									}
-
-									// if tmpResult is not 0, no match was found and the structures are not equivalent
-									// we need to save this value in 'result' for the code below
-									if (tmpResult !== 0)
-									{
-										result = tmpResult;
-										break;
-									}
-
-									// result is not 0, no match was found and the structures are not equivalent
-									if (result !== 0)
-										break;
-								}
-							}
+							result = this.compareHydrogens(targetObj, options);
 						}
 					}
 
