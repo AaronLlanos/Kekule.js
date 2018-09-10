@@ -4412,12 +4412,14 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 					tmpResult = this.compareNonHydrogenNodes(nodes1[i], nodes2[j]);
 					if (tmpResult !== 0) continue;
+
+					var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
 					
 					// normalize hydrogens for comparison
-					var explicitHydrogens1 = nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
-					var explicitHydrogens2 = nodes2[j].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
-					var implicitHydrogens1 = explicitHydrogens1 === 0 ? nodes1[i].getImplicitHydrogenCount() : 0;
-					var implicitHydrogens2 = explicitHydrogens2 === 0 ? nodes2[j].getImplicitHydrogenCount() : 0;
+					var explicitHydrogens1 = hydrogen_display_type === 'EXPLICIT' ? nodes1[i].getExplicitHydrogenCount() : 0;
+					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' ? nodes2[j].getExplicitHydrogenCount() : 0;
+					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' ? nodes1[i].getImplicitHydrogenCount() : 0;
+					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' ? nodes2[j].getImplicitHydrogenCount() : 0;
 					var hydrogenConnectors1 = this.getHydrogenConnectors();
 					var hydrogenConnectors2 = targetObj.getHydrogenConnectors();
 					var connectors1 = hydrogenConnectors1.filter((connector) => {
