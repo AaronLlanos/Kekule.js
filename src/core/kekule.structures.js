@@ -4437,8 +4437,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
 					
 					// normalize hydrogens for comparison
-					var explicitHydrogens1 = hydrogen_display_type === 'EXPLICIT' ? nodes1[i].getExplicitHydrogenCount() : 0;
-					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' ? nodes2[j].getExplicitHydrogenCount() : 0;
+					var explicitHydrogens1 = hydrogen_display_type === 'EXPLICIT' && nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
+					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' && nodes2[i].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
 					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' ? nodes1[i].getImplicitHydrogenCount() : 0;
 					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' ? nodes2[j].getImplicitHydrogenCount() : 0;
 					var connectors1 = this.getConnectors();
