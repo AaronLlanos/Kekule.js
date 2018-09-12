@@ -4487,7 +4487,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					if (tmpResult === 0)
 					{
 						var hydrogenDecorationsMatch = this.resolveHydrogenDecorations(explicitHydrogens1, explicitHydrogens2, implicitHydrogens1, implicitHydrogens2,
-							connectors1, connectors2, hydrogenOnlyConnectors1, hydrogenOnlyConnectors2, nonHydrogenOnlyConnectors1, nonHydrogenOnlyConnectors2);
+							hxConnectors1, hxConnectors2, hydrogenOnlyConnectors1, hydrogenOnlyConnectors2, nonHydrogenOnlyConnectors1, nonHydrogenOnlyConnectors2);
 
 						if (hydrogenDecorationsMatch) {
 							tmpResult = 0;
