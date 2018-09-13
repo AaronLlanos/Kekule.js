@@ -4411,6 +4411,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return true;
 	},
 
+	onlyUnique: function (value, index, self) { 
+		return self.indexOf(value) === index;
+	},
+
 	compareHydrogens: function(targetObj, options, result)
 	{
 		var nodes1 = this.getNonHydrogenNodes();
@@ -4419,6 +4423,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		if (result === 0)
 		{
 			var usedNodes = [];
+			var allDecoratedHydrogens1 = 0;
+			var allDecoratedHydrogens2 = 0;
 			for (var i = 0, l = nodes1.length; i < l; ++i)
 			{	
 				var tmpResult = 0;
@@ -4441,6 +4447,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' && nodes2[i].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
 					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' ? nodes1[i].getImplicitHydrogenCount() : 0;
 					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' ? nodes2[j].getImplicitHydrogenCount() : 0;
+					allDecoratedHydrogens1 += explicitHydrogens1 + implicitHydrogens1;
+					allDecoratedHydrogens2 += explicitHydrogens2 + implicitHydrogens2;
 					var connectors1 = this.getConnectors();
 					var connectors2 = targetObj.getConnectors();
 					var hxConnectors1 = connectors1.filter((connector) => {
@@ -4511,6 +4519,28 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				// result is not 0, no match was found and the structures are not equivalent
 				if (result !== 0)
 					break;
+			}
+			if (result === 0) {
+				var Hs1 = this.getConnectors().map((connector) => {
+					var connectedObjs = connector.getConnectedObjs();
+					if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+						var hydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+							connectedObjs[0] : connectedObjs[1];
+						return hydrogen;
+					}
+				});
+				var uniqueHs1 = Hs1.filter(this.onlyUnique);
+				var Hs2 = targetObj.getConnectors().map((connector) => {
+					var connectedObjs = connector.getConnectedObjs();
+					if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
+						var hydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+							connectedObjs[0] : connectedObjs[1];
+						return hydrogen;
+					}
+				});
+				var uniqueHs2 = Hs2.filter(this.onlyUnique);
+				return (allDecoratedHydrogens1 + uniqueHs1.length) -
+					(allDecoratedHydrogens2 + uniqueHs2.length);
 			}
 		}
 		return result;
