@@ -4449,9 +4449,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' ? nodes2[j].getImplicitHydrogenCount() : 0;
 					allDecoratedHydrogens1 += explicitHydrogens1 + implicitHydrogens1;
 					allDecoratedHydrogens2 += explicitHydrogens2 + implicitHydrogens2;
-					var connectors1 = this.getConnectors();
-					var connectors2 = targetObj.getConnectors();
-					var hxConnectors1 = connectors1.filter((connector) => {
+					var hxConnectors1 = nodes1[i].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
 							var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
@@ -4460,7 +4458,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						} 
 						return false;
 					});
-					var hxConnectors2 = connectors2.filter((connector) => {
+					var hxConnectors2 = nodes2[j].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
 							var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
@@ -4470,20 +4468,20 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						return false;
 					});
 
-					var hydrogenOnlyConnectors1 = connectors1.filter((connector) => {
+					var hydrogenOnlyConnectors1 = this.getConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
 					});
-					var hydrogenOnlyConnectors2 = connectors2.filter((connector) => {
+					var hydrogenOnlyConnectors2 = targetObj.getConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
 					});
 
-					var nonHydrogenOnlyConnectors1 = connectors1.filter((connector) => {
+					var nonHydrogenOnlyConnectors1 = nodes1[i].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						return connectedObjs[0].getIsotope().getSymbol() !== "H" && connectedObjs[1].getIsotope().getSymbol() !== "H";
 					});
-					var nonHydrogenOnlyConnectors2 = connectors2.filter((connector) => {
+					var nonHydrogenOnlyConnectors2 = nodes2[j].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						return connectedObjs[0].getIsotope().getSymbol() !== "H" && connectedObjs[1].getIsotope().getSymbol() !== "H";
 					});
