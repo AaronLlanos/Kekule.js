@@ -719,6 +719,7 @@ Kekule.ClassDefineUtils.addStandardCoordSupport(Kekule.BaseStructureNode);
  */
 Kekule.StereoParity = {
 	NONE: null,
+	LINEAR: -1,
 	ODD: 1,
 	EVEN: 2,
 	UNKNOWN: 0
@@ -4544,6 +4545,55 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return result;
 	},
 
+	compareStereoBonds: function (stereoBonds1, stereoBonds2)
+	{
+		var usedConnectors = [];
+		for (var index1 = 0; index1 < stereoBonds1.length; index1++) {
+			var matchedConnector = false;
+			for (var index2 = 0; index2 < stereoBonds2.length; index2++) {
+				if (usedConnectors.includes(index2)) {
+					continue;
+				}
+				if (stereoBonds1[index1].getParity() !== Kekule.StereoParity.LINEAR &&
+					stereoBonds2[index2].getParity() !== Kekule.StereoParity.LINEAR &&
+					(stereoBonds1[index1].getStereo() + stereoBonds1[index1].getParity()) -
+					(stereoBonds2[index2].getStereo() + stereoBonds2[index2].getParity())) 
+				{
+					matchedConnector = true;
+					usedConnectors.push(index2);
+					break;
+				}
+			}
+			if (!matchedConnector) {
+				return 1;
+			}
+		}
+
+		usedConnectors = [];
+		for (var index1 = 0; index1 < stereoBonds2.length; index1++) {
+			var matchedConnector = false;
+			for (var index2 = 0; index2 < stereoBonds1.length; index2++) {
+				if (usedConnectors.includes(index2)) {
+					continue;
+				}
+				if (stereoBonds2[index1].getParity() !== Kekule.StereoParity.LINEAR &&
+					stereoBonds1[index2].getParity() !== Kekule.StereoParity.LINEAR &&
+					(stereoBonds2[index1].getStereo() + stereoBonds2[index1].getParity()) -
+					(stereoBonds1[index2].getStereo() + stereoBonds1[index2].getParity())) 
+				{
+					matchedConnector = true;
+					usedConnectors.push(index2);
+					break;
+				}
+			}
+			if (!matchedConnector) {
+				return 1;
+			}
+		}
+
+		return 0;
+	},
+
 	/** @ignore */
 	doCompare: function($super, targetObj, options)
 	{
@@ -4567,6 +4617,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				// both has ctab, comparing child nodes and connectors
 				if (!result && this.hasCtab())
 				{
+					if (this._getComparisonOptionFlagValue(options, 'compareStereo')) {
+						const stereoBonds1 = this.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
+						const stereoBonds2 = targetObj.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
+
+						result = this.compareStereoBonds(stereoBonds1, stereoBonds2);
+					}
+
 					if ((result === 0) && (this.getNonHydrogenNodes && targetObj.getNonHydrogenNodes))  // structure fragment, if with same node and connector count, compare nodes and connectors
 					{
 						if (this._getComparisonOptionFlagValue(options, 'hydrogenCount'))
