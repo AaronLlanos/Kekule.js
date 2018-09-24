@@ -4557,7 +4557,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				if (stereoBonds1[index1].getParity() !== Kekule.StereoParity.LINEAR &&
 					stereoBonds2[index2].getParity() !== Kekule.StereoParity.LINEAR &&
 					(stereoBonds1[index1].getStereo() + stereoBonds1[index1].getParity()) -
-					(stereoBonds2[index2].getStereo() + stereoBonds2[index2].getParity())) 
+					(stereoBonds2[index2].getStereo() + stereoBonds2[index2].getParity()) === 0) 
 				{
 					matchedConnector = true;
 					usedConnectors.push(index2);
@@ -4579,7 +4579,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				if (stereoBonds2[index1].getParity() !== Kekule.StereoParity.LINEAR &&
 					stereoBonds1[index2].getParity() !== Kekule.StereoParity.LINEAR &&
 					(stereoBonds2[index1].getStereo() + stereoBonds2[index1].getParity()) -
-					(stereoBonds1[index2].getStereo() + stereoBonds1[index2].getParity())) 
+					(stereoBonds1[index2].getStereo() + stereoBonds1[index2].getParity()) === 0) 
 				{
 					matchedConnector = true;
 					usedConnectors.push(index2);
