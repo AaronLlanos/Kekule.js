@@ -4270,8 +4270,14 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				if (nonHydrogenOnlyConnectors1[index1].getBondForm().getBondOrder() ===
-					nonHydrogenOnlyConnectors2[index2].getBondForm().getBondOrder()) 
+				const criteriaIsotope1 = nonHydrogenOnlyConnectors1[index1].getConnectedObjs()[0].getIsotopeId();
+				const criteriaIsotope2 = nonHydrogenOnlyConnectors1[index1].getConnectedObjs()[1].getIsotopeId();
+				const attemptIsotope1 = nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[0].getIsotopeId();
+				const attemptIsotope2 = nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[1].getIsotopeId();
+				if ((nonHydrogenOnlyConnectors1[index1].getBondForm().getBondOrder() ===
+					nonHydrogenOnlyConnectors2[index2].getBondForm().getBondOrder()) &&
+					((criteriaIsotope1 === attemptIsotope1 && criteriaIsotope2 === attemptIsotope2) ||
+					(criteriaIsotope1 === attemptIsotope2 && criteriaIsotope2 === attemptIsotope1)))
 				{
 					matchedConnector = true;
 					usedConnectors.push(index2);
