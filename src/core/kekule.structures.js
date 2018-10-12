@@ -4443,12 +4443,14 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					if (tmpResult !== 0) continue;
 
 					var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
+					var skeletal_mode = this._getComparisonOptionFlagValue(options, 'skeletalMode') || false;
 					
 					// normalize hydrogens for comparison
-					var explicitHydrogens1 = hydrogen_display_type === 'EXPLICIT' && nodes1[i].getExplicitHydrogenCount() ? nodes1[i].getExplicitHydrogenCount() : 0;
-					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' && nodes2[i].getExplicitHydrogenCount() ? nodes2[j].getExplicitHydrogenCount() : 0;
-					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' ? nodes1[i].getImplicitHydrogenCount() : 0;
-					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' ? nodes2[j].getImplicitHydrogenCount() : 0;
+					var explicitHydrogens1 = hydrogen_display_type === 'EXPLICIT' && nodes1[i].getExplicitHydrogenCount() && (!skeletal_mode || skeletal_mode && nodes1[i].getIsotopeId() !== "C") ? nodes1[i].getExplicitHydrogenCount() : 0;
+					var explicitHydrogens2 = hydrogen_display_type === 'EXPLICIT' && nodes2[j].getExplicitHydrogenCount() && (!skeletal_mode || skeletal_mode && nodes2[j].getIsotopeId() !== "C") ? nodes2[j].getExplicitHydrogenCount() : 0;
+					
+					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' || (skeletal_mode && hydrogen_display_type === 'EXPLICIT' && nodes1[i].getIsotopeId() === "C") ? nodes1[i].getImplicitHydrogenCount() : 0;
+					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' || (skeletal_mode && hydrogen_display_type === 'EXPLICIT' && nodes2[j].getIsotopeId() === "C") ? nodes2[j].getImplicitHydrogenCount() : 0;
 					allDecoratedHydrogens1 += explicitHydrogens1 + implicitHydrogens1;
 					allDecoratedHydrogens2 += explicitHydrogens2 + implicitHydrogens2;
 					var hxConnectors1 = nodes1[i].getLinkedConnectors().filter((connector) => {
@@ -4462,8 +4464,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					});
 					var hxConnectors2 = nodes2[j].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
-						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
-							var nonHydrogen = connectedObjs[0].getIsotope().getSymbol() === "H" ?
+						if (connectedObjs[0].getIsotopeId() === "H" || connectedObjs[1].getIsotopeId() === "H") {
+							var nonHydrogen = connectedObjs[0].getIsotopeId() === "H" ?
 								connectedObjs[1] : connectedObjs[0];
 							return nonHydrogen === nodes2[j];
 						} 
@@ -4472,20 +4474,20 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 					var hydrogenOnlyConnectors1 = this.getConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
-						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+						return connectedObjs[0].getIsotopeId() === "H" && connectedObjs[1].getIsotopeId() === "H";
 					});
 					var hydrogenOnlyConnectors2 = targetObj.getConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
-						return connectedObjs[0].getIsotope().getSymbol() === "H" && connectedObjs[1].getIsotope().getSymbol() === "H";
+						return connectedObjs[0].getIsotopeId() === "H" && connectedObjs[1].getIsotopeId() === "H";
 					});
 
 					var nonHydrogenOnlyConnectors1 = nodes1[i].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
-						return connectedObjs[0].getIsotope().getSymbol() !== "H" && connectedObjs[1].getIsotope().getSymbol() !== "H";
+						return connectedObjs[0].getIsotopeId() !== "H" && connectedObjs[1].getIsotopeId() !== "H";
 					});
 					var nonHydrogenOnlyConnectors2 = nodes2[j].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
-						return connectedObjs[0].getIsotope().getSymbol() !== "H" && connectedObjs[1].getIsotope().getSymbol() !== "H";
+						return connectedObjs[0].getIsotopeId() !== "H" && connectedObjs[1].getIsotopeId() !== "H";
 					});
 
 					tmpResult = (explicitHydrogens1 + implicitHydrogens1 + hxConnectors1.length + hydrogenOnlyConnectors1.length + nonHydrogenOnlyConnectors1.length) -
