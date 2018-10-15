@@ -2812,8 +2812,8 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 		const { hydrogenDisplayType: HDT } = this.getDrawBridge()
 		const { IMPLICIT, EXPLICIT, NONE } = Kekule.Render.HydrogenDisplayLevel
 		const { SKELETAL } = Kekule.Render.MoleculeDisplayType
-		if (drawOptions.moleculeDisplayType === SKELETAL) {
-			return SKELETAL
+		if (node.getIsotopeId() === "C" && drawOptions.moleculeDisplayType === SKELETAL) {
+			return EXPLICIT
 		}
 		switch (HDT) {
 			case 'BONDED':
