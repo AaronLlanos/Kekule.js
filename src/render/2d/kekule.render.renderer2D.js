@@ -1559,8 +1559,22 @@ Kekule.Render.UnbondedElectronSetRenderer = Class.create(Kekule.Render.ChemObj2D
 
 		//console.log('draw lone pair', baseCoord, parentCoord, options);
 
+		var electronsGroups = 0;
+		for (var i = 0; i < parentObj.getMarkerCount(); ++i) {
+				var marker = parentObj.getMarkerAt(i);
+				if (marker instanceof Kekule.ChemMarker.UnbondedElectronSet) {
+					electronsGroups += 1;
+				}
+		}
+
 		if (!baseCoord || !parentCoord)
 			return null;
+
+		// prevent 4 electrons goroups (pair or single)
+		if (electronsGroups = 4 && parentObj.indexOfMarker(chemObj) > 3) {
+			parentObj.removeMarker(chemObj);
+			return null;
+		}
 
 		// do actual draw
 		var drawResult = this._drawElectrons(context, chemObj.getElectronCount(), baseCoord, parentCoord, ops);
