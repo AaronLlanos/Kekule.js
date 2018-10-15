@@ -463,6 +463,8 @@ module.exports = function (Kekule) {
 				return 0;
 			else if (l === 1)  // only one connector
 				return -angles[0];
+			else if (l === 4 && angles[1]!==0)
+					return (2*Math.PI);
 			else  // more than two connectors
 			{
 				var max = 0;
