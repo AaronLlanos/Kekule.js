@@ -172,8 +172,7 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 		this.defineProp('linkedConnectors', {
 			'dataType': DataType.ARRAY,
 			'serializable': false,
-			'scope': Class.PropertyScope.PUBLIC,
-			'setter': null
+			'scope': Class.PropertyScope.PUBLIC
 			/*
 			'getter': function()
 				{
@@ -4664,11 +4663,52 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						{
 							result = this.compareHydrogens(targetObj, options);
 						}
+
+                        if (result !== 0) {
+                            return result;
+						}
+
+                        var nodes1 = this.getNonHydrogenNodes();
+                        var nodes2 = targetObj.getNonHydrogenNodes();
+                        result = nodes1.length - nodes2.length;
+                        var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
+
+                        if (result === 0)
+                        {
+                        	// if it's implicit, remove the extra bonds to hydrogens, they are unnecessary
+							// to prove out the structure of the item, and at this point we've already
+							// tested the hydrogen decorations
+                        	if (hydrogen_display_type === 'IMPLICIT') {
+                                this.sanitizeImplicitNodes(nodes1);
+                                this.sanitizeImplicitNodes(nodes2);
+                                Kekule.MolStandardizer.standardize(this);
+                                Kekule.MolStandardizer.standardize(targetObj);
+							}
+                        	for (var i = 0, l = nodes1.length; i < l; ++i)
+                            {
+                            	result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
+                                if (result !== 0)
+                                    break;
+                            }
+                        }
 					}
 				}
 			}
 		}
 		return result;
+	},
+
+	sanitizeImplicitNodes: function(nodes)
+	{
+        for (var i = 0, l = nodes.length; i < l; ++i)
+        {
+            var nonHydrogenOnlyConnectors = nodes[i].getLinkedConnectors().filter((connector) => {
+                var connectedObjs = connector.getConnectedObjs();
+                return connectedObjs[0].getIsotopeId() !== "H" && connectedObjs[1].getIsotopeId() !== "H";
+            });
+
+            nodes[i].setLinkedConnectors(nonHydrogenOnlyConnectors);
+        }
 	},
 
 	/** @ignore */
