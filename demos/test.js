@@ -98,7 +98,7 @@ Kekule.X.domReady(function(){
 function setUpComposer(composer) {
   var BNS = Kekule.ChemWidget.ComponentWidgetNames;
   console.log('BNS', BNS)
-  composer.setCommonToolButtons([BNS.saveData, BNS.undo, BNS.redo, BNS.zoomIn, BNS.zoomOut, BNS.objInspector]).setChemToolButtons([
+  composer.setCommonToolButtons([BNS.saveData, BNS.loadData, BNS.undo, BNS.redo, BNS.zoomIn, BNS.reset, BNS.zoomOut, BNS.objInspector]).setChemToolButtons([
     BNS.manipulate,
     BNS.erase,
     {'name': 'Custom', 'actionClass': Kekule.Editor.ActionOnComposerAdv,
