@@ -4546,8 +4546,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				// we need to save this value in 'result' for the code below
 				if (tmpResult !== 0)
 				{
-					result = tmpResult;
-					break;
+					return tmpResult;
 				}
 
 				// result is not 0, no match was found and the structures are not equivalent
