@@ -4269,10 +4269,16 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				const criteriaIsotope2 = nonHydrogenOnlyConnectors1[index1].getConnectedObjs()[1].getIsotopeId();
 				const attemptIsotope1 = nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[0].getIsotopeId();
 				const attemptIsotope2 = nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[1].getIsotopeId();
-				if ((nonHydrogenOnlyConnectors1[index1].getBondForm().getBondOrder() ===
+                var [ charge1c, electrons1c ] = this.getNonHydrogenNodeData(nonHydrogenOnlyConnectors1[index1].getConnectedObjs()[0]);
+                var [ charge2c, electrons2c ] = this.getNonHydrogenNodeData(nonHydrogenOnlyConnectors1[index1].getConnectedObjs()[1]);
+                var [ charge1a, electrons1a ] = this.getNonHydrogenNodeData(nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[0]);
+                var [ charge2a, electrons2a ] = this.getNonHydrogenNodeData(nonHydrogenOnlyConnectors2[index2].getConnectedObjs()[1]);
+                if ((nonHydrogenOnlyConnectors1[index1].getBondForm().getBondOrder() ===
 					nonHydrogenOnlyConnectors2[index2].getBondForm().getBondOrder()) &&
-					((criteriaIsotope1 === attemptIsotope1 && criteriaIsotope2 === attemptIsotope2) ||
-					(criteriaIsotope1 === attemptIsotope2 && criteriaIsotope2 === attemptIsotope1)))
+					((criteriaIsotope1 === attemptIsotope1 && charge1c === charge1a && electrons1c === electrons1a &&
+					criteriaIsotope2 === attemptIsotope2 && charge2c === charge2a && electrons2c === electrons2a) ||
+					(criteriaIsotope1 === attemptIsotope2 && charge1c === charge2a && electrons1c === electrons2a &&
+					criteriaIsotope2 === attemptIsotope1 && charge2c === charge1a && electrons2c === electrons1a)))
 				{
 					matchedConnector = true;
 					usedConnectors.push(index2);
@@ -4350,9 +4356,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					break;
 				}
 			}
-			if (matchedConnector) {
-				break;
-			} else if (charge1 === 0 && electrons1 === 0 && bondOrder1 === 1) {
+			if (!matchedConnector && charge1 === 0 && electrons1 === 0 && bondOrder1 === 1) {
 				// if there are no charges or electrons on the node in the context, we can use one of our freebies.
 				// this assumes that the bonded hydrogen with no decoration is equivalent to a condensed hydrogen
 				freebies1--;
@@ -4395,9 +4399,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					break;
 				}
 			}
-			if (matchedConnector) {
-				break;
-			} else if (charge1 === 0 && electrons1 === 0 && bondOrder1 === 1) {
+			if (!matchedConnector && charge1 === 0 && electrons1 === 0 && bondOrder1 === 1) {
 				// if there are no charges or electrons on the node in the student response, we can use one of our freebies.
 				// this assumes that the bonded hydrogen with no decoration is equivalent to a condensed hydrogen
 				freebies2--;
@@ -4419,9 +4421,32 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 	compareHydrogens: function(targetObj, options, result)
 	{
-		var nodes1 = this.getNonHydrogenNodes();
-		var nodes2 = targetObj.getNonHydrogenNodes();
-		var result = nodes1.length - nodes2.length;
+		var result = 0;
+        var hNodes1 = this.getHydrogenNodes();
+        var hNodes2 = targetObj.getHydrogenNodes();
+        if (hNodes1.length === 1 && hNodes2.length === 1) {
+            var hydrogenObj1 = hNodes1[0];
+            var hydrogenObj2 = hNodes2[0];
+            var electrons1 = hydrogenObj1.getAttachedMarkers() ? hydrogenObj1.getAttachedMarkers().reduce((acc, marker) => {
+                    var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+                    return acc + electronCount;
+                }, 0) : 0;
+            var electrons2 = hydrogenObj2.getAttachedMarkers() ? hydrogenObj2.getAttachedMarkers().reduce((acc, marker) => {
+                    var electronCount = marker.getElectronCount ? marker.getElectronCount() : 0;
+                    return acc + electronCount;
+                }, 0) : 0;
+            var charge1 = hydrogenObj1.getCharge() === undefined ? 0 : hydrogenObj1.getCharge();
+            var charge2 = hydrogenObj2.getCharge() === undefined ? 0 : hydrogenObj2.getCharge();
+            result = (charge1 - charge2) + (electrons1 - electrons2);
+		}
+
+		if (result !== 0) {
+        	return result;
+		}
+
+        var nodes1 = this.getNonHydrogenNodes();
+        var nodes2 = targetObj.getNonHydrogenNodes();
+        result = nodes1.length - nodes2.length;
 		if (result === 0)
 		{
 			var usedNodes = [];
@@ -4438,9 +4463,6 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					if (usedNodes.includes(j)) {
 						continue;
 					}
-
-					tmpResult = this.compareNonHydrogenNodes(nodes1[i], nodes2[j]);
-					if (tmpResult !== 0) continue;
 
 					var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
 					var skeletal_mode = this._getComparisonOptionFlagValue(options, 'skeletalMode') || false;
@@ -4490,8 +4512,18 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						return connectedObjs[0].getIsotopeId() !== "H" && connectedObjs[1].getIsotopeId() !== "H";
 					});
 
-					tmpResult = (explicitHydrogens1 + implicitHydrogens1 + hxConnectors1.length + hydrogenOnlyConnectors1.length + nonHydrogenOnlyConnectors1.length) -
-						(explicitHydrogens2 + implicitHydrogens2 + hxConnectors2.length + hydrogenOnlyConnectors2.length + nonHydrogenOnlyConnectors2.length);
+					tmpResult = (explicitHydrogens1 + implicitHydrogens1 + hxConnectors1.length + hydrogenOnlyConnectors1.length) -
+						(explicitHydrogens2 + implicitHydrogens2 + hxConnectors2.length + hydrogenOnlyConnectors2.length);
+
+					if (tmpResult !== 0) {
+						return tmpResult;
+					}
+
+					tmpResult = nonHydrogenOnlyConnectors1.length - nonHydrogenOnlyConnectors2.length;
+
+                    if (tmpResult !== 0) {
+                        return tmpResult;
+                    }
 
 					// if tmpResult is 0, we found a potential match, but we still need to resolve the decorators for the Hydrogens, which could be explictly bonded or not
 					if (tmpResult === 0)
