@@ -942,70 +942,6 @@ Kekule.Render.ChemObj2DRenderer = Class.create(Kekule.Render.Base2DRenderer,
 		return result;
 	},
 
-	/*
-	 * Calculate the actual coordinate transform options from baseOptions (drawOptions).
-	 * Descendants can override this method.
-	 * @param {Object} context
-	 * @param {Object} chemObj
-	 * @param {Hash} baseCoord
-	 * @param {Hash} baseOptions
-	 * @returns {Hash}
-	 */
-	/*
-	calcActualTransformOptions: function(context, chemObj, baseCoord, baseOptions)
-	{
-		if (!chemObj)
-			chemObj = this.getChemObj();
-
-		var objBox = this.estimateObjBox(context, chemObj, baseOptions);
-
-		var O = Kekule.ObjUtils;
-		var op = Object.create(baseOptions || {});
-		var unitLength = this.getRenderConfigs().getLengthConfigs().getUnitLength() || 1;
-		if (op.translateX)
-			op.translateX *= unitLength;
-		if (op.tranlateY)
-			op.translateY *= unitLength;
-		if (baseCoord)
-		{
-			var boxCenter = {'x': (objBox.x1 + objBox.x2) / 2, 'y': (objBox.y1 + objBox.y2) / 2};
-			op.translateX = (op.translateX || 0) + baseCoord.x - boxCenter.x;
-			op.translateY = (op.translateY || 0) + baseCoord.y - boxCenter.y;
-		}
-		var zoom = op.zoom || 1;
-		if (op.scale)
-			op.scale *= unitLength * zoom;
-		if (op.scaleX)
-			op.scaleX *= unitLength * zoom;
-		if (op.scaleY)
-			op.scaleY *= unitLength * zoom;
-		if ((!op.scale) && (!op.scaleX) && (!op.scaleY) && op.autoScale)
-		{
-			// auto determinate the scale by defBondLength and median of ctab bond length
-			var defDrawRefLength = oneOf(op.refDrawLength, this.getAutoScaleRefDrawLength());
-			var medianObjRefLength = this.getAutoScaleRefObjLength(chemObj);
-			op.scale = defDrawRefLength / medianObjRefLength * unitLength * zoom;
-		}
-
-		if (O.isUnset(op.center))  // center not set, use center coord of Ctab
-		{
-			op.center = {};
-			op.center.x = (objBox.x1 + objBox.x2) / 2;
-			op.center.y = (objBox.y1 + objBox.y2) / 2;
-		}
-		/*
-		if (op.baseOnRootCoord && chemObj.hasCoord2D && chemObj.hasCoord2D())  // consider coord of chemObj
-		{
-			var baseCoord = chemObj.getCoord2D();
-			op.translateX = (op.translateX || 0) + baseCoord.x; // * op.scale;
-			op.translateY = (op.translateY || 0) + baseCoord.y; // * op.scale;
-			console.log(op.translateX, op.translateY);
-		}
-		*//*
-		return op;
-	}
-	*/
-
 	/** @ignore */
 	getRenderFinalTransformParams: function(context)
 	{
@@ -1571,7 +1507,7 @@ Kekule.Render.UnbondedElectronSetRenderer = Class.create(Kekule.Render.ChemObj2D
 			return null;
 
 		// prevent 4 electrons goroups (pair or single)
-		if (electronsGroups = 4 && parentObj.indexOfMarker(chemObj) > 3) {
+		if (electronsGroups === 4 && parentObj.indexOfMarker(chemObj) > 3) {
 			parentObj.removeMarker(chemObj);
 			return null;
 		}
