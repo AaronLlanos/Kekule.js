@@ -247,6 +247,12 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		}
 		this.setDefBondLength(defBondLength);
 
+		this.fixScrollBar();
+		return result;
+	},
+
+	fixScrollBar: function()
+	{
 		// adjust editor size
 		var space = this.getChemObj();
 		if (space)
@@ -257,10 +263,11 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			// scroll to top center
 			var elem = this.getEditClientElem().parentNode;
 			var visibleClientSize = Kekule.HtmlElementUtils.getElemClientDimension(elem);
-			this.scrollClientTo(0, (screenSize.x - visibleClientSize.width) / 2);
+			var height = this.getDrawBridge() ? this.getDrawBridge().module_height : visibleClientSize.height;
+			var width = this.getDrawBridge() ? this.getDrawBridge().module_width : visibleClientSize.width;
+			this.scrollClientTo(((screenSize.y * this.getCurrZoom()) - visibleClientSize.height) * .4, 
+				((screenSize.x * this.getCurrZoom()) - visibleClientSize.width) / 2);
 		}
-
-		return result;
 	},
 
 	/** @ignore */
@@ -273,6 +280,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			var screenSize = space.getScreenSize();
 			this.changeClientSize(screenSize.x, screenSize.y, zoomLevel);
 		}
+		this.fixScrollBar();
 	},
 
 	/** @ignore */
