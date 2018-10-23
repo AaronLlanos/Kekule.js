@@ -719,7 +719,6 @@ Kekule.ClassDefineUtils.addStandardCoordSupport(Kekule.BaseStructureNode);
  */
 Kekule.StereoParity = {
 	NONE: null,
-	LINEAR: -1,
 	ODD: 1,
 	EVEN: 2,
 	UNKNOWN: 0
@@ -4564,8 +4563,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				if (stereoBonds1[index1].getParity() !== Kekule.StereoParity.LINEAR &&
-					stereoBonds2[index2].getParity() !== Kekule.StereoParity.LINEAR &&
+				if (stereoBonds1[index1].getParity() !== Kekule.StereoParity.UNKNOWN &&
+					stereoBonds2[index2].getParity() !== Kekule.StereoParity.UNKNOWN &&
 					(stereoBonds1[index1].getStereo() + stereoBonds1[index1].getParity()) -
 					(stereoBonds2[index2].getStereo() + stereoBonds2[index2].getParity()) === 0) 
 				{
@@ -4586,8 +4585,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 				if (usedConnectors.includes(index2)) {
 					continue;
 				}
-				if (stereoBonds2[index1].getParity() !== Kekule.StereoParity.LINEAR &&
-					stereoBonds1[index2].getParity() !== Kekule.StereoParity.LINEAR &&
+				if (stereoBonds2[index1].getParity() !== Kekule.StereoParity.UNKNOWN &&
+					stereoBonds1[index2].getParity() !== Kekule.StereoParity.UNKNOWN &&
 					(stereoBonds2[index1].getStereo() + stereoBonds2[index1].getParity()) -
 					(stereoBonds1[index2].getStereo() + stereoBonds1[index2].getParity()) === 0) 
 				{

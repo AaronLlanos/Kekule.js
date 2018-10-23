@@ -108,9 +108,6 @@ Kekule.MolStereoUtils = {
 	{
 		var SP = Kekule.StereoParity;
 		var angle = Kekule.MolStereoUtils.getDihedralAngleOfNodes(n1, n2, n3, n4, coordMode, allowCoordBorrow);
-		if (angle === -1) {
-			return SP.LINEAR;
-		}
 		var result = (angle < 0)? SP.UNKNOWN:
 			(angle < Math.PI * 2 / 5 || angle > Math.PI * 8 / 5)? SP.ODD:
 				(angle > Math.PI * 3 / 5 && angle < Math.PI * 7 / 5)? SP.EVEN:
@@ -166,7 +163,22 @@ Kekule.MolStereoUtils = {
 		if (!axisVector.x && !axisVector.y)  // c1, c2 are same, can not calc parity
 			return SP.UNKNOWN;
 		var axisAngle = Math.atan2(axisVector.y, axisVector.x);
-		// rotate bond to X axis and align to zero
+
+        var rightAxisVector = CU.substract(c1, a1);  // vector of bond
+        var leftAxisVector = CU.substract(b1, c2);  // vector of bond
+        var rightAxisAngle = Math.atan2(rightAxisVector.y, rightAxisVector.x);
+        var leftAxisAngle = Math.atan2(leftAxisVector.y, leftAxisVector.x);
+
+        var threshold = 1e-2; // CU.getDistance(c2, c1) / 1e3;
+        var leftDiff = Math.abs(axisAngle - leftAxisAngle);
+        var rightDiff = Math.abs(axisAngle - rightAxisAngle);
+
+		// if there is an linearly drawn bond angle, the stereo parity is UNKNOWN
+        if (leftDiff < threshold || rightDiff < threshold) {
+            return SP.UNKNOWN;
+		}
+
+        // rotate bond to X axis and align to zero
 		var matrix = CU.calcTransform2DMatrix({
 			'rotateAngle': -axisAngle, 'center': c1,
 			'translateX': -c1.x, 'translateY': -c1.y
@@ -221,7 +233,6 @@ Kekule.MolStereoUtils = {
 			}
 			return result;
 		};
-		var threshold = 1e-2; // CU.getDistance(c2, c1) / 1e3;
 		var sa = getDirectionSign(ta1, ta2, threshold, -1);
 		var sb = getDirectionSign(tb1, tb2, threshold, 1);
 
