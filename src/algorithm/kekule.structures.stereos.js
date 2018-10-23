@@ -169,7 +169,7 @@ Kekule.MolStereoUtils = {
         var rightAxisAngle = Math.atan2(rightAxisVector.y, rightAxisVector.x);
         var leftAxisAngle = Math.atan2(leftAxisVector.y, leftAxisVector.x);
 
-        var threshold = 1e-2; // CU.getDistance(c2, c1) / 1e3;
+        var threshold = 1e-2;
         var leftDiff = Math.abs(axisAngle - leftAxisAngle);
         var rightDiff = Math.abs(axisAngle - rightAxisAngle);
 
