@@ -320,7 +320,7 @@ Kekule.UnivChemStructObjComparer = {
 		// Linked conector count
 		if (options.compareLinkedConnectorCount)
 		{
-			var vlinkedConnector = node.getLinkedNonHydrogenConnectors().length; //node.getLinkedConnectorCount();
+			var vlinkedConnector = node.getLinkedConnectors().length; //node.getLinkedConnectorCount();
 			result += (vlinkedConnector << (4 * 4));
 		}
 
@@ -430,5 +430,5 @@ Kekule.UnivChemStructObjComparer = {
 	}
 };
 
-return Kekule
+	return Kekule
 }

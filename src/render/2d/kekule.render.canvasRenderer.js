@@ -581,7 +581,7 @@ Kekule.Render.CanvasRendererBridge = Class.create(
 		context.font = fontStyle;
 		if (options.color)
 			context.fillStyle = options.color;
-		context.textBaseline = 'top';
+		context.textBaseline = 'hanging';
 		context.fillText(text, coord.x, coord.y);
 
 		context.fontStyle = oldFontStyle;

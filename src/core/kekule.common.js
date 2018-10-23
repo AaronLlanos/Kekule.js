@@ -3287,19 +3287,7 @@ Kekule.ChemSpace = Class.create(Kekule.ChemObject,
 		this.defineProp('screenSize', {'dataType': DataType.HASH,
 			'getter': function()
 			{
-				var o = this.getPropStoreFieldValue('screenSize') || {};
-				return {'x': o.x, 'y': o.y};
-			},
-			'setter': function(value)
-			{
-				var o = this.getPropStoreFieldValue('screenSize');
-				if (!o)
-				{
-					o = {};
-					this.setPropStoreFieldValue('screenSize', o);
-				}
-				o.x = value.x;
-				o.y = value.y;
+				return {'x': 1500, 'y': 1000};
 			}
 		});
 	},

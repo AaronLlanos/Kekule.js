@@ -62,7 +62,7 @@ Kekule.UnbondedElectronSet = Class.create(Kekule.ElectronSet,
 /** @lends Kekule.UnbondedElectronSet# */
 {
 	/** @private */
-	CLASS_NAME: 'Kekule.UnBondedElectronSet',
+	CLASS_NAME: 'Kekule.UnbondedElectronSet',
 	/**
 	 * @constructs
 	 */

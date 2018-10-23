@@ -763,11 +763,11 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 		}
 		//console.log('zoom center info', this.getZoomCenter(), zoomCenterCoord);
 		//if (zoomCenterCoord)
-		{
-			var scrollDelta = CU.multiply(zoomCenterCoord, zoomLevel / currZoomLevel - 1);
-			selfElem.scrollLeft += scrollDelta.x;
-			selfElem.scrollTop += scrollDelta.y;
-		}
+		// {
+		// 	var scrollDelta = CU.multiply(zoomCenterCoord, zoomLevel / currZoomLevel - 1);
+		// 	selfElem.scrollLeft += scrollDelta.x;
+		// 	selfElem.scrollTop += scrollDelta.y;
+		// }
 		return result;
 	},
 	/**
@@ -917,32 +917,6 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 		if (!this._initialRenderTransformParams)
 		{
 			this._initialRenderTransformParams = this.getPainter().getActualInitialRenderTransformOptions(this.getObjContext());
-			/*
-			if (transParam)
-			{
-				var trans = {}
-				var unitLength = transParam.unitLength || 1;
-				if (Kekule.ObjUtils.notUnset(transParam.translateX))
-					trans.translateX = transParam.translateX / unitLength;
-				if (Kekule.ObjUtils.notUnset(transParam.translateY))
-					trans.translateY = transParam.translateY / unitLength;
-				if (Kekule.ObjUtils.notUnset(transParam.translateZ))
-					trans.translateZ = transParam.translateZ / unitLength;
-
-				if (transParam.center)
-					trans.center = transParam.center;
-
-				//var zoom = transParam.zoom || 1;
-				var zoom = 1;
-
-				trans.scaleX = transParam.scaleX / zoom;
-				trans.scaleY = transParam.scaleY / zoom;
-				trans.scaleZ = transParam.scaleZ / zoom;
-
-				this._initialRenderTransformParams = trans;
-				console.log(this._initialRenderTransformParams, this);
-			}
-			*/
 		}
 
 		// redraw ui markers
@@ -1149,6 +1123,7 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 		var parent = this.getCoreElement();
 		if (parent)
 		{
+			parent.style.marginTop = '32px';
 			var doc = parent.ownerDocument;
 			this._createContextParentElem(doc, parent, 'objContextParentElem');
 			this._createContextParentElem(doc, parent, 'operContextParentElem');
@@ -6759,5 +6734,5 @@ Kekule.Editor.BasicManipulationIaController.ManipulationType = {
 };
 /** @ignore */
 Kekule.Editor.IaControllerManager.register(Kekule.Editor.BasicManipulationIaController, Kekule.Editor.BaseEditor);
-return Kekule;
-};
+return Kekule
+}

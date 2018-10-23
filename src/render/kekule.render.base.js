@@ -111,14 +111,16 @@ Kekule.Render.NodeLabelDisplayMode = {
  * @enum
  */
 Kekule.Render.HydrogenDisplayLevel = {
-	/** No hydrongen is displayed */
+	/** No hydrodgens are displayed */
 	NONE: 0,
 	/** Only display explicit hydrogens. */
 	EXPLICIT: 1,
 	/** Display explicit hydrogens only when the count is not the same as implicit. */
 	UNMATCHED_EXPLICIT: 2,
-	/** Display all hydrogens, whether explicit or implicit ones. */
+	/** Display all hydrogens, whether explicit and implicit ones. */
 	ALL: 10,
+	/** Display only display implicit hydrogen count */
+	IMPLICIT: 12,
 	/** Default is EXPLICIT. */
 	DEFAULT: 1
 };
