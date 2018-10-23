@@ -258,8 +258,8 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			var visibleClientSize = Kekule.HtmlElementUtils.getElemClientDimension(elem);
 			var height = this.getDrawBridge() ? this.getDrawBridge().module_height : visibleClientSize.height;
 			var width = this.getDrawBridge() ? this.getDrawBridge().module_width : visibleClientSize.width;
-			this.scrollClientTo(((screenSize.y * this.getCurrZoom()) - visibleClientSize.height) * .4, 
-				((screenSize.x * this.getCurrZoom()) - visibleClientSize.width) / 2);
+			this.scrollClientTo(((screenSize.y * this.getCurrZoom()) - height) / 2, 
+				((screenSize.x * this.getCurrZoom()) - width) / 2);
 		}
 	},
 
