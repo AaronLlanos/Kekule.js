@@ -247,7 +247,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 	resetDisplay: function($super)
 	{
 		// called after loading a new chemObj, or creating a new doc
-		$super();
+		// $super();
 		// adjust editor size
 		var space = this.getChemObj();
 		if (space)
