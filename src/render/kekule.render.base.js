@@ -14,7 +14,6 @@ var ObjectEx = require('../lan/classes').ObjectEx
 var DataType = require('../lan/classes').DataType
 module.exports = function(Kekule) {
 
-
 /**
  * Namespace for renderer system.
  * @namespace
@@ -1886,6 +1885,16 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 		var ops = Object.create(options);
 
 		this.getRenderCache(context).childDrawOptions = ops;
+
+		if (childRenderers.length > 1) {
+			for (var i = 0, l = childRenderers.length; i < l; ++i) {
+				if (childRenderers[i] instanceof Kekule.Render.TextBasedChemMarker2DRenderer) {
+					var charge = childRenderers.splice(i, 1);
+					childRenderers.unshift(charge[0]);
+					break;
+				}
+			}
+		}
 
 		for (var i = 0, l = childRenderers.length; i < l; ++i)
 		{
