@@ -243,9 +243,11 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		this.resetDisplay();
 		return result;
 	},
-
-	resetDisplay: function()
+	/** @ignore */
+	resetDisplay: function($super)
 	{
+		// called after loading a new chemObj, or creating a new doc
+		$super();
 		// adjust editor size
 		var space = this.getChemObj();
 		if (space)
