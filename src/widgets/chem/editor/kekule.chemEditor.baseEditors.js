@@ -1123,7 +1123,6 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 		var parent = this.getCoreElement();
 		if (parent)
 		{
-			parent.style.marginTop = '32px';
 			var doc = parent.ownerDocument;
 			this._createContextParentElem(doc, parent, 'objContextParentElem');
 			this._createContextParentElem(doc, parent, 'operContextParentElem');
