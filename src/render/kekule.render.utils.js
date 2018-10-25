@@ -17,7 +17,7 @@ var ClassEx = require('../lan/classes').ClassEx
 var ObjectEx = require('../lan/classes').ObjectEx
 var DataType = require('../lan/classes').DataType
 module.exports = function(Kekule) {
-	
+
 /**
  * Contains constants for rich text manipulation.
  * @class
@@ -1706,9 +1706,11 @@ Kekule.Render.MetaShapeUtils = {
 		{
 			var vector = Kekule.CoordUtils.substract(lineCoords[1], lineCoords[0]);
 			if (Math.abs(vector.y) > Math.abs(vector.x))
-				betweenFlag = (Math.sign(crossPoint.y - lineCoords[0].y) * Math.sign(crossPoint.y - lineCoords[1].y) <= 0);
+				betweenFlag = ((Math.sign(crossPoint.y - lineCoords[0].y + 5) * Math.sign(crossPoint.y - lineCoords[1].y + 5) <= 0) ||
+												(Math.sign(crossPoint.y - lineCoords[0].y - 5) * Math.sign(crossPoint.y - lineCoords[1].y - 5) <= 0));
 			else
-				betweenFlag = (Math.sign(crossPoint.x - lineCoords[0].x) * Math.sign(crossPoint.x - lineCoords[1].x) <= 0);
+				betweenFlag = ((Math.sign(crossPoint.x - lineCoords[0].x + 5) * Math.sign(crossPoint.x - lineCoords[1].x + 5) <= 0) ||
+												(Math.sign(crossPoint.x - lineCoords[0].x - 5) * Math.sign(crossPoint.x - lineCoords[1].x - 5) <= 0));
 		}
 
 		if (!betweenFlag)  // not inside
