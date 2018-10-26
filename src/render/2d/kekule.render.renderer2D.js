@@ -574,8 +574,8 @@ Kekule.Render.Base2DRenderer = Class.create(Kekule.Render.CompositeRenderer,  //
 			var sign = richText.text;
 			options.strokeColor = 'transparent';
 			options.globalCompositeOperation = 'destination-over';
-			var radius = 10;
-			if (sign.charAt(0) === '-' || sign.charAt(0) === '+')
+			var radius = 12 * options.zoom;
+			if (sign === '-' || sign === '+')
 					options.fontSize = 20;
 			if (sign.includes('+'))
 					options.fillColor = 'rgb(172,219,162)';
