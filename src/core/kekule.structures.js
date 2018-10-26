@@ -4472,8 +4472,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					
 					var implicitHydrogens1 = hydrogen_display_type === 'IMPLICIT' || (skeletal_mode && hydrogen_display_type === 'EXPLICIT' && nodes1[i].getIsotopeId() === "C") ? nodes1[i].getImplicitHydrogenCount() : 0;
 					var implicitHydrogens2 = hydrogen_display_type === 'IMPLICIT' || (skeletal_mode && hydrogen_display_type === 'EXPLICIT' && nodes2[j].getIsotopeId() === "C") ? nodes2[j].getImplicitHydrogenCount() : 0;
-					allDecoratedHydrogens1 += explicitHydrogens1 + implicitHydrogens1;
-					allDecoratedHydrogens2 += explicitHydrogens2 + implicitHydrogens2;
+					
 					var hxConnectors1 = nodes1[i].getLinkedConnectors().filter((connector) => {
 						var connectedObjs = connector.getConnectedObjs();
 						if (connectedObjs[0].getIsotope().getSymbol() === "H" || connectedObjs[1].getIsotope().getSymbol() === "H") {
@@ -4515,13 +4514,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						(explicitHydrogens2 + implicitHydrogens2 + hxConnectors2.length + hydrogenOnlyConnectors2.length);
 
 					if (tmpResult !== 0) {
-						return tmpResult;
+						continue;
 					}
 
 					tmpResult = nonHydrogenOnlyConnectors1.length - nonHydrogenOnlyConnectors2.length;
 
                     if (tmpResult !== 0) {
-                        return tmpResult;
+                        continue;
                     }
 
 					// if tmpResult is 0, we found a potential match, but we still need to resolve the decorators for the Hydrogens, which could be explictly bonded or not
@@ -4532,6 +4531,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 						if (hydrogenDecorationsMatch) {
 							tmpResult = 0;
+							allDecoratedHydrogens1 += explicitHydrogens1 + implicitHydrogens1;
+							allDecoratedHydrogens2 += explicitHydrogens2 + implicitHydrogens2;
+							
 							// we found a match and we can exit the inner loop
 							usedNodes.push(j);
 							break;
