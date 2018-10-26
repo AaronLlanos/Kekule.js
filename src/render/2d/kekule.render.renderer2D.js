@@ -554,9 +554,9 @@ Kekule.Render.Base2DRenderer = Class.create(Kekule.Render.CompositeRenderer,  //
 			var sign = richText.text;
 			options.strokeColor = 'transparent';
 			options.globalCompositeOperation = 'destination-over';
-			var radius = 8 * options.zoom;
+			var radius = 12 * options.zoom;
 			if (sign === '-' || sign === '+')
-					options.fontSize = 18;
+					options.fontSize = 20;
 			if (sign.includes('+'))
 					options.fillColor = 'rgb(172,219,162)';
 			if (sign.includes('-'))
