@@ -1063,8 +1063,10 @@ module.exports = function(Kekule) {
 					hcount = 0;
 					break;
 				case R.HydrogenDisplayLevel.ALL:
-				case R.HydrogenDisplayLevel.IMPLICIT:
 					hcount = implicitHydrogenCount + explicitHydrogenCount;
+					break;
+				case R.HydrogenDisplayLevel.IMPLICIT:
+					hcount = implicitHydrogenCount
 					break;
 				case R.HydrogenDisplayLevel.EXPLICIT:
 					hcount = explicitHydrogenCount;
