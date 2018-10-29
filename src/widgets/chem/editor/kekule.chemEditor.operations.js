@@ -881,7 +881,7 @@ Kekule.ChemStructOperation.MergeNodes = Class.create(Kekule.ChemStructOperation.
 					oper.execute();
 					this._removeConnectorOperations.push(oper);
 				}
-			}			
+			}
 
 			if (fromNode instanceof Kekule.ChemMarker.UnbondedElectronSet) {
 				var parentNode = fromNode.getParent();
@@ -963,6 +963,9 @@ Kekule.ChemStructOperation.MergeNodes.canMerge = function(target, dest, canMerge
 	if (!(((target instanceof Kekule.ChemStructureNode) || (target instanceof Kekule.ChemMarker.UnbondedElectronSet))
 					&& ((dest instanceof Kekule.ChemStructureNode) || (dest instanceof Kekule.ChemMarker.UnbondedElectronSet))))
 		return false;
+	if (target.getClassName() !== dest.getClassName())
+		return false;
+		
 	var targetFragment = target.getParent();
 	var destFragment = dest.getParent();
 	var result = (targetFragment === destFragment) || canMergeStructFragment;
