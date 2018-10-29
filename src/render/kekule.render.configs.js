@@ -51,6 +51,8 @@ Kekule.Render.GeneralConfigs = Class.create(Kekule.AbstractConfigs,
 	initProperties: function()
 	{
 		this.addBoolConfigProp('allowCoordBorrow', true, {'scope': PS.PUBLIC});
+		this.addIntConfigProp('moduleWidth', 1500, {'scope': PS.PUBLIC});
+		this.addIntConfigProp('moduleHeight', 1000, {'scope': PS.PUBLIC});
 		this.addFloatConfigProp('drawOpacity', 1, {'title': OT.TITLE_DRAWOPACITY, 'description': OT.DES_DRAWOPACITY});
 	}
 });
