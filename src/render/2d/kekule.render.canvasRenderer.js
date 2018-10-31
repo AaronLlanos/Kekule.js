@@ -491,7 +491,7 @@ Kekule.Render.CanvasRendererBridge = Class.create(
 			//if (context.lineWidth !== 1)
 			context.lineWidth = 1;
 		}
-		if (options.strokeColor && options.strokeColor == "#999999")
+		if (options.strokeColor && options.strokeColor === "#999999")
 			options.strokeColor = "#686868";
 		if (options.strokeColor /* && context.strokeStyle !== options.strokeColor */)
 			context.strokeStyle = options.strokeColor;
