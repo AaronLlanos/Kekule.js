@@ -508,7 +508,7 @@ Kekule.Render.Base2DRenderer = Class.create(Kekule.Render.CompositeRenderer,  //
 		var c1 = {'x': Math.min(coord1.x, coord2.x), 'y': Math.min(coord1.y, coord2.y)};
 		var c2 = {'x': Math.max(coord1.x, coord2.x), 'y': Math.max(coord1.y, coord2.y)};
 		/*
-		// debug
+		debug
 		var op = Object.create(options);
 		if (this.getRedirectContext())
 		{
@@ -520,7 +520,7 @@ Kekule.Render.Base2DRenderer = Class.create(Kekule.Render.CompositeRenderer,  //
 	},
 	drawRoundRect: function(context, coord1, coord2, cornerRadius, options)
 	{
-		var c1 = {'x': Math.min(coord1.x, coord2.x), 'y': Math.min(coord1.y, coord2.y)};
+		// var c1 = {'x': Math.min(coord1.x, coord2.x), 'y': Math.min(coord1.y, coord2.y)};
 		var c2 = {'x': Math.max(coord1.x, coord2.x), 'y': Math.max(coord1.y, coord2.y)};
 		return this.getDrawBridge().drawRoundRect(this.getActualTargetContext(context), c1, c2, cornerRadius, options);
 	},
