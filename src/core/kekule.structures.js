@@ -4688,6 +4688,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							}
                         	for (var i = 0, l = nodes1.length; i < l; ++i)
                             {
+								options.atom = false;
+								options.compareAtom = false;
                             	result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
                                 if (result !== 0)
                                     break;
