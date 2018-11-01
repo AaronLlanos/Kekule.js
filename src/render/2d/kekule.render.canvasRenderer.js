@@ -515,6 +515,8 @@ Kekule.Render.CanvasRendererBridge = Class.create(
 			context.globalAlpha = options.opacity;
 		else  // default
 			context.globalAlpha = 1;
+		if (options.zoom)
+			context.zoom = options.zoom;
 	},
 	doneDraw: function(context, options)
 	{
