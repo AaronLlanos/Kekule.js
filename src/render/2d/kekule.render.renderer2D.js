@@ -1507,7 +1507,7 @@ Kekule.Render.UnbondedElectronSetRenderer = Class.create(Kekule.Render.ChemObj2D
 			return null;
 
 		// prevent 4 electrons goroups (pair or single)
-		if (electronsGroups === 4 && parentObj.indexOfMarker(chemObj) > 3) {
+		if ((electronsGroups > 4) && (chemObj instanceof Kekule.ChemMarker.UnbondedElectronSet) && (parentObj.indexOfMarker(chemObj) > 3)) {
 			parentObj.removeMarker(chemObj);
 			return null;
 		}
