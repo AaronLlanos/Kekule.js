@@ -488,9 +488,9 @@ Kekule.ChemStructureUtils = {
 			}
 			var result = 0;
 			if (angles[index] !== 0) {
-				result = angles[index] + Math.PI/Math.round(l/2);
+				result = angles[index] + Math.PI/Math.pow(2, (Math.round(l/2) - 1));
 			} else {
-				result = angles[index + 1] - Math.PI/Math.round(l/2);
+				result = angles[index + 1] - Math.PI/Math.pow(2, (Math.round(l/2) - 1));
 			}
 			/* debug
 			var msg = 'Angles: [';
