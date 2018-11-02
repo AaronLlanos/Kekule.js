@@ -1891,7 +1891,6 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 				if (childRenderers[i] instanceof Kekule.Render.TextBasedChemMarker2DRenderer) {
 					var charge = childRenderers.splice(i, 1);
 					childRenderers.unshift(charge[0]);
-					break;
 				}
 			}
 		}

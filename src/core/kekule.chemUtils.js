@@ -465,10 +465,12 @@ Kekule.ChemStructureUtils = {
 			return 0;
 		else if (l === 1)  // only one connector
 			return -angles[0];
-		else if (l === 4 && angles[1]!== 0)
-			return (2*Math.PI);
 		else  // more than two connectors
 		{
+			if (angles [1] === 0) {
+				angles[1] = 2*Math.PI;
+				angles.sort();
+			}
 			var max = 0;
 			var index = 0;
 			for (var i = 0; i < l; ++i)
@@ -478,13 +480,18 @@ Kekule.ChemStructureUtils = {
 				var delta = a2 - a1;
 				if (delta < 0)
 					delta += Math.PI * 2;
-				if (delta > max)
+				if (delta >= max)
 				{
 					max = delta;
 					index = i;
 				}
 			}
-			var result = angles[index] + max / 2;
+			var result = 0;
+			if (angles[index] !== 0) {
+				result = angles[index] + Math.PI/Math.round(l/2);
+			} else {
+				result = angles[index + 1] - Math.PI/Math.round(l/2);
+			}
 			/* debug
 			var msg = 'Angles: [';
 			for (var i = 0; i < l; ++i)
