@@ -4041,7 +4041,11 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 			'dataType': DataType.ARRAY,
 			'serializable': false,
 			'scope': Class.PropertyScope.PUBLISHED,
-			'setter': null,
+			'setter': function(val) { 
+				if (this.hasCtab()) {
+					this.getCtab().setNodes(val); 
+				} 
+			},
 			'getter': function() { return this.hasCtab()? this.getCtab().getNodes(): []; }
 		});
 		this.defineProp('anchorNodes', {
@@ -4055,7 +4059,11 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 			'dataType': DataType.ARRAY,
 			'serializable': false,
 			'scope': Class.PropertyScope.PUBLISHED,
-			'setter': null,
+			'setter': function(val) { 
+				if (this.hasCtab()) {
+					this.getCtab().setConnectors(val); 
+				} 
+			},
 			'getter': function() { return this.hasCtab()? this.getCtab().getConnectors(): []; }
 		});
 
@@ -4686,16 +4694,16 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							// to prove out the structure of the item, and at this point we've already
 							// tested the hydrogen decorations
                         	if (hydrogen_display_type === 'IMPLICIT') {
-                                this.sanitizeImplicitNodes(nodes1);
-                                this.sanitizeImplicitNodes(nodes2);
+                                this.sanitizeImplicitNodes(this);
+                                this.sanitizeImplicitNodes(targetObj);
                                 Kekule.MolStandardizer.standardize(this);
                                 Kekule.MolStandardizer.standardize(targetObj);
+                                nodes1 = this.getNonHydrogenNodes();
+                        		nodes2 = targetObj.getNonHydrogenNodes();
 							}
                         	for (var i = 0, l = nodes1.length; i < l; ++i)
                             {
-								options.atom = false;
-								options.compareAtom = false;
-                            	result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
+								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
                                 if (result !== 0)
                                     break;
                             }
@@ -4740,8 +4748,28 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return result;
 	},
 
-	sanitizeImplicitNodes: function(nodes)
+	sanitizeImplicitNodes: function(targetObj)
 	{
+		var nodes = targetObj.getNonHydrogenNodes();
+
+		var resultNodes = [];
+		for (var i = 0, l = targetObj.getNodeCount(); i < l; ++i)
+		{
+			var node = targetObj.getNodeAt(i);
+			if (!node.isHydrogenAtom || !node.isHydrogenAtom())
+			resultNodes.push(node);
+		}
+		targetObj.setNodes(resultNodes);
+
+		var resultConnectors = [];
+		for (var i = 0, l = targetObj.getConnectorCount(); i < l; ++i)
+		{
+			var conn = targetObj.getConnectorAt(i);
+			if (!conn.isNormalConnectorToHydrogen || !conn.isNormalConnectorToHydrogen())
+				resultConnectors.push(conn);
+		}
+		targetObj.setConnectors(resultConnectors);
+
         for (var i = 0, l = nodes.length; i < l; ++i)
         {
             var nonHydrogenOnlyConnectors = nodes[i].getLinkedConnectors().filter((connector) => {

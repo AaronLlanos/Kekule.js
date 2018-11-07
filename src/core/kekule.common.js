@@ -2533,8 +2533,6 @@ Kekule.ChemObject = Class.create(ObjectEx,
 			result = actualOps.customMethod(this, targetObj, actualOps);
 		else
 		{
-			actualOps.atom = false;
-			actualOps.compareAtom = false;
 			result = this.doCompare(targetObj, actualOps);
 		}
 		return (result === 0)? 0: (result < 0)? -1: 1;  // standardize result
