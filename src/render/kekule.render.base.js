@@ -1540,11 +1540,14 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	/** @private */
 	createCircleBoundInfo: function(coord, radius)
 	{
+		radius = radius + 10;
 		return this.createBoundInfo(Kekule.Render.BoundShapeType.CIRCLE, [coord], {'radius': radius});
 	},
 	/** @private */
 	createLineBoundInfo: function(coord1, coord2, width)
 	{
+		coord1.y =  coord1.y - 14;
+		coord2.y =  coord2.y + 14;
 		return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': width});
 	},
 	/** @private */

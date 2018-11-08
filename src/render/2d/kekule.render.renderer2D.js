@@ -2609,8 +2609,10 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 					actualDrawOptions/*nodeRenderOptions/*richTextDrawOptions*/);
 			var elem = elemEx.drawnObj;
 			var rect = elemEx.boundRect;
+			var increaseHitAreaTop = 6;
+			var increaseHitAreaLeft = 9;
 			// change boundInfo to a rect
-			boundInfo = this.createRectBoundInfo({x: rect.left, y: rect.top}, {x: rect.left + rect.width, y: rect.top + rect.height});
+			boundInfo = this.createRectBoundInfo({x: rect.left - increaseHitAreaLeft, y: rect.top - increaseHitAreaTop}, {x: rect.left + (rect.width + increaseHitAreaLeft), y: rect.top + (rect.height + increaseHitAreaTop)});
 			//console.log(rect);
 			result = elem;
 		}
