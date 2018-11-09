@@ -2632,7 +2632,8 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 				boundInfo = this.createCircleBoundInfo(coord, radius);
 			}
 			else
-				boundInfo = this.createPointBoundInfo(coord);
+				var skeletalRadius = 10;
+				boundInfo = this.createCircleBoundInfo(coord, skeletalRadius);
 			//if (node.getCharge() || node.getRadical()) // draw charge or radical
 			if (needDrawCharge || needDrawRadical)
 			{
