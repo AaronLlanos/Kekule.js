@@ -1054,21 +1054,26 @@ module.exports = function(Kekule) {
 			var result = $super(hydrogenDisplayLevel, showCharge, displayLabelConfigs, partialChargeDecimalsLength, chargeMarkType, distinguishSingletAndTripletRadical);
 
 			var hcount = 0;
+			var implicitHydrogenCount = this.getIsotope().getName() === 'Hydrogen' ? 0 : this.getImplicitHydrogenCount();
+			var explicitHydrogenCount = this.getExplicitHydrogenCount() || 0;
 			switch (hydrogenDisplayLevel)
 			{
 				case R.HydrogenDisplayLevel.NONE:
 					hcount = 0;
 					break;
 				case R.HydrogenDisplayLevel.ALL:
-					hcount = this.getIsotope().getName() === 'Hydrogen' ? 0 : this.getImplicitHydrogenCount();
+					hcount = implicitHydrogenCount + explicitHydrogenCount;
+					break;
+				case R.HydrogenDisplayLevel.IMPLICIT:
+					hcount = implicitHydrogenCount
 					break;
 				case R.HydrogenDisplayLevel.EXPLICIT:
-					hcount = this.getExplicitHydrogenCount();
+					hcount = explicitHydrogenCount;
 					break;
 				case R.HydrogenDisplayLevel.UNMATCHED_EXPLICIT:
 				{
-					if (this.getImplicitHydrogenCount && (this.getImplicitHydrogenCount() !== this.getExplicitHydrogenCount()))
-						hcount = this.getExplicitHydrogenCount();
+					if (this.getImplicitHydrogenCount && (this.getImplicitHydrogenCount() !== explicitHydrogenCount))
+						hcount = explicitHydrogenCount;
 					break;
 				}
 			}

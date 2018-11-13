@@ -2794,12 +2794,9 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 	_getNodeHydrogenDisplayLevel: function(node, drawOptions)
 	{
 		const { hydrogenDisplayType: HDT } = this.getDrawBridge()
-		const { EXPLICIT, IMPLICIT, SKELETAL_EXPLICIT, NONE } = Kekule.Render.HydrogenDisplayLevel
+		const { IMPLICIT, EXPLICIT, NONE } = Kekule.Render.HydrogenDisplayLevel
 		const { SKELETAL } = Kekule.Render.MoleculeDisplayType
 		if (drawOptions.moleculeDisplayType === SKELETAL) {
-			if (HDT === EXPLICIT) {
-				return SKELETAL_EXPLICIT
-			}
 			return SKELETAL
 		}
 		switch (HDT) {

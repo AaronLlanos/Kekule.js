@@ -119,8 +119,6 @@ Kekule.Render.HydrogenDisplayLevel = {
 	UNMATCHED_EXPLICIT: 2,
 	/** Display all hydrogens, whether explicit and implicit ones. */
 	ALL: 10,
-	/** Display explicit hydrogens while in skeletal mode */
-	SKELETAL_EXPLICIT: 11,
 	/** Display only display implicit hydrogen count */
 	IMPLICIT: 12,
 	/** Default is EXPLICIT. */
