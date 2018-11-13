@@ -2628,7 +2628,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			 var renderOptions = Object.extend(renderConfigs, localOptions);
 			 */
 			// if a label is drawn, all hydrogens should be marked
-			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node, options); // turn this back on
+			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node, options);
 			//console.log(hdisplayLevel);
 			var needShowChargeInLabel = !!(needDrawCharge || needDrawRadical);
 			//console.log(node.getCharge(), node.getRadical(), needDrawCharge, needDrawRadical, needShowChargeInLabel);
@@ -2793,11 +2793,24 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 	 */
 	_getNodeHydrogenDisplayLevel: function(node, drawOptions)
 	{
-		if (drawOptions.moleculeDisplayType === Kekule.Render.MoleculeDisplayType.SKELETAL) {
-			return Kekule.Render.MoleculeDisplayType.SKELETAL
+		const { hydrogenDisplayType: HDT } = this.getDrawBridge()
+		const { EXPLICIT, IMPLICIT, SKELETAL_EXPLICIT, NONE } = Kekule.Render.HydrogenDisplayLevel
+		const { SKELETAL } = Kekule.Render.MoleculeDisplayType
+		if (drawOptions.moleculeDisplayType === SKELETAL) {
+			if (HDT === EXPLICIT) {
+				return SKELETAL_EXPLICIT
+			}
+			return SKELETAL
 		}
-
-		return this.getDrawBridge().showImplicitHydrogens ? Kekule.Render.HydrogenDisplayLevel.ALL : Kekule.Render.HydrogenDisplayLevel.EXPLICIT;
+		switch (HDT) {
+			case 'BONDED':
+				return NONE
+			case 'IMPLICIT':
+				return IMPLICIT
+			case 'EXPLICIT':
+			default:
+				return EXPLICIT
+		}
 	},
 
 	/**

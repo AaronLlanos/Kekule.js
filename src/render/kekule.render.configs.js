@@ -436,7 +436,7 @@ Kekule.Render.NodeViewConfigs = Class.create(Kekule.AbstractConfigs,
 	/** @private */
 	initProperties: function()
 	{
-		this.addBoolConfigProp('showImplicitHydrogens', false);
+		this.addStrConfigProp('hydrogenDisplayType', 'BONDED');
 	}
 });
 
