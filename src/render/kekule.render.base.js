@@ -1543,10 +1543,15 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 		return this.createBoundInfo(Kekule.Render.BoundShapeType.CIRCLE, [coord], {'radius': radius});
 	},
 	/** @private */
-	createLineBoundInfo: function(coord1, coord2, width)
+	createLineBoundInfo: function(coord1, coord2, width, isElectron)
 	{
-		var increasingBondHitArea = 20;
-		return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': increasingBondHitArea});
+		if (!isElectron) {
+			var increasingBondHitArea = 20;
+			return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': increasingBondHitArea});
+		} else {
+			return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': width});
+		}
+
 	},
 	/** @private */
 	createRectBoundInfo: function(coord1, coord2)
