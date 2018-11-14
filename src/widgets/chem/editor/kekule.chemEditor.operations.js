@@ -1023,6 +1023,85 @@ Kekule.ChemStructOperation.MergeNodes.canMerge = function(target, dest, canMerge
 	return result;
 };
 
+
+
+/**
+ * Preview operation of merging two nodes as one.
+ * This operation just set the same position of merging nodes, but do not do the actual merge.
+ * @class
+ * @augments Kekule.ChemStructOperation.MergeNodesBase
+ *
+ * @param {Kekule.ChemStructureNode} target Source node, all connectors to this node will be connected to toNode.
+ * @param {Kekule.ChemStructureNode} dest Destination node.
+ * @param {Bool} enableStructFragmentMerge If true, molecule will be also merged when merging nodes between different molecule.
+ */
+Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOperation.MergeNodesBase,
+/** @lends Kekule.ChemStructOperation.AnchorNodesPreview# */
+{
+	/** @private */
+	CLASS_NAME: 'Kekule.ChemStructOperation.AnchorNodesPreview',
+	/** @constructs */
+	initialize: function($super, target, dest, editor)
+	{
+		$super(target, dest, true, editor);
+		this._nodeParent = null;
+	},
+	/** @ignore */
+	doExecute: function()
+	{
+		this._moveNodeOperations = [];
+		var fromNode = this.getTarget();
+		var toNode = this.getDest();
+		var structFragment = fromNode.getParentFragment();
+		/*
+		if (!structFragment)
+			console.log('merge from', fromNode.getId(), 'to', toNode.getId());
+		*/
+		var CM = Kekule.CoordMode;
+		var coordModes = [CM.COORD2D];
+		if (structFragment)
+			structFragment.beginUpdate();
+		try
+		{
+			for (var i = 0, l = coordModes.length; i < l; ++i)
+			{
+				var toCoord = toNode.getAbsBaseCoord(coordModes[i], false);
+				var oper = new Kekule.ChemObjOperation.MoveTo(fromNode, toCoord, coordModes[i], true, this.getEditor());
+				oper.execute();
+				this._moveNodeOperations.push(oper);
+			}
+			this._nodeParent = structFragment;
+		}
+		finally
+		{
+			if (structFragment)
+				structFragment.endUpdate();
+		}
+	},
+	/** @ignore */
+	doReverse: function()
+	{
+		var structFragment = this._nodeParent;
+		if (structFragment)
+			structFragment.beginUpdate();
+		try
+		{
+			var opers = this._moveNodeOperations;
+			for (var i = opers.length - 1; i >= 0; --i)
+			{
+				opers[i].reverse();
+			}
+		}
+		finally
+		{
+			if (structFragment)
+				structFragment.endUpdate();
+		}
+		this._moveNodeOperations = null;
+	}
+});
+	
+
 /**
  * Preview operation of merging two nodes as one.
  * This operation just set the same position of merging nodes, but do not do the actual merge.
