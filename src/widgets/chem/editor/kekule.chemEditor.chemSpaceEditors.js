@@ -1095,6 +1095,7 @@ Kekule.Editor.BasicMolEraserIaController = Class.create(Kekule.Editor.BasicErase
 		for (var i = 0, l = objs.length; i < l; ++i)
 		{
 			var obj = objs[i];
+			obj.invokeEvent('objectRemoved', obj);
 			var parent = obj.getParent();
 			var editor = this.getEditor();
 			var oper;

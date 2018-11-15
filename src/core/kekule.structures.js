@@ -616,6 +616,36 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 			//console.log('change struct by',  Kekule.ArrayUtils.intersect(modifiedPropNames || [], this.getStructureRelatedPropNames()));
 			this.structureChange();
 		}
+
+		if (modifiedPropNames.length && modifiedPropNames.indexOf('coord2D') != -1) {
+			//console.log('modifying 2d ' + this.getId() + " _ " + this.coord2D.x + " " + this.coord2D.y);
+			this.invokeEvent('objectMoved', this.coord2D);
+			var linkedConnectors = this.getLinkedConnectors();
+			if (linkedConnectors) {
+				for (var i = 0; i < linkedConnectors.length; i++)
+				{
+					var obj = linkedConnectors[i];
+					if (obj instanceof Kekule.Bond) {
+						var linkedObjs = obj.getConnectedObjs();
+						var x = (linkedObjs[0].coord2D.x + linkedObjs[1].coord2D.x) / 2.0;
+						var y = (linkedObjs[0].coord2D.y + linkedObjs[1].coord2D.y) / 2.0;
+						obj.invokeEvent('objectMoved', { x, y });
+					}
+				}
+			}
+			var attachedMarkers = this.getAttachedMarkers();
+			if (attachedMarkers) {
+				for (var i = 0; i < attachedMarkers.length; i++)
+				{
+					var obj = attachedMarkers[i];
+					if (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) {
+						var x = (this.coord2D.x + obj.coord2D.x);
+						var y = (this.coord2D.y + obj.coord2D.y);
+						obj.invokeEvent('objectMoved', { x, y });
+					}
+				}
+			}
+		}
 	}
 });
 

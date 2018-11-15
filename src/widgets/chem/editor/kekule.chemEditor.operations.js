@@ -1044,23 +1044,30 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 	initialize: function($super, target, dest, editor)
 	{
 		$super(target, dest, true, editor);
-		this._nodeParent = null;
 	},
+
+	moveCurveArrowToMatchChemStructure: function(coord2D) { 
+		var anchorNode = this.getDest();
+		var curvedArrowNode = this.getTarget();
+		if (anchorNode.getId() === curvedArrowNode.getAnchorObj()) {
+			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
+			oper.execute();
+		}
+	},
+
+	removeCurveArrowAnchor: function(coord2D) { 
+		var curvedArrowNode = this.getTarget();
+		curvedArrowNode.setAnchorObj('');
+	},
+
 	/** @ignore */
 	doExecute: function()
 	{
 		this._moveNodeOperations = [];
 		var fromNode = this.getTarget();
 		var toNode = this.getDest();
-		var structFragment = fromNode.getParentFragment();
-		/*
-		if (!structFragment)
-			console.log('merge from', fromNode.getId(), 'to', toNode.getId());
-		*/
 		var CM = Kekule.CoordMode;
 		var coordModes = [CM.COORD2D];
-		if (structFragment)
-			structFragment.beginUpdate();
 		try
 		{
 			for (var i = 0, l = coordModes.length; i < l; ++i)
@@ -1070,20 +1077,19 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 				oper.execute();
 				this._moveNodeOperations.push(oper);
 			}
-			this._nodeParent = structFragment;
+			fromNode.setAnchorObj(toNode.getId());
+			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
 		finally
 		{
-			if (structFragment)
-				structFragment.endUpdate();
 		}
 	},
 	/** @ignore */
 	doReverse: function()
 	{
-		var structFragment = this._nodeParent;
-		if (structFragment)
-			structFragment.beginUpdate();
+		var fromNode = this.getTarget();
+		var toNode = this.getDest();
 		try
 		{
 			var opers = this._moveNodeOperations;
@@ -1091,11 +1097,12 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 			{
 				opers[i].reverse();
 			}
+			fromNode.setAnchorObj('');
+			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
 		finally
 		{
-			if (structFragment)
-				structFragment.endUpdate();
 		}
 		this._moveNodeOperations = null;
 	}
@@ -1321,6 +1328,9 @@ Kekule.ChemStructOperation.MergeConnectors = Class.create(Kekule.ChemStructOpera
  */
 Kekule.ChemStructOperation.MergeConnectors.canMerge = function(target, dest, canMergeStructFragment)
 {
+	if (!dest || !dest.isConnectingConnector) {
+		return false;
+	}
 	if (!canMergeStructFragment && (target.getParent() !== dest.getParent()))
 		return false;
 	if (target.isConnectingConnector() || dest.isConnectingConnector())
