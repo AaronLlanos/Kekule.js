@@ -71,10 +71,11 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 	/** @private */
 	CLASS_NAME: 'Kekule.Editor.ChemSpaceEditor',
 	/** @constructs */
-	initialize: function($super, parentOrElementOrDocument, chemObj, renderType, editorConfigs)
+	initialize: function($super, parentOrElementOrDocument, chemObj, renderType, editorConfigs, screenSize)
 	{
 		this.setPropStoreFieldValue('allowCreateNewChild', true);
 		this.setPropStoreFieldValue('autoCreateNewStructFragment', true);
+		this._screenSize = screenSize;
 		$super(parentOrElementOrDocument, chemObj, renderType, editorConfigs);
 		this._containerChemSpace = null;  // private field, used to mark that a extra chem space container is used
 
@@ -238,7 +239,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			}
 		}
 		this.setDefBondLength(defBondLength);
-
+		
 		return result;
 	},
 	/** @ignore */
@@ -252,11 +253,16 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		{
 			//console.log('decide size', space, space.getScreenSize);
 			var screenSize = space.getScreenSize();
-			this.changeClientSize(screenSize.x, screenSize.y, this.getCurrZoom());
+			var currZoom = this.getCurrZoom();
+			this.changeClientSize(screenSize.x, screenSize.y, currZoom);
 			// scroll to top center
 			var elem = this.getEditClientElem().parentNode;
 			var visibleClientSize = Kekule.HtmlElementUtils.getElemClientDimension(elem);
-			this.scrollClientTo(0, (screenSize.x * this.getCurrZoom() - visibleClientSize.width) / 2);
+			var drawBridge = this.getDrawBridge()
+			var height = drawBridge ? drawBridge.module_height : visibleClientSize.height;
+			var width = drawBridge ? drawBridge.module_width : visibleClientSize.width;
+			this.scrollClientTo(((screenSize.y * currZoom) - visibleClientSize.height) * .4, 
+				((screenSize.x * currZoom) - visibleClientSize.width) / 2);
 		}
 	},
 
@@ -440,12 +446,12 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		var chemSpaceConfigs = configs.getChemSpaceConfigs();
 		if (this.getCoordMode() === Kekule.CoordMode.COORD2D)  // now only handles 2D size
 		{
-			var screenSize = chemSpace.getScreenSize();
+			var screenSize = this._screenSize;
 			if (!screenSize.x && !screenSize.y)
 			{
 				screenSize = chemSpaceConfigs.getDefScreenSize2D();
-				chemSpace.setScreenSize(screenSize);
 			}
+			chemSpace.setScreenSize(screenSize);
 			if (!chemSpace.getDefAutoScaleRefLength())
 			{
 				var refLength;
@@ -1669,7 +1675,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		{
 			var obj = bound.obj;
 			return (node !== obj) && (excludedObjs.indexOf(obj) < 0)
-					&& (obj instanceof Kekule.ChemStructureNode)
+					&& ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet))
 					&& self._canMergeNodes(node, obj);
 		};
 		if (nodeScreenCoord)
@@ -1759,13 +1765,13 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			if (obj instanceof Kekule.StructureFragment)
 				return false;
 			else
-				return (obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector) || (obj instanceof Kekule.Glyph.PathGlyphNode);
+				return (obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) || (obj instanceof Kekule.Glyph.PathGlyphNode);
 		} ;
 
 		// handle mouse position merge and magnetic merge here
 
 		var isMovingOneBond = (originManipulatedObjs.length === 1) && (originManipulatedObjs[0] instanceof Kekule.ChemStructureConnector);
-		var isMovingOneNode = (manipulatedObjs.length === 1) && (manipulatedObjs[0] instanceof Kekule.ChemStructureNode) && objCanBeMerged(manipulatedObjs[0]);
+		var isMovingOneNode = (manipulatedObjs.length === 1) && (manipulatedObjs[0] instanceof Kekule.ChemStructureNode || manipulatedObjs[0] instanceof Kekule.ChemMarker.UnbondedElectronSet) && objCanBeMerged(manipulatedObjs[0]);
 		var isMovingOneArrowNode = (manipulatedObjs.length === 1) && (manipulatedObjs[0] instanceof Kekule.Glyph.PathGlyphNode) && objCanBeMerged(manipulatedObjs[0]);
 		if (isMovingOneNode && this.getEnableMagneticMerge())
 		{
@@ -2233,7 +2239,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			}
 		}
 
-		// check if do magnetic merge
 		// then check if mouse position merge
 		if (manipulateType === MT.MOVE)
 		{
@@ -2377,7 +2382,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 
 		var currManipulatingObjs = this.getManipulateObjs();
 
-		if (!isMovingBond && this.getEnableMagneticMerge() && (obj instanceof Kekule.ChemStructureNode))
+		if (!isMovingBond && this.getEnableMagneticMerge() && ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet)))
 		{
 			var boundInfos = editor.getBoundInfosAtCoord(coord);
 			if (boundInfos && boundInfos.length)  // may magnetic merge
@@ -2392,7 +2397,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 						continue;
 
 
-					if (boundObj instanceof Kekule.ChemStructureNode)  // node on node, may merge
+					if ((boundObj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet))  // node on node, may merge
 					{
 						if (this._canMergeNodes(obj, boundObj))  // do merge
 						{
@@ -2466,7 +2471,8 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 								}
 							}
 						}
-						else if ((currObj instanceof Kekule.ChemStructureNode) && (destObj instanceof Kekule.ChemStructureNode))  // merge node
+						else if (((currObj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet))
+												&& ((destObj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet)))  // merge node
 						{
 							//if ((currObj.getLinkedObjs().indexOf(destObj) < 0))  // connected node can not merge
 							{
@@ -2959,7 +2965,7 @@ Kekule.Editor.MolBondIaController = Class.create(Kekule.Editor.StructureInsertIa
 		//console.log(state, BC.State.INITIAL);
 		if (state === BC.State.INITIAL)
 		{
-			if (obj instanceof Kekule.ChemStructureNode)
+			if ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet))
 				return true;
 			else if (obj instanceof Kekule.ChemStructureConnector)
 			{
@@ -3006,9 +3012,9 @@ Kekule.Editor.MolBondIaController = Class.create(Kekule.Editor.StructureInsertIa
 		if (!obj)
 			return false;
 		if (!this.getAllowBondingToBond())  // allow only node to be a starting/ending point
-			return (obj instanceof Kekule.ChemStructureNode);
+			return ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet));
 		else  // allow bond-bond connection, every object can be a starting/ending point
-			return ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector));
+			return ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet));
 	},
 	/**
 	 * Check if an object is a modifiable bond.
@@ -4982,7 +4988,7 @@ Kekule.Editor.MolFlexChainIaController = Class.create(Kekule.Editor.MolFlexStruc
 	/** @ignore */
 	canInteractWithObj: function($super, obj)
 	{
-		return $super(obj) && (obj instanceof Kekule.ChemStructureNode);
+		return $super(obj) && ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet));
 	},
 	/** @ignore */
 	getActualManipulatingObjects: function(objs)
@@ -6563,6 +6569,10 @@ Kekule.Editor.MolNodeChargeIaController = Class.create(Kekule.Editor.AttachedMar
 		{
 			//console.log(radical, this.getRadical());
 			modifiedData.radical = this.getRadical();
+			radicalModified = true;
+		}
+		if (modifiedData.charge === 0) {
+			modifiedData.radical = undefined;
 			radicalModified = true;
 		}
 

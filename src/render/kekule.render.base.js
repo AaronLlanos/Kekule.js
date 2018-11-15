@@ -14,7 +14,6 @@ var ObjectEx = require('../lan/classes').ObjectEx
 var DataType = require('../lan/classes').DataType
 module.exports = function(Kekule) {
 
-
 /**
  * Namespace for renderer system.
  * @namespace
@@ -111,14 +110,16 @@ Kekule.Render.NodeLabelDisplayMode = {
  * @enum
  */
 Kekule.Render.HydrogenDisplayLevel = {
-	/** No hydrongen is displayed */
+	/** No hydrodgens are displayed */
 	NONE: 0,
 	/** Only display explicit hydrogens. */
 	EXPLICIT: 1,
 	/** Display explicit hydrogens only when the count is not the same as implicit. */
 	UNMATCHED_EXPLICIT: 2,
-	/** Display all hydrogens, whether explicit or implicit ones. */
+	/** Display all hydrogens, whether explicit and implicit ones. */
 	ALL: 10,
+	/** Display only display implicit hydrogen count */
+	IMPLICIT: 12,
 	/** Default is EXPLICIT. */
 	DEFAULT: 1
 };
@@ -1884,6 +1885,15 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 		var ops = Object.create(options);
 
 		this.getRenderCache(context).childDrawOptions = ops;
+
+		if (childRenderers.length > 1) {
+			for (var i = 0, l = childRenderers.length; i < l; ++i) {
+				if (childRenderers[i] instanceof Kekule.Render.TextBasedChemMarker2DRenderer) {
+					var charge = childRenderers.splice(i, 1);
+					childRenderers.unshift(charge[0]);
+				}
+			}
+		}
 
 		for (var i = 0, l = childRenderers.length; i < l; ++i)
 		{
