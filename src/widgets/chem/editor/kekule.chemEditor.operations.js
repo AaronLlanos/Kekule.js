@@ -1099,7 +1099,7 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 			}
 			fromNode.setAnchorObj('');
 			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+			toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
 		finally
 		{
