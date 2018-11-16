@@ -382,8 +382,7 @@ Kekule.Render.BoundInfoRecorder = Class.create(ObjectEx,
 					if (Kekule.Render.MetaShapeUtils.isCoordInside(coord, bound, context.zoom ? context.zoom*inflation > inflation ? context.zoom*inflation : inflation : inflation))
 						result.push(infos[i]);
 				} else if (infos[i].obj instanceof Kekule.Bond) {
-					var bondInflation = -9.5;
-					if (Kekule.Render.MetaShapeUtils.isCoordInside(coord, bound, bondInflation))
+					if (Kekule.Render.MetaShapeUtils.isCoordInside(coord, bound, 0))
 						result.push(infos[i]);
 				} else {
 					if (Kekule.Render.MetaShapeUtils.isCoordInside(coord, bound, context.zoom ? context.zoom*inflation : inflation))
