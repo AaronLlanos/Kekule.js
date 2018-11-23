@@ -5,7 +5,7 @@
  */
 
 module.exports = function (Kekule) {
-	
+
  Kekule.chemicalElementsData = require("./kekule.chemicalElementsData");
  Kekule.isotopesData = require("./kekule.isotopesData");
  Kekule.structGenAtomTypesData = require('./kekule.structGenAtomTypesData')
@@ -132,6 +132,19 @@ Kekule.ChemicalElementsDataUtil = {
 	isElementSymbolAvailable: function(symbol)
 	{
 		return Kekule.ChemicalElementsDataUtil.getAtomicNumber(symbol) > 0;
+	},
+
+  /**
+   * Set multiatom as element
+   * @param {Object} multiAtom
+   * @return {null}
+   */
+	setMultiAtomElement: function(multiAtom)
+	{
+    var element = {symbol: multiAtom};
+    if (!Kekule.chemicalElementsData.includes(element))
+      Kekule.chemicalElementsData.push(element);
+    return null;
 	}
 };
 
