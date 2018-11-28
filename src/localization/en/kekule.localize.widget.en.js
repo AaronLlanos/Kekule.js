@@ -4,6 +4,8 @@
  * @author Partridge Jiang
  */
 
+import singleBond from "../../../public/svg/single-bond.svg";
+
 module.exports = function (Kekule) {
 
 /** @ignore */
@@ -172,7 +174,7 @@ Kekule.Localization.addResource('en', 'ChemWidgetTexts', {
 	CAPTION_ERASE: 'Erase',
 	CAPTION_TRACK_INPUT: 'Track',
 	CAPTION_MOL_BOND: 'Bond',
-	CAPTION_MOL_BOND_SINGLE: 'Single bond',
+	CAPTION_MOL_BOND_SINGLE: singleBond,
 	CAPTION_MOL_BOND_DOUBLE: 'Double bond',
 	CAPTION_MOL_BOND_TRIPLE: 'Triple bond',
 	CAPTION_MOL_BOND_QUAD: 'Quad bond',
@@ -296,7 +298,7 @@ Kekule.Localization.addResource('en', 'ChemWidgetTexts', {
 	HINT_ERASE: 'Erase tool',
 	HINT_TRACK_INPUT: 'Track tool',
 	HINT_MOL_BOND: 'Bond tool',
-	HINT_MOL_BOND_SINGLE: 'Single bond',
+	HINT_MOL_BOND_SINGLE: singleBond,
 	HINT_MOL_BOND_DOUBLE: 'Double bond',
 	HINT_MOL_BOND_TRIPLE: 'Triple bond',
 	HINT_MOL_BOND_QUAD: 'Quad bond',
