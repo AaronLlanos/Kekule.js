@@ -1454,7 +1454,7 @@ Kekule.Render.UnbondedElectronSetRenderer = Class.create(Kekule.Render.ChemObj2D
 			var adjustDelta = CU.multiply(deltaVector, eRadius * 2 / gap);
 			var c1 = CU.substract(electronCoords[0], adjustDelta);
 			var c2 = CU.add(electronCoords[electronCount - 1], adjustDelta);
-			boundInfo = this.createLineBoundInfo(c1, c2, eRadius);
+			boundInfo = this.createLineBoundInfo(c1, c2, eRadius, true);
 		}
 
 		return {'electronCoords': electronCoords, 'drawnElem': group || drawElem, 'electronRadius': eRadius, 'boundInfo': boundInfo};
@@ -2609,8 +2609,10 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 					actualDrawOptions/*nodeRenderOptions/*richTextDrawOptions*/);
 			var elem = elemEx.drawnObj;
 			var rect = elemEx.boundRect;
+			var increaseHitAreaTop = 6;
+			var increaseHitAreaLeft = 9;
 			// change boundInfo to a rect
-			boundInfo = this.createRectBoundInfo({x: rect.left, y: rect.top}, {x: rect.left + rect.width, y: rect.top + rect.height});
+			boundInfo = this.createRectBoundInfo({x: rect.left - increaseHitAreaLeft, y: rect.top - increaseHitAreaTop}, {x: rect.left + (rect.width + increaseHitAreaLeft), y: rect.top + (rect.height + increaseHitAreaTop)});
 			//console.log(rect);
 			result = elem;
 		}
@@ -2630,7 +2632,8 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 				boundInfo = this.createCircleBoundInfo(coord, radius);
 			}
 			else
-				boundInfo = this.createPointBoundInfo(coord);
+				var skeletalRadius = 10;
+				boundInfo = this.createCircleBoundInfo(coord, skeletalRadius);
 			//if (node.getCharge() || node.getRadical()) // draw charge or radical
 			if (needDrawCharge || needDrawRadical)
 			{
