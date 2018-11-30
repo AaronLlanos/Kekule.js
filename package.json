@@ -2,7 +2,7 @@
   "name": "kekule",
   "version": "0.7.6",
   "description": "Open source JavaScript toolkit for chemoinformatics",
-  "main": "dist/kekule.min.js",
+  "main": "src/kekule.js",
   "author": {
     "name": "Chen Jiang",
     "email": "partridge@cpu.edu.cn"
@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "hammerjs": "^2.0.8",
-    "pepjs": "^0.4.3"
+    "pepjs": "^0.4.3",
+    "svg-inline-loader": "^0.8.0"
   }
 }
