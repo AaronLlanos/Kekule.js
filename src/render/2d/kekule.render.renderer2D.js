@@ -3606,7 +3606,11 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			// calculate line offset adjustment
 			// positive value means to right side of curr direction, negative value means left side
 			var adjusts = [];
-			var initialBondAlign = 0;
+			var initialBondAlign = 1;
+			if (!(lineCount & 1))  // line count is even, must decide which direction should put one more lines
+			{
+				initialBondAlign = 0;
+			}
 			for (var i = 0; i < lineCount; ++i)
 			{
 				if (Kekule.ObjUtils.notUnset(lineParams[i].offsetAdjust))
