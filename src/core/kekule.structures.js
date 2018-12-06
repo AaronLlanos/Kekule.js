@@ -4734,6 +4734,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 							for (var i = 0, l = nodes1.length; i < l; ++i)
 							{
+								// this isn't necessary at this point as electrons have already been validated 
+								// also, electrons don't seem to normalize correctly
+                            	options.lonePair = false;
 								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
 								if (result !== 0)
 									break;
