@@ -4720,10 +4720,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						
 						if (result === 0)
 						{
-							// if it's implicit, remove the extra bonds to hydrogens, they are unnecessary
-							// to prove out the structure of the item, and at this point we've already
-							// tested the hydrogen decorations
-							if (hydrogen_display_type === 'IMPLICIT') {
+							// if it's not bonded, remove the extra bonds to hydrogens, they are unnecessary
+                            // to prove out the structure of the item, and at this point we've already
+                            // tested the hydrogen decorations
+                            if (hydrogen_display_type !== 'BONDED') {
 								this.sanitizeImplicitNodes(this);
 								this.sanitizeImplicitNodes(targetObj);
 								Kekule.MolStandardizer.standardize(this);
