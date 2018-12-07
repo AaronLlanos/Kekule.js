@@ -4709,10 +4709,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						
 						if (result === 0)
 						{
-							// if it's implicit, remove the extra bonds to hydrogens, they are unnecessary
-							// to prove out the structure of the item, and at this point we've already
-							// tested the hydrogen decorations
-							if (hydrogen_display_type === 'IMPLICIT' || hydrogen_display_type === 'EXPLICIT') {
+							// if it's not bonded, remove the extra bonds to hydrogens, they are unnecessary
+                            // to prove out the structure of the item, and at this point we've already
+                            // tested the hydrogen decorations
+                            if (hydrogen_display_type !== 'BONDED') {
 								this.sanitizeHydrogenNodes(this);
 								this.sanitizeHydrogenNodes(targetObj);
 								Kekule.MolStandardizer.standardize(this);
@@ -4726,7 +4726,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							{
 								// this isn't necessary at this point as electrons have already been validated 
 								// also, electrons don't seem to normalize correctly
-                options.lonePair = false;
+                				options.lonePair = false;
 								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
 								if (result !== 0)
 									break;
@@ -4828,7 +4828,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		for (var i = 0, l = targetObj.getNodeCount(); i < l; ++i)
 		{
 			var node = targetObj.getNodeAt(i);
-			if ((typeof node.isHydrogenAtom === 'function' && !node.isHydrogenAtom()) || (typeof node.isHydrogenAtom !== 'function' && !node.isHydrogenAtom)) {
+			if (typeof node.isHydrogenAtom !== 'function' || !node.isHydrogenAtom()) {
+				node.setExplicitHydrogenCount(0);
 				resultNodes.push(node);
 			}
 		}
