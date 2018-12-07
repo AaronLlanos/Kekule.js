@@ -4825,14 +4825,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 			nodes[i].setLinkedConnectors(nonHydrogenOnlyConnectors);
 		}
 		var resultNodes = [];
-		for (var i = 0, l = this.getNodeCount(); i < l; ++i)
-		{
-			var node = this.getNodeAt(i);
-			if (typeof node.isHydrogenAtom !== 'function' || !node.isHydrogenAtom()) {
+			nodes.forEach((node) => {
 				node.setExplicitHydrogenCount(0);
 				resultNodes.push(node);
-			}
-		}
+			})
 		this.setNodes(resultNodes);
 		
 		var resultConnectors = [];
