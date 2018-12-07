@@ -4713,8 +4713,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							// to prove out the structure of the item, and at this point we've already
 							// tested the hydrogen decorations
 							if (hydrogen_display_type !== 'BONDED') {
-								this.sanitizeHydrogenNodes(this);
-								this.sanitizeHydrogenNodes(targetObj);
+								this.sanitizeHydrogenNodes();
+								targetObj.sanitizeHydrogenNodes();
 								Kekule.MolStandardizer.standardize(this);
 								Kekule.MolStandardizer.standardize(targetObj);
 							}
@@ -4812,9 +4812,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return result;
 	},
 
-	sanitizeHydrogenNodes: function(targetObj)
+	sanitizeHydrogenNodes: function()
 	{
-		var nodes = targetObj.getNonHydrogenNodes();
+		var nodes = this.getNonHydrogenNodes();
 		for (var i = 0, l = nodes.length; i < l; ++i)
 		{
 			var nonHydrogenOnlyConnectors = nodes[i].getLinkedConnectors().filter((connector) => {
@@ -4825,24 +4825,24 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 			nodes[i].setLinkedConnectors(nonHydrogenOnlyConnectors);
 		}
 		var resultNodes = [];
-		for (var i = 0, l = targetObj.getNodeCount(); i < l; ++i)
+		for (var i = 0, l = this.getNodeCount(); i < l; ++i)
 		{
-			var node = targetObj.getNodeAt(i);
+			var node = this.getNodeAt(i);
 			if (typeof node.isHydrogenAtom !== 'function' || !node.isHydrogenAtom()) {
 				node.setExplicitHydrogenCount(0);
 				resultNodes.push(node);
 			}
 		}
-		targetObj.setNodes(resultNodes);
+		this.setNodes(resultNodes);
 		
 		var resultConnectors = [];
-		for (var i = 0, l = targetObj.getConnectorCount(); i < l; ++i)
+		for (var i = 0, l = this.getConnectorCount(); i < l; ++i)
 		{
-			var conn = targetObj.getConnectorAt(i);
+			var conn = this.getConnectorAt(i);
 			if (!conn.isNormalConnectorToHydrogen || !conn.isNormalConnectorToHydrogen())
 			resultConnectors.push(conn);
 		}
-		targetObj.setConnectors(resultConnectors);
+		this.setConnectors(resultConnectors);
 	},
 
 	/** @ignore */
