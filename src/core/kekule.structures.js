@@ -4710,9 +4710,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						if (result === 0)
 						{
 							// if it's not bonded, remove the extra bonds to hydrogens, they are unnecessary
-                            // to prove out the structure of the item, and at this point we've already
-                            // tested the hydrogen decorations
-                            if (hydrogen_display_type !== 'BONDED') {
+							// to prove out the structure of the item, and at this point we've already
+							// tested the hydrogen decorations
+							if (hydrogen_display_type !== 'BONDED') {
 								this.sanitizeHydrogenNodes(this);
 								this.sanitizeHydrogenNodes(targetObj);
 								Kekule.MolStandardizer.standardize(this);
@@ -4721,15 +4721,15 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							var nodes1 = this.getNonHydrogenNodes();
 							var nodes2 = targetObj.getNonHydrogenNodes();
 							result = nodes1.length - nodes2.length;
-
+							
 							for (var i = 0, l = nodes1.length; i < l; ++i)
 							{
 								// this isn't necessary at this point as electrons have already been validated 
 								// also, electrons don't seem to normalize correctly
-                				options.lonePair = false;
+								options.lonePair = false;
 								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
 								if (result !== 0)
-									break;
+								break;
 								else
 								{
 									// check the neighbor node index to current node, avoid issue #86
@@ -4745,7 +4745,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							}
 						}
 					}
-
+					
 					if ((result === 0) && (this.getConnectors && targetObj.getConnectors))
 					{
 						var connectors1 = this.getNonHydrogenConnectors();
@@ -4757,7 +4757,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							{
 								result = this.doCompareOnValue(connectors1[i], connectors2[i], options);
 								if (result !== 0)
-									break;
+								break;
 								else
 								{
 									// check the neighbor node index to current node, avoid issue #86
