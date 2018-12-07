@@ -134,58 +134,6 @@ Kekule.ChemicalElementsDataUtil = {
 		return Kekule.ChemicalElementsDataUtil.getAtomicNumber(symbol) > 0;
 	},
 
-  convertSubToUnicode: function(subtext) {
-    var unicode = subtext.split("");
-    for (var i = 0; i < unicode.length; i++) {
-      unicode[i] = "&#x208" + unicode[i];
-    }
-    return unicode.join("");
-  },
-
-  convertSupToUnicode: function(supertext) {
-    var unicode = supertext.split("");
-    for (var i = 0; i < unicode.length; i++) {
-      if (unicode[i] !== "2" && unicode[i] !== "3") {
-        unicode[i] = "&#x207" + unicode[i];
-      } else {
-        unicode[i] = "&#x20B" + unicode[i];
-      }
-    }
-    return unicode.join("");
-  },
-
-  parseSubOrSupText: function(multiAtom)
-  {
-      var resultWithoutSub = "";
-      var result = "";
-      if (multiAtom.includes('<sub>')) {
-        var subtextArray = multiAtom.split(['<sub>']);
-        for (var i = 0; i < subtextArray.length; i++) {
-          if (subtextArray[i].includes('</sub>')) {
-            var toConvertSub = subtextArray[i].split('</sub>')
-            resultWithoutSub = resultWithoutSub.concat(this.convertSubToUnicode(toConvertSub[0]), toConvertSub[1]);
-          } else {
-            resultWithoutSub = resultWithoutSub.concat(subtextArray[i]);
-          }
-        }
-      }
-      if (multiAtom.includes('<sup>')) {
-        var supertextArray = [];
-        if (resultWithoutSub.length > 0)
-          supertextArray = resultWithoutSub.split(['<sup>']);
-        else
-          supertextArray = multiAtom.split(['<sup>']);
-        for (var i = 0; i < supertextArray.length; i++) {
-          if (supertextArray[i].includes('</sup>')) {
-            var toConvertSup = supertextArray[i].split('</sup>')
-            result = result.concat(this.convertSupToUnicode(toConvertSup[0]), toConvertSup[1]);
-          } else {
-            result = result.concat(supertextArray[i]);
-          }
-        }
-      }
-      return result;
-  },
 
   /**
    * Set multiatom as element
@@ -194,16 +142,8 @@ Kekule.ChemicalElementsDataUtil = {
    */
 	setMultiAtomElement: function(multiAtom)
 	{
-    if (multiAtom.includes('<sub>') || multiAtom.includes('<sup>'))
-      multiAtom = this.parseSubOrSupText(multiAtom);
-    var element = {symbol: multiAtom};
-    var exists = false;
-    for (var i = 112; i < Kekule.chemicalElementsData.length; i++) {
-      if (Kekule.chemicalElementsData[i].symbol === element.symbol)
-        exists = true;
-    }
-    if (!exists)
-      Kekule.chemicalElementsData.push(element);
+    var element = {symbol: multiAtom.multiatom, name: multiAtom.meta};
+    Kekule.chemicalElementsData.push(element);
 
     return null;
 	}
