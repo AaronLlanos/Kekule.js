@@ -4,30 +4,30 @@
  * @author Partridge Jiang
  */
 
-const singleBond = require ("../../../public/svg/single-bond.svg");
-const doubleBond = require("../../../public/svg/double-bond.svg");
-const tripleBond = require("../../../public/svg/triple-bond.svg");
-const wedgeUpBond = require("../../../public/svg/piramid.svg");
-const wedgeDownBond= require("../../../public/svg/dotted-piramid.svg");
-const zoomIn= require("../../../public/svg/zoom-in.svg");
-const zoomOut= require("../../../public/svg/zoom-out.svg");
-const resetZoom= require("../../../public/svg/reset-zoom.svg");
-const undo= require("../../../public/svg/undo.svg");
-const redo= require("../../../public/svg/redo.svg");
-const openArrowLine= require("../../../public/svg/open-arrow-line.svg");
-const bidirectionalOpenArrowLine= require("../../../public/svg/bidirectional-open-arrow-line.svg");
-const reversibleArrowLine= require("../../../public/svg/reversible-arrow-line.svg");
-const openArrowDoubleLine= require("../../../public/svg/open-arrow-double-line.svg");
-const heatSymbol= require("../../../public/svg/triangle.svg");
-const addSymbol= require("../../../public/svg/plus.svg");
-const cycloPropane= require("../../../public/svg/cyclo-propane.svg");
-const cycloButane= require("../../../public/svg/cyclo-butane.svg");
-const cycloPentane= require("../../../public/svg/cyclo-pentane.svg");
-const cycloHexane= require("../../../public/svg/cyclo-hexane.svg");
-const singleElectron= require("../../../public/svg/one-electron.svg");
-const lonePair= require("../../../public/svg/two-electrons.svg");
-const positiveCharge= require("../../../public/svg/positive-charge.svg");
-const negativeCharge= require("../../../public/svg/negative-charge.svg");
+const singleBond = ""// require ("../../../public/svg/single-bond.svg");
+const doubleBond = ""// require("../../../public/svg/double-bond.svg");
+const tripleBond = ""// require("../../../public/svg/triple-bond.svg");
+const wedgeUpBond = ""// require("../../../public/svg/piramid.svg");
+const wedgeDownBond= ""// require("../../../public/svg/dotted-piramid.svg");
+const zoomIn= ""// require("../../../public/svg/zoom-in.svg");
+const zoomOut= ""// require("../../../public/svg/zoom-out.svg");
+const resetZoom= ""// require("../../../public/svg/reset-zoom.svg");
+const undo= ""// require("../../../public/svg/undo.svg");
+const redo= ""// require("../../../public/svg/redo.svg");
+const openArrowLine= ""// require("../../../public/svg/open-arrow-line.svg");
+const bidirectionalOpenArrowLine= ""// require("../../../public/svg/bidirectional-open-arrow-line.svg");
+const reversibleArrowLine= ""// require("../../../public/svg/reversible-arrow-line.svg");
+const openArrowDoubleLine= ""// require("../../../public/svg/open-arrow-double-line.svg");
+const heatSymbol= ""// require("../../../public/svg/triangle.svg");
+const addSymbol= ""// require("../../../public/svg/plus.svg");
+const cycloPropane= ""// require("../../../public/svg/cyclo-propane.svg");
+const cycloButane= ""// require("../../../public/svg/cyclo-butane.svg");
+const cycloPentane= ""// require("../../../public/svg/cyclo-pentane.svg");
+const cycloHexane= ""// require("../../../public/svg/cyclo-hexane.svg");
+const singleElectron= ""// require("../../../public/svg/one-electron.svg");
+const lonePair= ""// require("../../../public/svg/two-electrons.svg");
+const positiveCharge= ""// require("../../../public/svg/positive-charge.svg");
+const negativeCharge= ""// require("../../../public/svg/negative-charge.svg");
 
 module.exports = function (Kekule) {
 
