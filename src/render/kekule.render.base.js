@@ -1543,8 +1543,7 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	/** @private */
 	createCircleBoundInfo: function(coord, radius)
 	{
-		var skeletalRadius = 10;
-		return this.createBoundInfo(Kekule.Render.BoundShapeType.CIRCLE, [coord], {'radius': skeletalRadius});
+		return this.createBoundInfo(Kekule.Render.BoundShapeType.CIRCLE, [coord], {'radius': radius});
 	},
 	createArcBoundInfo: function(coord, radius, startAngle, endAngle, anticlockwise, width)
 	{
