@@ -1874,7 +1874,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 		var parentElem = this.getEditorStageElem();
 		var screenSize;
 		if (parentElem) {
-			screenSize = { x: parentElem.clientWidth, y: parentElem.offsetParent.clientHeight || 1000 };
+			screenSize = { x: parentElem.clientWidth, y: parentElem.offsetParent && parentElem.offsetParent.clientHeight || 1000 };
 		}
 
 		var result = new Kekule.Editor.ChemSpaceEditor(this, null, Kekule.Render.RendererType.R2D, null, screenSize);
