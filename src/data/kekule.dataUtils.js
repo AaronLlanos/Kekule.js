@@ -141,7 +141,6 @@ Kekule.ChemicalElementsDataUtil = {
 	{
     var element = {symbol: multiAtom.multiatom, name: multiAtom.meta};
     Kekule.chemicalElementsData.push(element);
-     return null;
 	}
 };
 
