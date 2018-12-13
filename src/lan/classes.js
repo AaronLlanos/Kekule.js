@@ -514,6 +514,45 @@ if (!Array.prototype.lastIndexOf)
 	};
 }
 
+/** @ignore */
+Object._extendSupportMethods(String.prototype, {
+	toArray: function() {
+		return this.split("");
+	},
+
+	camelize: function() {
+		var parts = this.split("-"),
+		len = parts.length;
+		if (len == 1) return parts[0];
+
+		var camelized =
+		this.charAt(0) == "-"
+		? parts[0].charAt(0).toUpperCase() + parts[0].substring(1)
+		: parts[0];
+
+		for (var i = 1; i < len; i++)
+		camelized += parts[i].charAt(0).toUpperCase() + parts[i].substring(1);
+
+		return camelized;
+	},
+
+	capitalizeFirst: function() {
+		return this.charAt(0).toUpperCase() + this.substring(1);
+	},
+	include: function(pattern) {
+		return this.indexOf(pattern) > -1;
+	},
+
+	startsWith: function(pattern) {
+		return this.indexOf(pattern) === 0;
+	},
+
+	endsWith: function(pattern) {
+		var d = this.length - pattern.length;
+		return d >= 0 && this.lastIndexOf(pattern) === d;
+	}
+});
+
 // added by partridge
 /** @ignore */
 Object._extendSupportMethods(String.prototype, {
