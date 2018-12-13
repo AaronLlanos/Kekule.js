@@ -1358,9 +1358,7 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 		var box = this.doEstimateObjBox(context, options, allowCoordBorrow);
 		//console.log('get box', this.getClassName(), box);
 		// if box has some field which is undefined or null, set it to 0
-		if (box)
-			box = this._fillBoxDefaultValue(box, this.getRendererType());
-		return box;
+		return this._fillBoxDefaultValue(box, this.getRendererType());;
 	},
 	/**
 	 * Do actual work of {@link Kekule.Render.AbstractRenderer.estimateObjBox}.
