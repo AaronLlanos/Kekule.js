@@ -1608,9 +1608,14 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 	/** @private */
 	_findSuitableMergeTargetBoundInfo: function(boundInfos, excludedObjs, targetClasses, checkFunc)
 	{
+		console.log(boundInfos.map(i => i.obj.CLASS_NAME));
+		console.log('excludedObjs', excludedObjs.map(o => ({id: o.id, classname: o.CLASS_NAME })));
+		console.log('targetClasses', targetClasses);
 		if (!Array.isArray(targetClasses)) {
 			targetClasses = [targetClasses];
 		}
+		
+		
 		for (var i = boundInfos.length - 1; i >= 0; --i)
 		{
 			var info = boundInfos[i];
@@ -1629,6 +1634,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				continue;
 			if (checkFunc && !checkFunc(obj))
 				continue;
+			console.log('returning', checkFunc, obj.CLASS_NAME)
 			return info;
 		}
 		return null;
@@ -1773,6 +1779,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		var isMovingOneBond = (originManipulatedObjs.length === 1) && (originManipulatedObjs[0] instanceof Kekule.ChemStructureConnector);
 		var isMovingOneNode = (manipulatedObjs.length === 1) && (manipulatedObjs[0] instanceof Kekule.ChemStructureNode || manipulatedObjs[0] instanceof Kekule.ChemMarker.UnbondedElectronSet) && objCanBeMerged(manipulatedObjs[0]);
 		var isMovingOneArrowNode = (manipulatedObjs.length === 1) && (manipulatedObjs[0] instanceof Kekule.Glyph.PathGlyphNode) && objCanBeMerged(manipulatedObjs[0]);
+		var isMovingOneArrowArc = (originManipulatedObjs.length === 1) && (originManipulatedObjs[0] instanceof Kekule.Glyph.Arc);
 		if (isMovingOneNode && this.getEnableMagneticMerge())
 		{
 			var currManipulateInfoMap = this.getManipulateObjCurrInfoMap();
@@ -2037,7 +2044,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			}
 		}
 
-		if (isMovingOneArrowNode)
+		if (isMovingOneArrowNode || isMovingOneArrowArc)
 		{
 			var currManipulateInfoMap = this.getManipulateObjCurrInfoMap();
 			var manipulateInfoMap = this.getManipulateObjInfoMap();
@@ -2066,6 +2073,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 					}
 				}
 			}
+			// console.log(currManipulateInfoMap, manipulateInfoMap, eligibleObjIndexes, eligibleObjs, eligibleDests); 
 			if (eligibleObjs.length)  // has merge items
 			{
 				var eligibleObjCount = eligibleObjs.length;
@@ -2108,12 +2116,12 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 					}
 				}
 
-				//console.log('need new', needCreateNewAnchorOperation, singleEligibleObj);
+				// console.log('need new', needCreateNewAnchorOperation, singleEligibleObj);
 				if (needCreateNewAnchorOperation || singleEligibleObj)
 				{
 					if (needCreateNewAnchorOperation)
 					{
-						//console.log('need new');
+						// console.log('need new');
 						//this.reverseMergeOpers();
 						this.reverseMergeOpers(this.getMergeOperationsInManipulating());
 					}
@@ -2132,7 +2140,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 						var threshold = 1e-10; 
 						if (!fequal(coordTranslate.x, 0, threshold) || !fequal(coordTranslate.y, 0, threshold))  // if transalte coord is {0, 0} (often ocurrs in ring / chain ia controller, no need to adjust coords)
 						{
-							//console.log('here', coordTranslate, currCoord, destCoord);
+							// console.log('here', coordTranslate, currCoord, destCoord);
 							for (var i = 0, l = manipulatedObjs.length; i < l; ++i)
 							{
 								var obj = manipulatedObjs[i];
@@ -2224,10 +2232,11 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 							var obj = eligibleObjs[i];
 							var dest = eligibleDests[i];
 							var index = eligibleObjIndexes[i];
+							// console.log(obj, dest, index);
 							var mergePreviewOper = this.createNodeAnchorOperation(obj, dest);
 							this.getAnchorPreviewOperations()[index] = mergePreviewOper;
 						}
-						//console.log('execute merge on', mergedObjCount);
+						// console.log('execute merge on', mergedObjCount);
 						//console.log('create new', magneticMergeObjIndexes, this.getMergeOperationsInManipulating());
 
 						this.executeAnchorOpers(this.getAnchorOperationsInManipulating());
@@ -2309,12 +2318,12 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				}
 			}
 
-			if (isMovingOneArrowNode)
+			if (isMovingOneArrowNode || isMovingOneArrowArc)
 			{
 				// check if endScreenCoord (mouse position) overlap with an existing object
 				var overlapedObj;
 				var boundInfos = editor.getBoundInfosAtCoord(endScreenCoord, null, this.getCurrBoundInflation());
-				var targetObj = manipulatedObjs[0];
+				var targetObj = isMovingOneArrowNode ? manipulatedObjs[0] : originManipulatedObjs[0];
 				var targetClass = [Kekule.ChemStructureNode, Kekule.ChemMarker.UnbondedElectronSet, Kekule.Bond];
 				var checkFunc = 
 					function(obj)
@@ -2325,7 +2334,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				if (overlapBoundInfo)  // has bound info, do merge
 				{
 					var destObj = overlapBoundInfo.obj;
-					//console.log('can merge to', destObj.getClassName());
+					console.log('destObj', Boolean(overlapBoundInfo));
 					if (destObj)
 					{
 						// TODO don't think we need this this.setAllManipulateObjsMerged(true);
@@ -2342,6 +2351,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 							this.getAnchorPreviewOperations()[0] = anchorOper;
 
 						this.executeAnchorOpers(this.getAnchorOperationsInManipulating());
+						console.log('returning');
 						return;
 					}
 				}
@@ -2675,7 +2685,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			}
 			this.setAnchorDests(anchorDests.length ? anchorDests : null);
 
-			//console.log('[merge!!!!!]');
+			console.log('[merge!!!!!]');
 			this.refreshManipulateObjs();
 			this._anchorJustReversed = false;
 		}
@@ -2702,7 +2712,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				{
 					if (opers[i])
 					{
-						//console.log('reverse at', i, opers.length);
+						console.log('reverse at', i, opers.length);
 						opers[i].reverse();
 						//delete opers[i];
 					}
