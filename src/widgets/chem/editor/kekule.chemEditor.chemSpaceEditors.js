@@ -2044,14 +2044,16 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			}
 		}
 
-		if (isMovingOneArrowNode || isMovingOneArrowArc)
-		{
+
 			var currManipulateInfoMap = this.getManipulateObjCurrInfoMap();
 			var manipulateInfoMap = this.getManipulateObjInfoMap();
 			var self = this;
 			var eligibleObjIndexes = [];
 			var eligibleObjs = [];
 			var eligibleDests = [];
+
+		if (isMovingOneArrowNode || isMovingOneArrowArc)
+		{
 			// filter out all merge nodes
 			//console.log('manipulate objects count', manipulatedObjs.length);
 			for (var i = 0, l = manipulatedObjs.length; i < l; ++i)
@@ -2085,8 +2087,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				//console.log('oldMergeOpers', oldMergeOpers, magneticMergeObjIndexes);
 				for (var i = 0, l = eligibleObjs.length; i < l; ++i)
 				{
-					var obj = eligibleObjs[i];
-					var dest = eligibleDests[i];
 					var index = eligibleObjIndexes[i];
 					var oldAnchorOper = oldAnchorOpers[index];
 					if (!oldAnchorOper) // TODO DON"T THINK WE NEED THIS || !this.isSameNodeMerge(oldMergeOper, obj, dest))
@@ -2121,7 +2121,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				{
 					if (needCreateNewAnchorOperation)
 					{
-						// console.log('need new');
 						//this.reverseMergeOpers();
 						this.reverseMergeOpers(this.getMergeOperationsInManipulating());
 					}
@@ -2232,7 +2231,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 							var obj = eligibleObjs[i];
 							var dest = eligibleDests[i];
 							var index = eligibleObjIndexes[i];
-							// console.log(obj, dest, index);
 							var mergePreviewOper = this.createNodeAnchorOperation(obj, dest);
 							this.getAnchorPreviewOperations()[index] = mergePreviewOper;
 						}
@@ -2323,18 +2321,22 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				// check if endScreenCoord (mouse position) overlap with an existing object
 				var overlapedObj;
 				var boundInfos = editor.getBoundInfosAtCoord(endScreenCoord, null, this.getCurrBoundInflation());
-				var targetObj = isMovingOneArrowNode ? manipulatedObjs[0] : originManipulatedObjs[0];
+				var targetObj = manipulatedObjs[0];
+				if (isMovingOneArrowArc && eligibleObjs.length) {
+					targetObj = eligibleObjs[0]
+				}
 				var targetClass = [Kekule.ChemStructureNode, Kekule.ChemMarker.UnbondedElectronSet, Kekule.Bond];
-				var checkFunc = 
-					function(obj)
-					{
+				var checkFunc = function(obj) {
 						return self._canMergeArrowNodes(targetObj, obj);
 					};
 				var overlapBoundInfo = this._findSuitableMergeTargetBoundInfo(boundInfos, excludedObjs, targetClass, checkFunc);
+				if (isMovingOneArrowArc && eligibleDests.length) {
+					overlapBoundInfo = {obj: eligibleDests[0]}
+				}
 				if (overlapBoundInfo)  // has bound info, do merge
 				{
 					var destObj = overlapBoundInfo.obj;
-					console.log('destObj', Boolean(overlapBoundInfo));
+					// console.log('destObj', destObj.CLASS_NAME);
 					if (destObj)
 					{
 						// TODO don't think we need this this.setAllManipulateObjsMerged(true);
@@ -2351,7 +2353,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 							this.getAnchorPreviewOperations()[0] = anchorOper;
 
 						this.executeAnchorOpers(this.getAnchorOperationsInManipulating());
-						console.log('returning');
+						// console.log('returning');
 						return;
 					}
 				}
@@ -2685,7 +2687,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			}
 			this.setAnchorDests(anchorDests.length ? anchorDests : null);
 
-			console.log('[merge!!!!!]');
+			// console.log('[merge!!!!!]');
 			this.refreshManipulateObjs();
 			this._anchorJustReversed = false;
 		}
@@ -2712,7 +2714,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				{
 					if (opers[i])
 					{
-						console.log('reverse at', i, opers.length);
+						// console.log('reverse at', i, opers.length);
 						opers[i].reverse();
 						//delete opers[i];
 					}
