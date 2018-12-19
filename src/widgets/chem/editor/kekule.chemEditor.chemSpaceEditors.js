@@ -1608,13 +1608,9 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 	/** @private */
 	_findSuitableMergeTargetBoundInfo: function(boundInfos, excludedObjs, targetClasses, checkFunc)
 	{
-		console.log(boundInfos.map(i => i.obj.CLASS_NAME));
-		console.log('excludedObjs', excludedObjs.map(o => ({id: o.id, classname: o.CLASS_NAME })));
-		console.log('targetClasses', targetClasses);
 		if (!Array.isArray(targetClasses)) {
 			targetClasses = [targetClasses];
 		}
-		
 		
 		for (var i = boundInfos.length - 1; i >= 0; --i)
 		{
@@ -1634,7 +1630,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				continue;
 			if (checkFunc && !checkFunc(obj))
 				continue;
-			console.log('returning', checkFunc, obj.CLASS_NAME)
 			return info;
 		}
 		return null;
