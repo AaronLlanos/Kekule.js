@@ -53,13 +53,12 @@ Kekule.Render.PathGlyphCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRendere
 	/** @private */
 	CLASS_NAME: 'Kekule.Render.PathGlyphCtab2DRenderer',
 	/** @private */
-	extractGlyphDrawOptions: function(renderOptions, nodes)
+	extractGlyphDrawOptions: function(renderOptions)
 	{
 		var unitLength = renderOptions.unitLength || 1;
-		var hasDisconnectedNode = nodes.findIndex(n => !n.anchorObj) >= 0
 		return {
-			'strokeColor': hasDisconnectedNode ?  'rgb(255,175,175)' : renderOptions.strokeColor || renderOptions.color || renderOptions.glyphStrokeColor,
-			'fillColor': hasDisconnectedNode ?  'rgb(255,175,175)' : renderOptions.fillColor || renderOptions.color || renderOptions.glyphFillColor,
+			'strokeColor': renderOptions.shouldRenderRed ?  'rgb(255,175,175)' : renderOptions.strokeColor || renderOptions.color || renderOptions.glyphStrokeColor,
+			'fillColor': renderOptions.shouldRenderRed ?  'rgb(255,175,175)' : renderOptions.fillColor || renderOptions.color || renderOptions.glyphFillColor,
 			'strokeWidth': (renderOptions.strokeWidth || renderOptions.glyphStrokeWidth) * unitLength
 		}
 	},
@@ -82,7 +81,7 @@ Kekule.Render.PathGlyphCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRendere
 		if (boundInfo)
 		{
 			this.basicDrawObjectUpdated(context, node, parentChemObj, boundInfo, Kekule.Render.ObjectUpdateType.ADD);
-			if (!node.anchorObj) {
+			if (!node.anchorObj && node.getParent() instanceof Kekule.Glyph.Arc) {
 				this.drawCircle(context, coord, 5 * options.zoom, options)
 			}
 		}
@@ -120,8 +119,10 @@ Kekule.Render.PathGlyphCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRendere
 		var node2 = nodes[1];
 		var coord1 = CU.clone(this.getTransformedCoord2D(context, node1, finalTransformOptions.allowCoordBorrow));
 		var coord2 = CU.clone(this.getTransformedCoord2D(context, node2, finalTransformOptions.allowCoordBorrow));
-		var drawOptions = this.extractGlyphDrawOptions(renderOptions, nodes);
-
+		renderOptions.shouldRenderRed = nodes.reduce((shouldRenderRed, curNode) => (
+			shouldRenderRed || (!curNode.anchorObj && curNode.getParent() instanceof Kekule.Glyph.Arc)
+		), false)
+		var drawOptions = this.extractGlyphDrawOptions(renderOptions);
 		var pathType = connector.getPathType();
 		var pathParams = connector.getPathParams() || {};
 
