@@ -55,6 +55,18 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		this.defineProp('allowCoordBorrow', {'dataType': DataType.BOOL});
 		this.defineProp('editor', {'dataType': 'Kekule.Editor.BaseEditor', 'serializable': false});
 	},
+	moveCurveArrowToMatchChemStructure: function(coord2D) { 
+		var anchorNode = this.getDest();
+		var curvedArrowNode = this.getTarget();
+		if (anchorNode && anchorNode.getId() === curvedArrowNode.getAnchorObj()) {
+			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
+			oper.execute();
+		}
+	},
+	removeCurveArrowAnchor: function(coord2D) { 
+		var curvedArrowNode = this.getTarget();
+		curvedArrowNode.setAnchorObj('');
+	},
 	// A series of notification method to target object
 	/** @private */
 	notifyBeforeAddingByEditor: function(obj, parent, refSibling)
@@ -451,6 +463,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	initialize: function($super, chemObj, parentObj, refSibling, editor)
 	{
 		$super(chemObj, editor);
+		if (chemObj instanceof Kekule.Glyph.PathGlyphNode) {
+			var anchorObj = this.addEventListenerToAnchorObj(chemObj, this.getEditor());
+			if (anchorObj) {
+				this.setDest(anchorObj);
+			}
+		}
 		this.setParentObj(parentObj);
 		this.setRefSibling(refSibling);
 	},
@@ -460,6 +478,7 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		this.defineProp('parentObj', {'dataType': 'Kekule.ChemObject', 'serializable': false});
 		this.defineProp('ownerObj', {'dataType': 'Kekule.ChemObject', 'serializable': false});
 		this.defineProp('refSibling', {'dataType': 'Kekule.ChemObject', 'serializable': false});
+		this.defineProp('dest', {'dataType': 'Kekule.ChemStructureNode', 'serializable': false});
 	},
 
 	/** @private */
@@ -520,6 +539,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		var parent = this.getParentObj();
 		var owner = this.getOwnerObj();
 		var obj = this.getTarget();
+		if (obj instanceof Kekule.Glyph.PathGlyphNode) {
+			this.addEventListenerToAnchorObj(obj, this.getEditor())
+		}
+		if (obj instanceof Kekule.Glyph.Arc) {
+			obj.nodes.forEach(n => this.addEventListenerToAnchorObj(n, this.getEditor()))
+		}
 		if (parent && obj)
 		{
 			var sibling = this.getRefSibling();
@@ -528,6 +553,17 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 			this.notifyBeforeAddingByEditor(obj, parent, sibling);
 			parent.insertBefore(obj, sibling);
 			this.notifyAfterAddingByEditor(obj, parent, sibling);
+		}
+	},
+	/** @private */
+	addEventListenerToAnchorObj: function(obj, editor)
+	{
+		var srcMol = editor.exportObjs(Kekule.ChemDocument)[0].getChildren()[0]
+		if (obj.anchorObj) {
+			var toNode = srcMol.getObjectById(obj.anchorObj)
+			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+			return toNode
 		}
 	}
 });
@@ -1056,20 +1092,6 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 	initialize: function($super, target, dest, editor)
 	{
 		$super(target, dest, true, editor);
-	},
-
-	moveCurveArrowToMatchChemStructure: function(coord2D) { 
-		var anchorNode = this.getDest();
-		var curvedArrowNode = this.getTarget();
-		if (anchorNode.getId() === curvedArrowNode.getAnchorObj()) {
-			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
-			oper.execute();
-		}
-	},
-
-	removeCurveArrowAnchor: function(coord2D) { 
-		var curvedArrowNode = this.getTarget();
-		curvedArrowNode.setAnchorObj('');
 	},
 
 	/** @ignore */
