@@ -239,7 +239,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			}
 		}
 		this.setDefBondLength(defBondLength);
-		
+
 		return result;
 	},
 	/** @ignore */
@@ -261,7 +261,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			var drawBridge = this.getDrawBridge()
 			var height = drawBridge ? drawBridge.module_height : visibleClientSize.height;
 			var width = drawBridge ? drawBridge.module_width : visibleClientSize.width;
-			this.scrollClientTo(((screenSize.y * currZoom) - visibleClientSize.height) * .4, 
+			this.scrollClientTo(((screenSize.y * currZoom) - visibleClientSize.height) * .4,
 				((screenSize.x * currZoom) - visibleClientSize.width) / 2);
 		}
 	},
@@ -6119,7 +6119,7 @@ Kekule.Editor.AttachedMarkerIaController = Class.create(Kekule.Editor.BaseEditor
 				if (boundItem)
 				{
 					var obj = boundItem.obj;
-					if (this.isValidTarget(obj))  // can add marker to this object
+					if (this.isValidTarget(obj) && obj.getAtomicNumber() < 113)  // can add marker to this object
 					{
 						this.apply(obj);
 						e.preventDefault();
