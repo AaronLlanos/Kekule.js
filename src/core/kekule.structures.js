@@ -615,6 +615,36 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 			//console.log('change struct by',  Kekule.ArrayUtils.intersect(modifiedPropNames || [], this.getStructureRelatedPropNames()));
 			this.structureChange();
 		}
+
+		if (modifiedPropNames.length && modifiedPropNames.indexOf('coord2D') != -1) {
+			//console.log('modifying 2d ' + this.getId() + " _ " + this.coord2D.x + " " + this.coord2D.y);
+			this.invokeEvent('objectMoved', this.coord2D);
+			var linkedConnectors = this.getLinkedConnectors();
+			if (linkedConnectors) {
+				for (var i = 0; i < linkedConnectors.length; i++)
+				{
+					var obj = linkedConnectors[i];
+					if (obj instanceof Kekule.Bond) {
+						var linkedObjs = obj.getConnectedObjs();
+						var x = (linkedObjs[0].coord2D.x + linkedObjs[1].coord2D.x) / 2.0;
+						var y = (linkedObjs[0].coord2D.y + linkedObjs[1].coord2D.y) / 2.0;
+						obj.invokeEvent('objectMoved', { x, y });
+					}
+				}
+			}
+			var attachedMarkers = this.getAttachedMarkers();
+			if (attachedMarkers) {
+				for (var i = 0; i < attachedMarkers.length; i++)
+				{
+					var obj = attachedMarkers[i];
+					if (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) {
+						var x = (this.coord2D.x + obj.coord2D.x);
+						var y = (this.coord2D.y + obj.coord2D.y);
+						obj.invokeEvent('objectMoved', { x, y });
+					}
+				}
+			}
+		}
 	}
 });
 
@@ -4773,6 +4803,32 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 								}
 							}
 						}
+
+                        var nodes1 = this.getNonHydrogenNodes();
+                        var nodes2 = targetObj.getNonHydrogenNodes();
+                        result = nodes1.length - nodes2.length;
+                        var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
+
+                        if (result === 0)
+                        {
+                        	// if it's implicit, remove the extra bonds to hydrogens, they are unnecessary
+							// to prove out the structure of the item, and at this point we've already
+							// tested the hydrogen decorations
+                        	if (hydrogen_display_type === 'IMPLICIT') {
+                                this.sanitizeImplicitNodes(this);
+                                this.sanitizeImplicitNodes(targetObj);
+                                Kekule.MolStandardizer.standardize(this);
+                                Kekule.MolStandardizer.standardize(targetObj);
+                                nodes1 = this.getNonHydrogenNodes();
+                        		nodes2 = targetObj.getNonHydrogenNodes();
+							}
+                        	for (var i = 0, l = nodes1.length; i < l; ++i)
+                            {
+								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
+                                if (result !== 0)
+                                    break;
+                            }
+                        }
 					}
 					
 					// The node/connector sequence check can distinguish most molecules

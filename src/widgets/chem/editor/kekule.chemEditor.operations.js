@@ -55,6 +55,18 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		this.defineProp('allowCoordBorrow', {'dataType': DataType.BOOL});
 		this.defineProp('editor', {'dataType': 'Kekule.Editor.BaseEditor', 'serializable': false});
 	},
+	moveCurveArrowToMatchChemStructure: function(coord2D) { 
+		var anchorNode = this.getDest();
+		var curvedArrowNode = this.getTarget();
+		if (anchorNode && anchorNode.getId() === curvedArrowNode.getAnchorObj()) {
+			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
+			oper.execute();
+		}
+	},
+	removeCurveArrowAnchor: function(coord2D) { 
+		var curvedArrowNode = this.getTarget();
+		curvedArrowNode.setAnchorObj('');
+	},
 	// A series of notification method to target object
 	/** @private */
 	notifyBeforeAddingByEditor: function(obj, parent, refSibling)
@@ -451,6 +463,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	initialize: function($super, chemObj, parentObj, refSibling, editor)
 	{
 		$super(chemObj, editor);
+		if (chemObj instanceof Kekule.Glyph.PathGlyphNode) {
+			var anchorObj = this.addEventListenerToAnchorObj(chemObj, this.getEditor());
+			if (anchorObj) {
+				this.setDest(anchorObj);
+			}
+		}
 		this.setParentObj(parentObj);
 		this.setRefSibling(refSibling);
 	},
@@ -460,6 +478,7 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		this.defineProp('parentObj', {'dataType': 'Kekule.ChemObject', 'serializable': false});
 		this.defineProp('ownerObj', {'dataType': 'Kekule.ChemObject', 'serializable': false});
 		this.defineProp('refSibling', {'dataType': 'Kekule.ChemObject', 'serializable': false});
+		this.defineProp('dest', {'dataType': 'Kekule.ChemStructureNode', 'serializable': false});
 	},
 
 	/** @private */
@@ -520,6 +539,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		var parent = this.getParentObj();
 		var owner = this.getOwnerObj();
 		var obj = this.getTarget();
+		if (obj instanceof Kekule.Glyph.PathGlyphNode) {
+			this.addEventListenerToAnchorObj(obj, this.getEditor())
+		}
+		if (obj instanceof Kekule.Glyph.Arc) {
+			obj.nodes.forEach(n => this.addEventListenerToAnchorObj(n, this.getEditor()))
+		}
 		if (parent && obj)
 		{
 			var sibling = this.getRefSibling();
@@ -528,6 +553,17 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 			this.notifyBeforeAddingByEditor(obj, parent, sibling);
 			parent.insertBefore(obj, sibling);
 			this.notifyAfterAddingByEditor(obj, parent, sibling);
+		}
+	},
+	/** @private */
+	addEventListenerToAnchorObj: function(obj, editor)
+	{
+		var srcMol = editor.exportObjs(Kekule.ChemDocument)[0].getChildren()[0]
+		if (obj.anchorObj) {
+			var toNode = srcMol.getObjectById(obj.anchorObj)
+			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+			return toNode
 		}
 	}
 });
@@ -1035,6 +1071,78 @@ Kekule.ChemStructOperation.MergeNodes.canMerge = function(target, dest, canMerge
 	return result;
 };
 
+
+
+/**
+ * Preview operation of merging two nodes as one.
+ * This operation just set the same position of merging nodes, but do not do the actual merge.
+ * @class
+ * @augments Kekule.ChemStructOperation.MergeNodesBase
+ *
+ * @param {Kekule.ChemStructureNode} target Source node, all connectors to this node will be connected to toNode.
+ * @param {Kekule.ChemStructureNode} dest Destination node.
+ * @param {Bool} enableStructFragmentMerge If true, molecule will be also merged when merging nodes between different molecule.
+ */
+Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOperation.MergeNodesBase,
+/** @lends Kekule.ChemStructOperation.AnchorNodesPreview# */
+{
+	/** @private */
+	CLASS_NAME: 'Kekule.ChemStructOperation.AnchorNodesPreview',
+	/** @constructs */
+	initialize: function($super, target, dest, editor)
+	{
+		$super(target, dest, true, editor);
+	},
+
+	/** @ignore */
+	doExecute: function()
+	{
+		this._moveNodeOperations = [];
+		var fromNode = this.getTarget();
+		var toNode = this.getDest();
+		var CM = Kekule.CoordMode;
+		var coordModes = [CM.COORD2D];
+		try
+		{
+			for (var i = 0, l = coordModes.length; i < l; ++i)
+			{
+				var toCoord = toNode.getAbsBaseCoord(coordModes[i], false);
+				var oper = new Kekule.ChemObjOperation.MoveTo(fromNode, toCoord, coordModes[i], true, this.getEditor());
+				oper.execute();
+				this._moveNodeOperations.push(oper);
+			}
+			fromNode.setAnchorObj(toNode.getId());
+			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+		}
+		finally
+		{
+		}
+	},
+	/** @ignore */
+	doReverse: function()
+	{
+		var fromNode = this.getTarget();
+		var toNode = this.getDest();
+		try
+		{
+			var opers = this._moveNodeOperations;
+			for (var i = opers.length - 1; i >= 0; --i)
+			{
+				opers[i].reverse();
+			}
+			fromNode.setAnchorObj('');
+			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+		}
+		finally
+		{
+		}
+		this._moveNodeOperations = null;
+	}
+});
+	
+
 /**
  * Preview operation of merging two nodes as one.
  * This operation just set the same position of merging nodes, but do not do the actual merge.
@@ -1250,6 +1358,9 @@ Kekule.ChemStructOperation.MergeConnectors = Class.create(Kekule.ChemStructOpera
  */
 Kekule.ChemStructOperation.MergeConnectors.canMerge = function(target, dest, canMergeStructFragment)
 {
+	if (!dest || !dest.isConnectingConnector) {
+		return false;
+	}
 	if (!canMergeStructFragment && (target.getParent() !== dest.getParent()))
 		return false;
 	if (target.isConnectingConnector() || dest.isConnectingConnector())
