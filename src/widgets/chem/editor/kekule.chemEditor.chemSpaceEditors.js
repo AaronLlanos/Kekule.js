@@ -3000,11 +3000,15 @@ Kekule.Editor.MolBondIaController = Class.create(Kekule.Editor.StructureInsertIa
 				this.addOperationToEditor();
 				this.stopManipulate();
 				this.setState(S.NORMAL);
+				if (this.getEditor().getSelection().length > 0)
+					this.getEditor().setSelection(null);
 				return true;
 			}
 		}
-
-		return $super(e);  // finish move operation first;
+		var finishMove =  $super(e);  // finish move operation first;
+		if (this.getEditor().getSelection().length > 0)
+			this.getEditor().setSelection(null);
+		return finishMove;
 	}
 });
 
@@ -4315,11 +4319,15 @@ Kekule.Editor.RepositoryIaController = Class.create(Kekule.Editor.StructureInser
 				this.stopManipulate();
 				this.setState(S.NORMAL);
 				e.preventDefault();
+				if (this.getEditor().getSelection().length > 0)
+					this.getEditor().setSelection(null);
 				return true;
 			}
 		}
-
-		return $super(e);  // finish move operation
+		var finishMove =  $super(e);  // finish move operation first;
+		if (this.getEditor().getSelection().length > 0)
+			this.getEditor().setSelection(null);
+		return finishMove;
 	}
 });
 
