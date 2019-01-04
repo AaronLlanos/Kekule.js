@@ -2637,7 +2637,7 @@ Kekule.ChemObject = Class.create(ObjectEx,
 	 */
 	doGetComparisonPropNames: function(options)
 	{
-		return null;
+		return [];
 	},
 	/**
 	 * Returns all default property names that should be handled during object comparison.

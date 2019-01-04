@@ -4815,8 +4815,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							// to prove out the structure of the item, and at this point we've already
 							// tested the hydrogen decorations
                         	if (hydrogen_display_type === 'IMPLICIT') {
-                                this.sanitizeImplicitNodes(this);
-                                this.sanitizeImplicitNodes(targetObj);
+                                this.sanitizeHydrogenNodes(this);
+                                this.sanitizeHydrogenNodes(targetObj);
                                 Kekule.MolStandardizer.standardize(this);
                                 Kekule.MolStandardizer.standardize(targetObj);
                                 nodes1 = this.getNonHydrogenNodes();
