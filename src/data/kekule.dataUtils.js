@@ -139,8 +139,11 @@ Kekule.ChemicalElementsDataUtil = {
    */
 	setMultiAtomElement: function(multiAtom)
 	{
-    var element = {symbol: multiAtom.multiatom, name: multiAtom.meta};
+		var multiAtomAtomicNumber = Kekule.chemicalElementsData.length + 1;
+		var element = {symbol: multiAtom.multiatom, atomicNumber: multiAtomAtomicNumber, name: multiAtom.meta};
+		var isotope = {elementSymbol: multiAtom.multiatom, atomicNumber: multiAtomAtomicNumber, isotopes: []};
     Kekule.chemicalElementsData.push(element);
+		Kekule.isotopesData.push(isotope);
 	}
 };
 
