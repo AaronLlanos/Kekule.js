@@ -2549,8 +2549,18 @@ Kekule.StructureConnectionTable = Class.create(ObjectEx,
 		var nodes = this.getNodes();
 		for (var i = 0, l = nodes.length; i < l; ++i)
 		{
-			if (nodes[i].getId() == id)
-				return nodes[i];
+			var node = nodes[i]
+			var nodeMarkers = node.getAttachedMarkers && node.getAttachedMarkers();
+			if (node.getId() === id)
+				return node;
+			else if (nodeMarkers && nodeMarkers.length) {
+				for (let j = 0; j < nodeMarkers.length; j++) {
+					const marker = nodeMarkers[j];
+					if (marker.getId() === id) {
+						return marker
+					}
+				}
+			}
 		}
 		return null;
 	},
