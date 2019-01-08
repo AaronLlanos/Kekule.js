@@ -12,7 +12,7 @@ module.exports = function(Kekule) {
 var Kekule = {
 	LIBNAME: 'Kekule.js',
 	LIBNAME_CORE: 'Kekule',
-	VERSION: '0.8.1.18112300',
+	VERSION: '0.8.1.19010500',
 	/**
 	 * A flag that indicate whether all essential Kekule modules are loaded into document.
 	 * @ignore
@@ -113,19 +113,27 @@ Kekule._registerAfterLoadProc = Kekule._ready;  // for backward
 /**
  * Root object of JavaScript environment, usually window.
  */
-if (typeof window !== 'undefined') {
-	Kekule.$jsRoot = window
-} else {
-	Kekule.$jsRoot = this || global
-}
+Kekule.$jsRoot = this;
+
+if (typeof(self) === 'object')
+	Kekule.$jsRoot = self;
+else if (typeof(window) === 'object' && window.document)
+	Kekule.$jsRoot = window;
+else if (typeof(global) === 'object')  // node env
+	Kekule.$jsRoot = global;
+
+Kekule.$jsRoot.Kekule = Kekule;
+
 /**
  * Root document of JavaScript environment.
  * Can be null in Node.js.
  */
+Kekule.$document = this.document || null;
+if (!Kekule.scriptSrcInfo)  // scriptSrcInfo maybe set already in node.js environment
 
-Kekule.$document = Kekule.$jsRoot && Kekule.$jsRoot.document;
-
-Kekule.scriptSrcInfo = Kekule.$jsRoot['__$kekule_load_info__'];
+{
+	Kekule.scriptSrcInfo = Kekule.$jsRoot['__$kekule_load_info__'];
+}
 if (Kekule.scriptSrcInfo && Kekule.scriptSrcInfo.language)  // force Language
 {
 	Kekule.language = Kekule.scriptSrcInfo.language;
@@ -205,5 +213,16 @@ if (Kekule.$jsRoot && Kekule.$jsRoot.addEventListener && Kekule.$jsRoot.postMess
 		}
 	}, false);
 }
-return Kekule
-}
+
+/**
+ * A namespace for development tools.
+ * @namespace
+ */
+Kekule.Dev = {};
+
+// Also store Class/ClassEx/ObjectEx/DataType in Kekule namespace
+/** @ignore */
+Kekule.Class = Class;
+Kekule.ClassEx = ClassEx;
+Kekule.ObjectEx = ObjectEx;
+Kekule.DataType = DataType;
