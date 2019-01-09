@@ -68,7 +68,18 @@ Kekule.ChemMarker.UnbondedElectronSet = Class.create(Kekule.ChemMarker.BaseMarke
 	{
 		$super();
 		this.setElectronCount(2);  // default is lone pair
-	}
+	},
+	/** @private */
+	doObjectChange: function($super, modifiedPropNames)
+	{
+		// We need this to notify the potential anchoredCurved arrows that we have moved.
+		if (modifiedPropNames.length && modifiedPropNames.indexOf('coord2D') != -1) {
+			var parent = this.getParent();
+			var x = (parent.coord2D.x + this.coord2D.x);
+			var y = (parent.coord2D.y + this.coord2D.y);
+			this.invokeEvent('objectMoved', { x, y });
+		}
+	},
 });
 
 /**
