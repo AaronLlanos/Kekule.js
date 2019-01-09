@@ -4820,32 +4820,6 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 								}
 							}
 						}
-
-                        var nodes1 = this.getNonHydrogenNodes();
-                        var nodes2 = targetObj.getNonHydrogenNodes();
-                        result = nodes1.length - nodes2.length;
-                        var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
-
-                        if (result === 0)
-                        {
-                        	// if it's implicit, remove the extra bonds to hydrogens, they are unnecessary
-							// to prove out the structure of the item, and at this point we've already
-							// tested the hydrogen decorations
-                        	if (hydrogen_display_type === 'IMPLICIT') {
-                                this.sanitizeHydrogenNodes(this);
-                                this.sanitizeHydrogenNodes(targetObj);
-                                Kekule.MolStandardizer.standardize(this);
-                                Kekule.MolStandardizer.standardize(targetObj);
-                                nodes1 = this.getNonHydrogenNodes();
-                        		nodes2 = targetObj.getNonHydrogenNodes();
-							}
-                        	for (var i = 0, l = nodes1.length; i < l; ++i)
-                            {
-								result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
-                                if (result !== 0)
-                                    break;
-                            }
-                        }
 					}
 					
 					// The node/connector sequence check can distinguish most molecules
