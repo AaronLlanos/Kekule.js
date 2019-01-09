@@ -1571,7 +1571,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		}
 
 		//console.log('merge operations', mergeOpers);
-
 		var result = $super() || [];
 		if (mergeOpers && mergeOpers.length)
 			Kekule.ArrayUtils.pushUnique(result, mergeOpers);
@@ -1580,14 +1579,21 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 	/** @private */
 	_canMergeArrowNodes: function(targetNode, dest)
 	{
+		var parentArc = targetNode.getParent()
+		var isArcNode = targetNode instanceof Kekule.Glyph.PathGlyphNode && parentArc instanceof Kekule.Glyph.Arc
 		// never allow merge to another molecule point (e.g. formula molecule) or subgroup
-		if ((targetNode instanceof Kekule.Glyph.PathGlyphNode) && (targetNode.getParent() instanceof Kekule.Glyph.Arc) && 
-			(dest instanceof Kekule.ChemStructureNode || dest instanceof Kekule.ChemMarker.UnbondedElectronSet || dest instanceof Kekule.ChemStructureConnector)) 
-		{
-			return true;
-		}
-			
-		return false;
+		var isValidDest = dest instanceof Kekule.ChemStructureNode || dest instanceof Kekule.ChemMarker.UnbondedElectronSet || dest instanceof Kekule.ChemStructureConnector
+		var isSiblingAlreadyAnchoredToSameDest = false
+		parentArc.getNodes().forEach(glyphNode => {
+			var isSiblingGlyphNode = glyphNode.getId() !== targetNode.getId()
+			if (isSiblingGlyphNode && glyphNode.anchorObj === dest.getId()) {
+				isSiblingAlreadyAnchoredToSameDest = true
+			}
+		})
+		// Renderer always assumes second node in list is the arrow head. We make the same assumption here.
+		var isArcHeadToElectron = dest instanceof Kekule.ChemMarker.UnbondedElectronSet && parentArc.getNodes()[1].getId() === targetNode.getId()
+
+		return isArcNode && isValidDest && !isSiblingAlreadyAnchoredToSameDest && !isArcHeadToElectron
 	},
 	/** @private */
 	_canMergeNodes: function(targetNode, destNode)
@@ -2088,8 +2094,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			if (eligibleObjs.length)  // has merge items
 			{
 				var eligibleObjCount = eligibleObjs.length;
-				//TODO I DON'T THINK WE WANT THIS
-				//this.setAllManipulateObjsMerged(eligibleObjCount === manipulatedObjs.length);
 				var singleEligibleObj = (eligibleObjCount <= 1);  // only one eligible node
 				var needCreateNewAnchorOperation = false;
 				var sameAnchorOpers = [];

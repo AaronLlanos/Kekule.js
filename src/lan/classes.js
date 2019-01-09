@@ -1275,7 +1275,9 @@ var DataType = {
 	OBJECTEX: 'objectex',
 	/** A CLASS */
 	CLASS: 'class',
-
+	/** A Set */
+	SET: 'set',
+	
 	/**
 	 * Returns whether a type name is string, number or boolean
 	 * @param {String} typeName
