@@ -1418,6 +1418,7 @@ Kekule.ChemStructOperation.MergeConnectors.canMerge = function(target, dest, can
 		return false;
 	}
 	if (target instanceof Kekule.Bond && dest instanceof Kekule.Glyph.PathGlyphArcConnector) {
+		// When draggin bond don't allow funky merge of atoms to glyph nodes
 		return false
 	}
 	return true;
