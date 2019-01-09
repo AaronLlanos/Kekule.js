@@ -76,9 +76,10 @@ The toolkit is released under [MIT](https://github.com/partridgejiang/Kekule.js/
     - ChemStructureObject
       - BaseStructureNode
         - PathGlyphNode
-        - ChemStructureNode
-          - AbstractAtom
-            - Atom
+          - ChemStructureNode
+            - StructureFragment
+              - AbstractAtom
+                - Atom
       - BaseStructureConnector
         - ChemStructureConnector
           - Bond
