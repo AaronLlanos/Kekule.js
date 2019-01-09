@@ -1417,6 +1417,9 @@ Kekule.ChemStructOperation.MergeConnectors.canMerge = function(target, dest, can
 	{
 		return false;
 	}
+	if (target instanceof Kekule.Bond && dest instanceof Kekule.Glyph.PathGlyphArcConnector) {
+		return false
+	}
 	return true;
 };
 /**
