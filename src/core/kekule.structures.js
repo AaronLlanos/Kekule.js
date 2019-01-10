@@ -626,7 +626,6 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 					var obj = linkedConnectors[i];
 					if (obj instanceof Kekule.Bond) {
 						var coord2D = obj.deriveBondCenter()
-						console.log(`moving bond ${obj.id} to ${JSON.stringify(coord2D)}`);
 						obj.invokeEvent('objectMoved', coord2D);
 					}
 				}

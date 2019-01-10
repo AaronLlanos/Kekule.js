@@ -112,7 +112,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		if (!toNode) {
 			toNode = this.getEditor().getChemObj().getObjById(arrowNode.getAnchorObj())
 		}
-		console.log(`remove curved arrow from target ${arrowNode.anchorObj} has id ${toNode.id}`);
+		// console.log(`remove curved arrow from target ${arrowNode.anchorObj} has id ${toNode.id}`);
 		arrowNode.setAnchorObj('');
 		delete toNode.getAttachedArcNodeIds()[arrowNode.getId()]
 		toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
@@ -620,8 +620,8 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	/** @private */
 	addEventListenerToAnchorObj: function(arcNode, toNode)
 	{
-		var srcMol = this.getEditor().getChemObj()
 		if (arcNode.anchorObj) {
+			var srcMol = this.getEditor().getChemObj()
 			toNode = toNode || srcMol.getObjById(arcNode.anchorObj)
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
 			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
