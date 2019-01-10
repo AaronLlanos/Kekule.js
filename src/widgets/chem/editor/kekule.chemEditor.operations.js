@@ -60,7 +60,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		var dest = this.getDest();
 
 		// Filter out memory leak eventListeners that were not properly removed.
-		if (dest.id !== curvedArrowNode.anchorObj) {
+		if (dest.id === curvedArrowNode.anchorObj) {
 			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.getAnchorObj())
 			// console.log('original coord2D', coord2D);
 			
