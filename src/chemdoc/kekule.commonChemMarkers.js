@@ -77,7 +77,7 @@ Kekule.ChemMarker.UnbondedElectronSet = Class.create(Kekule.ChemMarker.BaseMarke
 			var parent = this.getParent();
 			var x = (parent.coord2D.x + this.coord2D.x);
 			var y = (parent.coord2D.y + this.coord2D.y);
-			this.invokeEvent('objectMoved', { x, y });
+			// this.invokeEvent('objectMoved', { x, y }); // TODO: Need to fix this so it doesn't wipe structure on iniital load
 		}
 	},
 });

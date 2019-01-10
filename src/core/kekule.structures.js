@@ -625,10 +625,9 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 				{
 					var obj = linkedConnectors[i];
 					if (obj instanceof Kekule.Bond) {
-						var linkedObjs = obj.getConnectedObjs();
-						var x = (linkedObjs[0].coord2D.x + linkedObjs[1].coord2D.x) / 2.0;
-						var y = (linkedObjs[0].coord2D.y + linkedObjs[1].coord2D.y) / 2.0;
-						obj.invokeEvent('objectMoved', { x, y });
+						var coord2D = obj.deriveBondCenter()
+						console.log(`moving bond ${obj.id} to ${JSON.stringify(coord2D)}`);
+						obj.invokeEvent('objectMoved', coord2D);
 					}
 				}
 			}
@@ -7355,6 +7354,14 @@ Kekule.Bond = Class.create(Kekule.ChemStructureConnector,
 		{
 
 		}
+	},
+
+	deriveBondCenter: function()
+	{
+		var linkedObjs = this.getConnectedObjs();
+		var x = (linkedObjs[0].coord2D.x + linkedObjs[1].coord2D.x) / 2.0;
+		var y = (linkedObjs[0].coord2D.y + linkedObjs[1].coord2D.y) / 2.0;
+		return {x, y}
 	},
 
 	/**

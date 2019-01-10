@@ -56,9 +56,26 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		this.defineProp('editor', {'dataType': 'Kekule.Editor.BaseEditor', 'serializable': false});
 	},
 	moveCurveArrowToMatchChemStructure: function(coord2D) { 
-		var anchorNode = this.getDest();
 		var curvedArrowNode = this.getTarget();
-		if (anchorNode && anchorNode.getId() === curvedArrowNode.getAnchorObj()) {
+		var dest = this.getDest();
+
+		// Filter out memory leak eventListeners that were not properly removed.
+		if (dest.id !== curvedArrowNode.anchorObj) {
+			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.getAnchorObj())
+			// console.log('original coord2D', coord2D);
+			
+			if (anchorNode.coord2D) {
+				// console.log('anchorNode coord2D', anchorNode.coord2D);
+				coord2D = anchorNode.coord2D
+			}
+			var parent = anchorNode.getParent()
+			// Need to check if parent `Kekule.Molecule` has a position of it's own and do math on that to derive location.
+			if (parent && parent.coord2D) {
+				// console.log('parent coord2D', parent.coord2D);
+				coord2D.x += parent.coord2D.x
+				coord2D.y += parent.coord2D.y
+			}
+			// console.log(`moving curved arrow ${curvedArrowNode.id} to match ${anchorNode.id} to location`, anchorNode.coord2D || coord2D);
 			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
 			oper.execute();
 		}
@@ -66,7 +83,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 	getArcNodesFromChemStructObj: function(obj) {
 		var attachedArcNodeIds = obj.getAttachedArcNodeIds()
 		var glyphNodes = []
-		var srcMol = this.getEditor().exportObjs(Kekule.ChemDocument)[0].getChildren()
+		var srcMol = this.getEditor().getChemObj()
 		
 		srcMol.forEach(chemObj => {
 			if (chemObj instanceof Kekule.Glyph.Arc) {
@@ -83,10 +100,23 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		var target = this.getTarget();
 		if (!target.setAnchorObj) {
 			var glyphNodes = this.getArcNodesFromChemStructObj(target)
-			glyphNodes.forEach(node => node.setAnchorObj(''))
+			glyphNodes.forEach(node => {
+				this.removeListenersOnCurveArrow(node)
+			})
 		} else {
-			target.setAnchorObj('');
+			this.removeListenersOnCurveArrow(target)
 		}
+	},
+	removeListenersOnCurveArrow: function(arrowNode, toNode)
+	{
+		if (!toNode) {
+			toNode = this.getEditor().getChemObj().getObjById(arrowNode.getAnchorObj())
+		}
+		console.log(`remove curved arrow from target ${arrowNode.anchorObj} has id ${toNode.id}`);
+		arrowNode.setAnchorObj('');
+		delete toNode.getAttachedArcNodeIds()[arrowNode.getId()]
+		toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+		toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 	},
 	// A series of notification method to target object
 	/** @private */
@@ -570,14 +600,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		if (obj instanceof Kekule.Glyph.Arc) {
 			obj.nodes.forEach(n => this.addEventListenerToAnchorObj(n))
 		}
-		if (obj instanceof Kekule.Atom) {
-			// Need to do work for Electrons I think
-		}
 		if (parent && obj)
 		{
 			obj.setAttachedArcNodeIds(this.getAttachedArcNodeIds()) // Reset what the ids were from what is stored in the operation
 			var attachedGlyphNodes = this.getArcNodesFromChemStructObj(obj)
 			attachedGlyphNodes.forEach(glyphNode => {
+				console.log(`setting anchor obj on ${glyphNode.id} to ${obj.id} at coord`);
 				glyphNode.setAnchorObj(obj.getId())
 				this.addEventListenerToAnchorObj(glyphNode, obj)
 			})
@@ -592,7 +620,7 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	/** @private */
 	addEventListenerToAnchorObj: function(arcNode, toNode)
 	{
-		var srcMol = this.getEditor().exportObjs(Kekule.ChemDocument)[0].getChildren()[0]
+		var srcMol = this.getEditor().getChemObj()
 		if (arcNode.anchorObj) {
 			toNode = toNode || srcMol.getObjectById(arcNode.anchorObj)
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
@@ -1145,6 +1173,7 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 				oper.execute();
 				this._moveNodeOperations.push(oper);
 			}
+			// console.log(`setting anchor obj on ${fromNode.id} to ${toNode.id} with coords ${JSON.stringify(toNode.coord2D || toNode.deriveBondCenter())}`);
 			fromNode.setAnchorObj(toNode.getId());
 			toNode.getAttachedArcNodeIds()[fromNode.getId()] = fromNode.getId()
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
@@ -1166,10 +1195,7 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 			{
 				opers[i].reverse();
 			}
-			fromNode.setAnchorObj('');
-			delete toNode.getAttachedArcNodeIds()[fromNode.getId()]
-			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-			toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
+			this.removeListenersOnCurveArrow(fromNode, toNode)
 		}
 		finally
 		{
