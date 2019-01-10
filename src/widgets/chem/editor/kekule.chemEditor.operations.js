@@ -622,7 +622,7 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	{
 		var srcMol = this.getEditor().getChemObj()
 		if (arcNode.anchorObj) {
-			toNode = toNode || srcMol.getObjectById(arcNode.anchorObj)
+			toNode = toNode || srcMol.getObjById(arcNode.anchorObj)
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
 			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 			return toNode
