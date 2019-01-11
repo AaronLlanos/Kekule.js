@@ -109,14 +109,13 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 	},
 	removeListenersOnCurveArrow: function(arrowNode, toNode)
 	{
-		if (!toNode) {
+		if (arrowNode.getAnchorObj() && !toNode) {
 			toNode = this.getEditor().getChemObj().getObjById(arrowNode.getAnchorObj())
+			delete toNode.getAttachedArcNodeIds()[arrowNode.getId()]
+			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
-		// console.log(`remove curved arrow from target ${arrowNode.anchorObj} has id ${toNode.id}`);
 		arrowNode.setAnchorObj('');
-		delete toNode.getAttachedArcNodeIds()[arrowNode.getId()]
-		toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-		toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 	},
 	// A series of notification method to target object
 	/** @private */
@@ -559,6 +558,12 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		{
 			owner = obj.getOwner();
 			this.setOwnerObj(owner);
+		}
+		if (obj instanceof Kekule.Glyph.PathGlyphNode) {
+			this.removeListenersOnCurveArrow(obj)
+		}
+		if (obj instanceof Kekule.Glyph.Arc) {
+			obj.nodes.forEach(n => this.removeListenersOnCurveArrow(n))
 		}
 		if (parent && obj)
 		{
