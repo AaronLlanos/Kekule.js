@@ -340,6 +340,7 @@ Kekule.ChemObjOperation.MoveTo = Class.create(Kekule.ChemObjOperation.Base,
 	/** @private */
 	doReverse: function()
 	{
+		console.log(`doing reverse move on ${this.getTarget().id}`)
 		if (this.getOldCoord())
 		{
 			this.setObjCoord(this.getTarget(), this.getOldCoord(), this.getCoordMode());
