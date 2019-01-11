@@ -85,7 +85,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		var glyphNodes = []
 		var srcMol = this.getEditor().getChemObj()
 		
-		srcMol.forEach(chemObj => {
+		srcMol.getOwnedObjs().forEach(chemObj => {
 			if (chemObj instanceof Kekule.Glyph.Arc) {
 				chemObj.getNodes().forEach(glyphNode => {
 					if (attachedArcNodeIds[glyphNode.getId()]) {
@@ -545,6 +545,9 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	doExecute: function()
 	{
 		var obj = this.getTarget();
+		if (obj instanceof Kekule.Glyph.PathGlyphArcConnectorControlNode) {
+			obj = obj.getParent().getParent();
+		}
 		var parent = this.getParentObj();
 		var owner = this.getOwnerObj();
 		if (!parent && obj.getParent)
@@ -569,21 +572,18 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 				this.setRefSibling(sibling);
 			}
 
-			//console.log('remove', obj.getId());
 			// ensure obj is also removed from editor's selection
 			var editor = this.getEditor();
 			var needModifySelection = this._isInEditorSelection(obj);
 			if (needModifySelection)
 				editor.beginUpdateSelection();
 
-			//console.log('remove child', parent.getClassName(), obj.getClassName());
 			this.notifyBeforeRemovingByEditor(obj, parent);
 			parent.removeChild(obj);
 			this.notifyAfterRemovingByEditor(obj, parent);
 
 			if (needModifySelection)
 			{
-				//console.log('remove from selection', obj.getId());
 				editor.removeFromSelection(obj);
 				editor.endUpdateSelection();
 			}
