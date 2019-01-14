@@ -83,17 +83,21 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 	getArcNodesFromChemStructObj: function(obj) {
 		var attachedArcNodeIds = obj.getAttachedArcNodeIds()
 		var glyphNodes = []
-		var srcMol = this.getEditor().getChemObj()
-		
-		srcMol.getOwnedObjs().forEach(chemObj => {
-			if (chemObj instanceof Kekule.Glyph.Arc) {
-				chemObj.getNodes().forEach(glyphNode => {
-					if (attachedArcNodeIds[glyphNode.getId()]) {
-						glyphNodes.push(glyphNode)
-					}
-				})
-			}
-		})
+		var editor = this.getEditor();
+		var srcMol = editor && editor.getChemObj && editor.getChemObj()
+
+		if (srcMol) {
+			srcMol.getOwnedObjs().forEach(chemObj => {
+				if (chemObj instanceof Kekule.Glyph.Arc) {
+					chemObj.getNodes().forEach(glyphNode => {
+						if (attachedArcNodeIds[glyphNode.getId()]) {
+							glyphNodes.push(glyphNode)
+						}
+					})
+				}
+			})
+		}
+
 		return glyphNodes
 	},
 	removeCurveArrowAnchor: function(coord2D) { 
@@ -339,10 +343,14 @@ Kekule.ChemObjOperation.MoveTo = Class.create(Kekule.ChemObjOperation.Base,
 	/** @private */
 	doReverse: function()
 	{
-		console.log(`doing reverse move on ${this.getTarget().id}`)
+		var obj = this.getTarget()
+		console.log(`doing reverse move on ${obj.id}`)
+		if (obj instanceof Kekule.Glyph.PathGlyphNode) {
+			
+		}
 		if (this.getOldCoord())
 		{
-			this.setObjCoord(this.getTarget(), this.getOldCoord(), this.getCoordMode());
+			this.setObjCoord(obj, this.getOldCoord(), this.getCoordMode());
 		}
 	}
 });
