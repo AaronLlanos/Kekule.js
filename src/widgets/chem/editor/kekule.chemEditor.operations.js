@@ -58,25 +58,26 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 	moveCurveArrowToMatchChemStructure: function(coord2D) { 
 		var curvedArrowNode = this.getTarget();
 		var dest = this.getDest();
+		var newCoord = Object.assign({}, coord2D)
 
 		// Filter out memory leak eventListeners that were not properly removed.
-		if (dest.id === curvedArrowNode.anchorObj) {
-			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.getAnchorObj())
-			// console.log('original coord2D', coord2D);
+		if (dest.id && dest.id === curvedArrowNode.anchorObj) {
+			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.anchorObj)
+			console.log('original coord2D', newCoord);
 			
 			if (anchorNode.coord2D) {
-				// console.log('anchorNode coord2D', anchorNode.coord2D);
-				coord2D = anchorNode.coord2D
+				console.log('anchorNode coord2D', anchorNode.coord2D);
+				Object.assign(newCoord, anchorNode.coord2D)
 			}
 			var parent = anchorNode.getParent()
 			// Need to check if parent `Kekule.Molecule` has a position of it's own and do math on that to derive location.
 			if (parent && parent.coord2D) {
-				// console.log('parent coord2D', parent.coord2D);
-				coord2D.x += parent.coord2D.x
-				coord2D.y += parent.coord2D.y
+				console.log('parent coord2D', parent.coord2D);
+				newCoord.x += parent.coord2D.x
+				newCoord.y += parent.coord2D.y
 			}
-			// console.log(`moving curved arrow ${curvedArrowNode.id} to match ${anchorNode.id} to location`, anchorNode.coord2D || coord2D);
-			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, coord2D, Kekule.CoordMode.COORD2D, true, this.getEditor());
+			console.log(`moving curved arrow ${curvedArrowNode.id} to match ${anchorNode.id} to location`, newCoord, coord2D);
+			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, newCoord, Kekule.CoordMode.COORD2D, true, this.getEditor());
 			oper.execute();
 		}
 	},
@@ -1184,7 +1185,7 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 				oper.execute();
 				this._moveNodeOperations.push(oper);
 			}
-			// console.log(`setting anchor obj on ${fromNode.id} to ${toNode.id} with coords ${JSON.stringify(toNode.coord2D || toNode.deriveBondCenter())}`);
+			console.log(`setting anchor obj on ${fromNode.id} to ${toNode.id} with coords ${JSON.stringify(toNode.coord2D || toNode.deriveBondCenter())}`);
 			fromNode.setAnchorObj(toNode.getId());
 			toNode.getAttachedArcNodeIds()[fromNode.getId()] = fromNode.getId()
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
