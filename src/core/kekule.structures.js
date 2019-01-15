@@ -4686,7 +4686,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return 0;
 	},
 
-	/** @ignore */
+	//// this is where most of the molcule grading happens
 	doCompare: function($super, targetObj, options)
 	{
 		//console.log('do compare structure', options);
