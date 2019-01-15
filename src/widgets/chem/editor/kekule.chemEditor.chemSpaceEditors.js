@@ -1541,6 +1541,9 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		if (isTheFinalOperationToEditor && this.useMergePreview())
 		{
 			var previewOpers = this.getMergePreviewOperations();
+			if (previewOpers && !previewOpers.length) {
+				previewOpers = this.getAnchorPreviewOperations();
+			}
 			if (previewOpers && previewOpers.length)
 			{
 				//console.log('preview opers', previewOpers);
@@ -1550,14 +1553,18 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 					var previewOper = previewOpers[i];
 					if (previewOper)  // may be empty slot in operations
 					{
-						var mergeConnector = (previewOper instanceof Kekule.ChemStructOperation.MergeConnectorsBase);
+						var oper;
+						if (previewOper instanceof Kekule.ChemStructOperation.AnchorNodesPreview) {
+							oper = this.createNodeAnchorOperation(previewOper.getTarget(), previewOper.getDest());
+						} else if (previewOper instanceof Kekule.ChemStructOperation.MergeConnectorsBase) {
+							oper = this.createConnectorMergeOperation(previewOper.getTarget(), previewOper.getDest())
+						} else {
+							oper = this.createNodeMergeOperation(previewOper.getTarget(), previewOper.getDest());
+						}
 						/*
 						 Kekule.ChemStructOperation.MergeConnectors:
 						 Kekule.ChemStructOperation.MergeNodes;
 						 */
-						var oper = mergeConnector ?
-								this.createConnectorMergeOperation(previewOper.getTarget(), previewOper.getDest()) :
-								this.createNodeMergeOperation(previewOper.getTarget(), previewOper.getDest());
 						opers.push(oper);
 					}
 				}

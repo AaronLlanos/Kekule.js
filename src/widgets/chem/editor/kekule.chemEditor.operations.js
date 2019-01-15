@@ -63,20 +63,20 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		// Filter out memory leak eventListeners that were not properly removed.
 		if (dest.id && dest.id === curvedArrowNode.anchorObj) {
 			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.anchorObj)
-			console.log('original coord2D', newCoord);
+			// console.log('original coord2D', newCoord);
 			
 			if (anchorNode.coord2D) {
-				console.log('anchorNode coord2D', anchorNode.coord2D);
+				// console.log('anchorNode coord2D', anchorNode.coord2D);
 				Object.assign(newCoord, anchorNode.coord2D)
 			}
 			var parent = anchorNode.getParent()
 			// Need to check if parent `Kekule.Molecule` has a position of it's own and do math on that to derive location.
 			if (parent && parent.coord2D) {
-				console.log('parent coord2D', parent.coord2D);
+				// console.log('parent coord2D', parent.coord2D);
 				newCoord.x += parent.coord2D.x
 				newCoord.y += parent.coord2D.y
 			}
-			console.log(`moving curved arrow ${curvedArrowNode.id} to match ${anchorNode.id} to location`, newCoord, coord2D);
+			// console.log(`moving curved arrow ${curvedArrowNode.id} to match ${anchorNode.id} to location`, newCoord, coord2D);
 			var oper = new Kekule.ChemObjOperation.MoveTo(curvedArrowNode, newCoord, Kekule.CoordMode.COORD2D, true, this.getEditor());
 			oper.execute();
 		}
@@ -336,6 +336,7 @@ Kekule.ChemObjOperation.MoveTo = Class.create(Kekule.ChemObjOperation.Base,
 	doExecute: function()
 	{
 		var obj = this.getTarget();
+		// console.log('executing MoveTo on ', obj.CLASS_NAME, obj.id);
 		if (!this.getOldCoord())
 			this.setOldCoord(this.getObjCoord(obj, this.getCoordMode()));
 		if (this.getNewCoord())
@@ -345,7 +346,7 @@ Kekule.ChemObjOperation.MoveTo = Class.create(Kekule.ChemObjOperation.Base,
 	doReverse: function()
 	{
 		var obj = this.getTarget()
-		console.log(`doing reverse move on ${obj.id}`)
+		// console.log(`doing reverse move on ${obj.id}`)
 		if (obj instanceof Kekule.Glyph.PathGlyphNode) {
 			
 		}
@@ -981,6 +982,7 @@ Kekule.ChemStructOperation.MergeNodes = Class.create(Kekule.ChemStructOperation.
 	{
 		var fromNode = this.getTarget();
 		var toNode = this.getDest();
+		// console.log('calling MergeNodes on', fromNode.CLASS_NAME, fromNode.id, 'to', toNode.CLASS_NAME, toNode.id);
 		var structFragment = (fromNode instanceof Kekule.ChemMarker.UnbondedElectronSet)? fromNode.getParent().getParentFragment() : fromNode.getParentFragment();
 		var destFragment = (toNode instanceof Kekule.ChemMarker.UnbondedElectronSet)? toNode.getParent().getParentFragment() : toNode.getParentFragment();
 		if (structFragment !== destFragment)  // from different molecule
@@ -1185,7 +1187,7 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 				oper.execute();
 				this._moveNodeOperations.push(oper);
 			}
-			console.log(`setting anchor obj on ${fromNode.id} to ${toNode.id} with coords ${JSON.stringify(toNode.coord2D || toNode.deriveBondCenter())}`);
+			// console.log(`setting anchor obj on ${fromNode.id} to ${toNode.id} with coords ${JSON.stringify(toNode.coord2D || toNode.deriveBondCenter())}`);
 			fromNode.setAnchorObj(toNode.getId());
 			toNode.getAttachedArcNodeIds()[fromNode.getId()] = fromNode.getId()
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
