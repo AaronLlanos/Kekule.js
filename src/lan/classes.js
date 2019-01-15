@@ -3415,6 +3415,8 @@ $jsRoot.Class = Class;
 $jsRoot.ClassEx = ClassEx;
 $jsRoot.ObjectEx = ObjectEx;
 $jsRoot.DataType = DataType;
+DataType.JsonUtility = require('./xmlJsons').JsonUtility;
+DataType.XmlUtility = require('./xmlJsons').XmlUtility;
 
 module.exports = {
   Class,
