@@ -1275,9 +1275,7 @@ var DataType = {
 	OBJECTEX: 'objectex',
 	/** A CLASS */
 	CLASS: 'class',
-	/** A Set */
-	SET: 'set',
-	
+
 	/**
 	 * Returns whether a type name is string, number or boolean
 	 * @param {String} typeName
@@ -3094,8 +3092,10 @@ ObjectEx = Class.create(
 			  {
 				  break;
 			  }
-	  		var handlerInfo = handlerList.getHandlerInfo(i);
-        handlerInfo.handler.apply(handlerInfo.thisArg, [event]);
+				var handlerInfo = handlerList.getHandlerInfo(i);
+				if (handlerInfo) {
+					handlerInfo.handler.apply(handlerInfo.thisArg, [event]);
+				}
 	  	}
   	}
     if (!event._cancelBubble && this.getBubbleEvent())

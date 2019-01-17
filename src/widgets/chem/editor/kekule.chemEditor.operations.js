@@ -61,7 +61,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		var newCoord = Object.assign({}, coord2D)
 
 		// Filter out memory leak eventListeners that were not properly removed.
-		if (dest.id && dest.id === curvedArrowNode.anchorObj) {
+		if (dest && dest.id && dest.id === curvedArrowNode.anchorObj) {
 			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.anchorObj)
 			// console.log('original coord2D', newCoord);
 			
@@ -108,7 +108,7 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 			glyphNodes.forEach(node => {
 				this.removeListenersOnCurveArrow(node)
 			})
-		} else {
+		} else if (target.anchorObj && target.anchorObj.length) {
 			this.removeListenersOnCurveArrow(target)
 		}
 	},
@@ -118,7 +118,6 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 			toNode = this.getEditor().getChemObj().getObjById(arrowNode.getAnchorObj())
 			delete toNode.getAttachedArcNodeIds()[arrowNode.getId()]
 			toNode.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-			toNode.removeEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
 		arrowNode.setAnchorObj('');
 	},
@@ -524,12 +523,6 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	initialize: function($super, chemObj, parentObj, refSibling, editor)
 	{
 		$super(chemObj, editor);
-		if (chemObj instanceof Kekule.Glyph.PathGlyphNode) {
-			var anchorObj = this.addEventListenerToAnchorObj(chemObj);
-			if (anchorObj) {
-				this.setDest(anchorObj);
-			}
-		}
 		this.setParentObj(parentObj);
 		this.setRefSibling(refSibling);
 	},
@@ -577,10 +570,17 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		}
 		if (parent && obj)
 		{
-			var attachedArcNodeIds = this.getAttachedArcNodeIds()
-			if (!attachedArcNodeIds) {
-				this.setAttachedArcNodeIds(obj.getAttachedArcNodeIds()) // Save these for undo/redo stack
-			}
+			var attachedArcNodeIds = {}
+			Object.keys(obj.getAttachedArcNodeIds()).forEach(glyphNodeId => {
+				var glyphNodeFromId = this.getEditor().getChemObj().getObjById(glyphNodeId)
+				if (glyphNodeFromId && glyphNodeFromId.anchorObj === obj.id) {
+					attachedArcNodeIds[glyphNodeId] = glyphNodeId
+					glyphNodeFromId.setAnchorObj('');
+				} 
+				obj.removeEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
+			})
+			this.setAttachedArcNodeIds(attachedArcNodeIds)
+			console.log(`deleting node ${obj.id} ${obj.CLASS_NAME}`, attachedArcNodeIds);
 			if (!this.getRefSibling())
 			{
 				var sibling = obj.getNextSibling? obj.getNextSibling(): null;
@@ -620,8 +620,8 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 		{
 			obj.setAttachedArcNodeIds(this.getAttachedArcNodeIds()) // Reset what the ids were from what is stored in the operation
 			var attachedGlyphNodes = this.getArcNodesFromChemStructObj(obj)
+			console.log(`undo d node ${obj.id} ${obj.CLASS_NAME}`, attachedGlyphNodes);
 			attachedGlyphNodes.forEach(glyphNode => {
-				console.log(`setting anchor obj on ${glyphNode.id} to ${obj.id} at coord`);
 				glyphNode.setAnchorObj(obj.getId())
 				this.addEventListenerToAnchorObj(glyphNode, obj)
 			})
@@ -640,7 +640,6 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 			var srcMol = this.getEditor().getChemObj()
 			toNode = toNode || srcMol.getObjById(arcNode.anchorObj)
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 			return toNode
 		}
 	}
@@ -1191,7 +1190,6 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 			fromNode.setAnchorObj(toNode.getId());
 			toNode.getAttachedArcNodeIds()[fromNode.getId()] = fromNode.getId()
 			toNode.addEventListener('objectMoved', this.moveCurveArrowToMatchChemStructure, this);
-			toNode.addEventListener('objectRemoved', this.removeCurveArrowAnchor, this);
 		}
 		finally
 		{
