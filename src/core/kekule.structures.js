@@ -4476,8 +4476,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 	compareHydrogens: function(targetObj, options, result)
 	{
 		var result = 0;
-        var hNodes1 = this.getHydrogenNodes();
-        var hNodes2 = targetObj.getHydrogenNodes();
+        var hNodes1 = this.getNodes();
+        var hNodes2 = targetObj.getNodes();
+        // this will validate the decorations if there is only a single node
         if (hNodes1.length === 1 && hNodes2.length === 1) {
             var hydrogenObj1 = hNodes1[0];
             var hydrogenObj2 = hNodes2[0];
@@ -4798,10 +4799,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						{
 							for (var i = 0, l = connectors1.length; i < l; ++i)
 							{
-                                options.doStandardize = true;
-                                // Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
+								options.doStandardize = true;
+								// Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
 								result = this.doCompareOnValue(connectors1[i], connectors2[i], options);
-                                // Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
+								// Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
 								if (result !== 0)
 								break;
 								else
