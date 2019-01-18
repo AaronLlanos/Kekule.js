@@ -1648,7 +1648,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			var isCorrectType = false;
 			for (var j = targetClasses.length - 1; j >= 0; --j)
 			{
-				if (!(obj instanceof targetClasses[j])) {
+				if ((obj instanceof targetClasses[j])) {
 					isCorrectType = true;
 					break;
 				}
@@ -1678,15 +1678,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		if (nodeScreenCoord)
 		{
 			var boundInfos = editor.getBoundInfosAtCoord(nodeScreenCoord, filterFunc, this.getCurrBoundInflation());
-			//console.log('boundInfos', boundInfos);
-			/*
-			var overlapBoundInfo = this._findSuitableMergeTargetBoundInfo(boundInfos, excludedObjs, Kekule.ChemStructureNode,
-					function(destObj)
-					{
-						return self._canMergeNodes(node, destObj);
-					}
-			);
-			*/
 			var overlapBoundInfo = boundInfos.length? boundInfos[boundInfos.length - 1]: null;
 			return overlapBoundInfo? overlapBoundInfo.obj: null;
 		}
@@ -1791,9 +1782,9 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		var objCanBeMerged = function(obj)
 		{
 			if (obj instanceof Kekule.StructureFragment)
-			return false;
+				return false;
 			else
-			return (obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) || (obj instanceof Kekule.Glyph.PathGlyphNode);
+				return (obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemStructureConnector) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) || (obj instanceof Kekule.Glyph.PathGlyphNode);
 		} ;
 		
 		// handle mouse position merge and magnetic merge here
@@ -2052,8 +2043,6 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				return;
 			}
 		}
-		console.log('isMovingOneBond', isMovingOneBond);
-		console.log('isMovingOneNode', isMovingOneNode);
 		var currManipulateInfoMap = this.getManipulateObjCurrInfoMap();
 		var manipulateInfoMap = this.getManipulateObjInfoMap();
 		var self = this;
