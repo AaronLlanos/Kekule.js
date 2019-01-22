@@ -1006,7 +1006,7 @@ Kekule.ChemStructOperation.MergeNodes = Class.create(Kekule.ChemStructOperation.
 			var editor = this.getEditor();
 			// Copy over data of attached glyph nodes
 			var changedGlyphNodes = {};
-			(fromNode.getAttachedArcNodeIds() || []).forEach(glyphId => {
+			(Object.keys(fromNode.getAttachedArcNodeIds())).forEach(glyphId => {
 				var glyphNode = editor.chemObj.getObjById(glyphId)
 				if (glyphNode && glyphNode.anchorObj === fromNode.id) {
 					changedGlyphNodes[glyphId] = {fromNodeId: fromNode.id, toNodeId: toNode.id}
