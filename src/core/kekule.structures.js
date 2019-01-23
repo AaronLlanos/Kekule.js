@@ -4481,6 +4481,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						continue;
 					}
 
+                    if (tmpResult === 0) {
+                        if (nodes1[i].getSingleElectronCount() !== nodes2[j].getSingleElectronCount()) {
+                            tmpResult = -1;
+                            continue;
+                        }
+                    }
+
 					var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
 					var skeletal_mode = this._getComparisonOptionFlagValue(options, 'skeletalMode') || false;
 					
