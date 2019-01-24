@@ -683,6 +683,34 @@ Kekule.ChemStructureObject = Class.create(Kekule.ChemObject,
 			//console.log('change struct by',  Kekule.ArrayUtils.intersect(modifiedPropNames || [], this.getStructureRelatedPropNames()));
 			this.structureChange();
 		}
+
+		if (modifiedPropNames.length && modifiedPropNames.indexOf('coord2D') != -1) {
+			//console.log('modifying 2d ' + this.getId() + " _ " + this.coord2D.x + " " + this.coord2D.y);
+			this.invokeEvent('objectMoved', this.coord2D);
+			var linkedConnectors = this.getLinkedConnectors();
+			if (linkedConnectors) {
+				for (var i = 0; i < linkedConnectors.length; i++)
+				{
+					var obj = linkedConnectors[i];
+					if (obj instanceof Kekule.Bond) {
+						var coord2D = obj.deriveBondCenter()
+						obj.invokeEvent('objectMoved', coord2D);
+					}
+				}
+			}
+			var attachedMarkers = this.getAttachedMarkers();
+			if (attachedMarkers) {
+				for (var i = 0; i < attachedMarkers.length; i++)
+				{
+					var obj = attachedMarkers[i];
+					if (obj instanceof Kekule.ChemMarker.UnbondedElectronSet) {
+						var x = (this.coord2D.x + obj.coord2D.x);
+						var y = (this.coord2D.y + obj.coord2D.y);
+						obj.invokeEvent('objectMoved', { x, y });
+					}
+				}
+			}
+		}
 	}
 });
 
@@ -2640,8 +2668,18 @@ Kekule.StructureConnectionTable = Class.create(ObjectEx,
 		var nodes = this.getNodes();
 		for (var i = 0, l = nodes.length; i < l; ++i)
 		{
-			if (nodes[i].getId() == id)
-				return nodes[i];
+			var node = nodes[i]
+			var nodeMarkers = node.getAttachedMarkers && node.getAttachedMarkers();
+			if (node.getId() === id)
+				return node;
+			else if (nodeMarkers && nodeMarkers.length) {
+				for (let j = 0; j < nodeMarkers.length; j++) {
+					const marker = nodeMarkers[j];
+					if (marker.getId() === id) {
+						return marker
+					}
+				}
+			}
 		}
 		return null;
 	},
@@ -4575,8 +4613,9 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 	compareHydrogens: function(targetObj, options, result)
 	{
 		var result = 0;
-        var hNodes1 = this.getHydrogenNodes();
-        var hNodes2 = targetObj.getHydrogenNodes();
+        var hNodes1 = this.getNodes();
+        var hNodes2 = targetObj.getNodes();
+        // this will validate the decorations if there is only a single node
         if (hNodes1.length === 1 && hNodes2.length === 1) {
             var hydrogenObj1 = hNodes1[0];
             var hydrogenObj2 = hNodes2[0];
@@ -4783,7 +4822,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 		return 0;
 	},
 
-	/** @ignore */
+	//// this is where most of the molcule grading happens
 	doCompare: function($super, targetObj, options)
 	{
 		//console.log('do compare structure', options);
@@ -4897,10 +4936,10 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						{
 							for (var i = 0, l = connectors1.length; i < l; ++i)
 							{
-                                options.doStandardize = true;
-                                // Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
+								options.doStandardize = true;
+								// Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
 								result = this.doCompareOnValue(connectors1[i], connectors2[i], options);
-                                // Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
+								// Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
 								if (result !== 0)
 								break;
 								else
@@ -7483,6 +7522,14 @@ Kekule.Bond = Class.create(Kekule.ChemStructureConnector,
 		{
 
 		}
+	},
+
+	deriveBondCenter: function()
+	{
+		var linkedObjs = this.getConnectedObjs();
+		var x = (linkedObjs[0].coord2D.x + linkedObjs[1].coord2D.x) / 2.0;
+		var y = (linkedObjs[0].coord2D.y + linkedObjs[1].coord2D.y) / 2.0;
+		return {x, y}
 	},
 
 	/**
