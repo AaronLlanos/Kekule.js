@@ -4751,6 +4751,50 @@ Kekule.Editor.MolRingIaController = Class.create(Kekule.Editor.RepositoryIaContr
 	initialize: function($super, editor)
 	{
 		$super(editor);
+		this.setRepositoryItem(new Kekule.Editor.MolRingRepositoryItem2D());
+	},
+	/** @ignore */
+	getActualManipulatingObjects: function(objs)
+	{
+		// since we are sure that the manipulated objects is carbon chain itself,
+		// we can return all its atoms as the actual manipulating objects / coord dependent objects
+		var mol = this.getCurrRepositoryObjects()[0];
+		//console.log(mol);
+		return mol? AU.clone(mol.getNodes()): [];
+	},
+	/** @private */
+	initProperties: function()
+	{
+		this.defineProp('ringAtomCount', {'dataType': DataType.INT,
+			'getter': function() { return this.getRepositoryItem().getRingAtomCount(); },
+			'setter': function(value) { this.getRepositoryItem().setRingAtomCount(value); }
+		});
+		this.defineProp('isAromatic', {'dataType': DataType.INT,
+			'getter': function() { return this.getRepositoryItem().getIsAromatic(); },
+			'setter': function(value) { this.getRepositoryItem().setIsAromatic(value); }
+		});
+	}
+});
+// register
+Kekule.Editor.IaControllerManager.register(Kekule.Editor.MolRingIaController, Kekule.Editor.ChemSpaceEditor);
+
+/**
+ * Controller to add repository structure into chem space.
+ * @class
+ * @augments Kekule.Editor.RepositoryIaController
+ *
+ * @property {Int} ringAtomCount Atom count on ring.
+ * @property {Bool} isAromatic Whether this ring is a aromatic one (single/double bond intersect),
+ */
+Kekule.Editor.RepositoryStructureFragmentIaController = Class.create(Kekule.Editor.RepositoryIaController,
+/** @lends Kekule.Editor.RepositoryStructureFragmentIaController# */
+{
+	/** @private */
+	CLASS_NAME: 'Kekule.Editor.RepositoryStructureFragmentIaController',
+	/** @construct */
+	initialize: function($super, editor)
+	{
+		$super(editor);
 	},
 	/** @private */
 	initProperties: function()
