@@ -4948,8 +4948,8 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
                                     targetObj.sanitizeHydrogenNodes();
 								}
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
-                                Kekule.MolStandardizer.standardize(this);
-                                Kekule.MolStandardizer.standardize(targetObj);
+                            	Kekule.MolStandardizer.standardize(this, options);
+                                Kekule.MolStandardizer.standardize(targetObj, options);
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
                             }
 
