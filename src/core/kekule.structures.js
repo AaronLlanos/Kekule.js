@@ -1144,6 +1144,22 @@ Kekule.AbstractAtom = Class.create(Kekule.ChemStructureNode,
 		return $super().concat(['explicitHydrogenCount']);
 	},
 
+    /** @ignore */
+    doCompare: function($super, targetObj, options)
+    {
+        var result = $super(targetObj, options);
+        if (!result && options.method === Kekule.ComparisonMethod.CHEM_STRUCTURE)
+        {
+            if (this._getComparisonOptionFlagValue(options, 'hydrogenCount'))
+            {
+                var c1 = this.getHydrogenCount(true);
+                var c2 = targetObj.getHydrogenCount && targetObj.getHydrogenCount(true);
+                result = this.doCompareOnValue(c1, c2, options);
+            }
+        }
+        return result;
+    },
+
 	/**
 	 * Returns hydrogen count linked to this atom.
 	 * Same as getExplicitHydrogenCount if includingBondedHydrogen is false.
