@@ -1990,7 +1990,7 @@ Kekule.Widget.BaseWidget = Class.create(ObjectEx,
 				//Kekule.Widget.globalManager.unregisterDialogWidget(this);
 				gm.unregisterDialogWidget(this);
 		}
-		this.doWidgetShowStateChanged(isShown);
+		//this.doWidgetShowStateChanged(isShown);
 		if (this._enableShowHideEvents)
 		{
 			this.invokeEvent('showStateChange', {

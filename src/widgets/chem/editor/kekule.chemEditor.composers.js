@@ -2438,7 +2438,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 		{
 			var name = btns[i];
 			var btn = this.createToolButton(name, toolbar, actions, checkGroup);
-			if (i === 0)
+			if ((i === 0 && btn.getElement().id !== 'btnSelect') || (btn.getElement().id === 'btnDraw'))
 				firstBtn = btn;
 		}
 		this.setChemBtnGroup(toolbar);
