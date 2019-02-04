@@ -104,7 +104,11 @@ if (Kekule.$jsRoot.window) {
 		},
 		mutationObserver: window.MutationObserver || window.MozMutationObserver || window.WebkitMutationObserver,
 		touchEvent: !!window.touchEvent,
-		pointerEvent: !!window.PointerEvent
+		pointerEvent: !!window.PointerEvent,
+		draggable: (function() {
+			var div = document.createElement('div');
+			return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
+		})()
 	};
 }
 
@@ -135,6 +139,7 @@ if (Kekule.$jsRoot.requestAnimationFrame) {
 			};
 	}());
 }
+
 
 /**
  * Namespace for XBrowser lib.
@@ -1174,6 +1179,33 @@ if (eproto)  // IE7 can not get event prototype, sucks
 };
 
 
+// enable drag draggable element in IE
+(function(){
+	if (typeof(document) !== 'undefined')
+	{
+		var div = document.createElement('div');
+		var needPolyfill = !('draggable' in div) && ('ondragstart' in div && 'ondrop' in div);
+		//var needPolyfill = !!Kekule.Browser.IE;
+		if (needPolyfill)
+		{
+			Kekule.X.Event.addListener(document, 'selectstart', function(e){
+				for (var el = e.target; el; el = el.parentNode) {
+					if (el.attributes && el.attributes['draggable']) {
+						e.preventDefault();
+						if (e.stopImmediatePropagation)
+							e.stopImmediatePropagation();
+						else
+							e.stopPropagation();
+						el.dragDrop();
+						return false;
+					}
+				}
+			});
+		}
+	}
+})();
+
+
 /////////////////////////////////////////////////////////////
 //   Cross browser AJAX supporting
 /////////////////////////////////////////////////////////////
@@ -1385,10 +1417,13 @@ Kekule.X.DomReady = {
 	{
 		return DOM.suspendFlag > 0;
 	},
-  initReady: function()
+  initReady: function initReady()
   {
-    if (Kekule.$document && Kekule.$document.addEventListener) {
-      document.addEventListener( "DOMContentLoaded", DOM.fireReady, {once: true});
+	if (Kekule.$document && Kekule.$document.addEventListener) {
+      document.addEventListener( "DOMContentLoaded", function(){
+	      document.removeEventListener( "DOMContentLoaded", initReady /*arguments.callee*/, false );//清除加载函数
+        DOM.fireReady();
+      }, false);
     }
     else
     {
