@@ -74,8 +74,11 @@ Kekule.MolStandardizer = {
 			Kekule.canonicalizer.canonicalize(mol, op.canonicalizerExecutorId || null);
 			mol.perceiveStereos(null, true);  // stereo detection should do canonicalization first
 		}
-		else*/ if (op.doCanonicalization)
-			Kekule.canonicalizer.canonicalize(mol, op.canonicalizerExecutorId || null);
+		else*/
+		if (op.doCanonicalization) {
+            Kekule.Canonicalizer._compareOptions = options;
+            Kekule.canonicalizer.canonicalize(mol, op.canonicalizerExecutorId || null);
+		}
 
 		if (op.doAromaticPerception)
 		{
