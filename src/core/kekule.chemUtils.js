@@ -454,11 +454,10 @@ Kekule.ChemStructureUtils = {
 				angle = Math.PI * 2 + angle;
 			result.push(angle);
 		}
-		result.sort();
 		return result;
 	},
 	/** @private */
-	_getMostEmptyDirectionOfExistingAngles: function(angles)  // angles must be sorted first
+	_getMostEmptyDirectionOfExistingAngles: function(angles, firstAngle)  // angles must be sorted first
 	{
 		var l = angles.length;
 		if (l === 0)
@@ -492,6 +491,15 @@ Kekule.ChemStructureUtils = {
 			} else {
 				result = angles[index + 1] - Math.PI/Math.pow(2, (Math.round(l/2) - 1));
 			}
+			//Avoiding electron overlapping with vertical and horizontal bonds
+			//It happens when, for example, the angles are 0.5 PI and 2.5 PI
+			//First angle is returned because above, the first time -angles[0] is returned
+			if (l === 2) {
+					if (Math.sin(-angles[0]) === Math.sin(result))
+						return firstAngle;
+					if (Math.sin(-angles[1]) === Math.sin(result))
+						return firstAngle;
+			}
 			/* debug
 			var msg = 'Angles: [';
 			for (var i = 0; i < l; ++i)
@@ -510,6 +518,8 @@ Kekule.ChemStructureUtils = {
 	getMostEmptyDirection2DAngleOfObj: function(baseObj, excludeObjs, allowCoordBorrow, includeAttachedMarkers, includeUnexposedSiblings, avoidDirectionAngles)
 	{
 		var angles = Kekule.ChemStructureUtils._calcLinkedObj2DAnglesOfObj(baseObj, excludeObjs, allowCoordBorrow, includeAttachedMarkers, includeUnexposedSiblings);
+		var firstAngle = angles[0];
+		angles.sort();
 		if (avoidDirectionAngles)
 		{
 			if (angles.length === 0 && avoidDirectionAngles.length === 1 && avoidDirectionAngles[0] === 0) {
@@ -519,7 +529,7 @@ Kekule.ChemStructureUtils = {
 			}
 			angles.sort();
 		}
-		var result = Kekule.ChemStructureUtils._getMostEmptyDirectionOfExistingAngles(angles);
+		var result = Kekule.ChemStructureUtils._getMostEmptyDirectionOfExistingAngles(angles, firstAngle);
 		//console.log('angle', result * 180 / Math.PI, Math.cos(result), Math.sin(result));
 		return result;
 	}
