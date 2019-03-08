@@ -459,10 +459,10 @@ Kekule.ChemStructureUtils = {
 	/** @private */
 	_getMostEmptyDirectionOfExistingAngles: function(angles, firstAngle)  // angles must be sorted first
 	{
-		var l = angles.length;
-		if (l === 0)
+		var numberOfAngles = angles.length;
+		if (numberOfAngles === 0)
 			return 0;
-		else if (l === 1)  // only one connector
+		else if (numberOfAngles === 1)  // only one connector
 			return -angles[0];
 		else  // more than two connectors
 		{
@@ -472,10 +472,10 @@ Kekule.ChemStructureUtils = {
 			}
 			var max = 0;
 			var index = 0;
-			for (var i = 0; i < l; ++i)
+			for (var i = 0; i < numberOfAngles; ++i)
 			{
 				var a1 = angles[i];
-				var a2 = angles[(i + 1) % l];
+				var a2 = angles[(i + 1) % numberOfAngles];
 				var delta = a2 - a1;
 				if (delta < 0)
 					delta += Math.PI * 2;
@@ -487,14 +487,14 @@ Kekule.ChemStructureUtils = {
 			}
 			var result = 0;
 			if (angles[index] !== 0) {
-				result = angles[index] + Math.PI/Math.pow(2, (Math.round(l/2) - 1));
+				result = angles[index] + Math.PI/Math.pow(2, (Math.round(numberOfAngles/2) - 1));
 			} else {
-				result = angles[index + 1] - Math.PI/Math.pow(2, (Math.round(l/2) - 1));
+				result = angles[index + 1] - Math.PI/Math.pow(2, (Math.round(numberOfAngles/2) - 1));
 			}
 			//Avoiding electron overlapping with vertical and horizontal bonds
 			//It happens when, for example, the angles are 0.5 PI and 2.5 PI
 			//First angle is returned because above, the first time -angles[0] is returned
-			if (l === 2) {
+			if (numberOfAngles === 2) {
 					if (Math.sin(-angles[0]) === Math.sin(result))
 						return firstAngle;
 					if (Math.sin(-angles[1]) === Math.sin(result))
