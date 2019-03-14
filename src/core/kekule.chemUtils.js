@@ -501,17 +501,26 @@ Kekule.ChemStructureUtils = {
 			if (numberOfAngles === 4) {
 					if (Math.sin(-angles[0]) === Math.sin(result) || Math.sin(-angles[1]) === Math.sin(result) ||
 						Math.sin(-angles[2]) === Math.sin(result) || Math.sin(-angles[3]) === Math.sin(result)) {
-						if (firstAngle !== 0) {
-							if (angles.includes(Math.PI/2)) {
-								if (angles.includes(3*Math.PI/2)) {
- 									return Math.PI/4;
-								}	else {
-									return 3*Math.PI/2;
+						var delta = 0.000005;
+						var includesHalfPI = false;
+						var includesPIAndHalf = false;
+						for (var i = 0; i < numberOfAngles; ++i) {
+								if (angles[i] >= ((Math.PI/2) - delta) && angles[i] <= ((Math.PI/2) + delta)) {
+									includesHalfPI = true;
 								}
+								if (angles[i] >= ((3*Math.PI/2) - delta) && angles[i] <= ((3*Math.PI/2) + delta)) {
+									includesPIAndHalf = true;
+								}
+						}
+						if (includesHalfPI) {
+							if (includesHalfPI) {
+									return Math.PI/4;
+							}	else {
+								return 3*Math.PI/2;
+							}
 						}	else {
 							return Math.PI/2;
 						}
-					}
 				}
 			}
 			/* debug
