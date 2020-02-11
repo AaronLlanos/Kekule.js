@@ -10,11 +10,24 @@
  * require /utils/kekule.utils.js
  * require /utils/kekule.domUtils.js
  */
+<<<<<<< HEAD
 var Class = require('../lan/classes').Class
 var ClassEx = require('../lan/classes').ClassEx
 var ObjectEx = require('../lan/classes').ObjectEx
 var DataType = require('../lan/classes').DataType
 module.exports = function (Kekule) {
+=======
+
+(function ($root)
+{
+
+"use strict";
+
+if (typeof(window) !== undefined)  // has window object
+	$root = window;
+
+var	win = $root, document = win && win.document;
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 
 if (typeof(Kekule) === 'undefined')
 	Kekule = {};
@@ -30,6 +43,7 @@ else
  * Browser Check.
  * @class
  */
+<<<<<<< HEAD
 Kekule.Browser = {}
 if (Kekule.$jsRoot.window) {
 	Kekule.Browser = {
@@ -41,6 +55,16 @@ if (Kekule.$jsRoot.window) {
 		language: navigator.language || navigator.browserLanguage  // language of broweser
 	};
 }
+=======
+Kekule.Browser = {
+	IE:     !!(win.attachEvent && !win.opera),
+  Opera:  !!win.opera,
+  WebKit: navigator.userAgent.indexOf('AppleWebKit/') > -1,
+  Gecko:  navigator.userAgent.indexOf('Gecko') > -1 && navigator.userAgent.indexOf('like Gecko') < 0 && navigator.userAgent.indexOf('KHTML') == -1,
+  MobileSafari: !!navigator.userAgent.match(/Apple.*Mobile.*Safari/),
+	language: navigator.language || navigator.browserLanguage  // language of broweser
+};
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 Kekule.Browser.IEVersion = Kekule.Browser.IE && (function(){
 	var agent = navigator.userAgent.toLowerCase();
 	return (agent.indexOf('msie') !== -1) ? parseInt(agent.split('msie')[1]) : false
@@ -51,6 +75,7 @@ Kekule.Browser.IEVersion = Kekule.Browser.IE && (function(){
  * Code copy from https://github.com/mrdoob/three.js/blob/master/examples/js/Detector.js
  * @class
  */
+<<<<<<< HEAD
 
 Kekule.BrowserFeature = {}
 if (Kekule.$jsRoot.window) {
@@ -59,12 +84,22 @@ if (Kekule.$jsRoot.window) {
 		svg: !!window.SVGSVGElement,
 		canvas: !! window.CanvasRenderingContext2D,
 		webgl: (function()
+=======
+Kekule.BrowserFeature = {
+	typedArray: (typeof(ArrayBuffer) !== 'undefined'),
+	svg: !!win.SVGSVGElement,
+	canvas: !! win.CanvasRenderingContext2D,
+	webgl: (function()
+	{
+		//if (Kekule.BrowserFeature.webgl === undefined)
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 		{
 			//if (Kekule.BrowserFeature.webgl === undefined)
 			{
 				var result =
 					(function()
 					{
+<<<<<<< HEAD
 						try
 						{
 							var canvas = document.createElement('canvas');
@@ -104,11 +139,18 @@ if (Kekule.$jsRoot.window) {
 					var result = elem.type === typeName;
 					var textTypes = ['text', 'url', 'search'];
 					if (result && (textTypes.indexOf(typeName.toLowerCase()) < 0))
+=======
+						var canvas = document.createElement('canvas');
+						return !!win.WebGLRenderingContext && ( canvas.getContext('webgl') || canvas.getContext('experimental-webgl') );
+					}
+					catch (e)
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 					{
 						var testValue = ':)';
 						elem.value = testValue;
 						result = elem.value !== testValue;
 					}
+<<<<<<< HEAD
 					return result;
 				}
 		},
@@ -122,11 +164,61 @@ if (Kekule.$jsRoot.window) {
 		})()
 	};
 }
+=======
+				})();
+			//Kekule.BrowserFeature.webgl = result;
+		}
+		//return Kekule.BrowserFeature.webgl;
+		return !!result;
+	})(),
+	downloadHref: (function(doc){ return 'download' in doc.createElement('a')})(document),
+	blob: !!win.Blob,
+	workers: !! win.Worker,
+	fileapi: !!(win.File && win.FileReader && win.FileList && win.Blob),
+	sessionStorage: (function() { try { return !!win.sessionStorage} catch(e) { return false} })(),  // directly call session storage locally on Firefox now will cause exception
+	localStorage: (function() { try { return !!win.localStorage} catch(e) { return false} })(),  // !!win.localStorage,
+	cssTransition: (function(s) {
+		return 'transition' in s || 'WebkitTransition' in s || 'MozTransition' in s || 'msTransition' in s || 'OTransition' in s;
+	})(document.createElement('div').style),
+	cssTranform: (function(s) {
+		return 'transform' in s || 'WebkitTransform' in s || 'MozTransform' in s || 'msTransform' in s || 'OTransform' in s;
+	})(document.createElement('div').style),
+	cssFlex: (function(s) {
+		return 'flex' in s || 'WebkitFlex' in s || 'MozFlex' in s || 'msFlex' in s || 'OFlex' in s;
+	})(document.createElement('div').style),
+	html5Form: {
+		placeholder: (function(elem){ return 'placeholder' in elem; })(document.createElement('input')),
+		supportType: function(typeName)
+			{
+				var elem = document.createElement('input');
+				elem.setAttribute('type', typeName);
+				var result = elem.type === typeName;
+				var textTypes = ['text', 'url', 'search'];
+				if (result && (textTypes.indexOf(typeName.toLowerCase()) < 0))
+				{
+					var testValue = ':)';
+					elem.value = testValue;
+					result = elem.value !== testValue;
+				}
+				return result;
+			}
+	},
+	mutationObserver: win.MutationObserver || win.MozMutationObserver || win.WebkitMutationObserver,
+	resizeObserver: !!win.ResizeObserver,
+	touchEvent: !!win.touchEvent,
+	pointerEvent: !!win.PointerEvent,
+	draggable: (function() {
+		var div = document.createElement('div');
+		return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
+	})()
+};
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 
 }   // end of browser detect part
 
 
 // polyfill of requestAnimationFrame / cancelAnimationFrame
+<<<<<<< HEAD
 if (Kekule.$jsRoot.requestAnimationFrame) {
 	(function() {
 		var lastTime = 0;
@@ -153,6 +245,32 @@ if (Kekule.$jsRoot.requestAnimationFrame) {
 			};
 	}());
 }
+=======
+(function() {
+	var lastTime = 0;
+	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	for(var x = 0; x < vendors.length && !win.requestAnimationFrame; ++x) {
+		win.requestAnimationFrame = win[vendors[x]+'RequestAnimationFrame'];
+		win.cancelAnimationFrame = win[vendors[x]+'CancelAnimationFrame']
+				|| win[vendors[x]+'CancelRequestAnimationFrame'];
+	}
+
+	if (!win.requestAnimationFrame)
+		win.requestAnimationFrame = function(callback, element) {
+			var currTime = new Date().getTime();
+			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+			var id = win.setTimeout(function() { callback(currTime + timeToCall); },
+					timeToCall);
+			lastTime = currTime + timeToCall;
+			return id;
+		};
+
+	if (!win.cancelAnimationFrame)
+		win.cancelAnimationFrame = function(id) {
+			clearTimeout(id);
+		};
+}());
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 
 
 /**
@@ -173,7 +291,7 @@ var notUnset = function(o)
 	};
 var isElemPositioned = function(element)
 	{
-		var pos = window.getComputedStyle? window.getComputedStyle(element, null).position:
+		var pos = win.getComputedStyle? win.getComputedStyle(element, null).position:
 			element.currentStyle? element.currentStyle.position: null;
 		if (!pos)
 			return false;
@@ -193,9 +311,13 @@ var isElemPositioned = function(element)
 /////////////////////////////////////////////////////////////
 //   DOM mutation observer
 /////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 if (Kekule.$jsRoot.window) {
 	X.MutationObserver = window.MutationObserver || window.MozMutationObserver || window.WebkitMutationObserver;	
 }
+=======
+X.MutationObserver = win.MutationObserver || win.MozMutationObserver || win.WebkitMutationObserver;
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 
 /////////////////////////////////////////////////////////////
 //   Cross browser event handling supporting
@@ -309,7 +431,7 @@ X.Event.isSupported = (function()
 			shortEventName = eventName.replace(/^on/, '');
 		if(cache[shortEventName]) { return cache[shortEventName]; }
 		var elt = TAGNAMES[shortEventName] == 'win'
-			? window
+			? win
 			: document.createElement(TAGNAMES[shortEventName] || 'div');
 		eventName = 'on'+shortEventName;
 		var eventIsSupported = (eventName in elt);
@@ -774,7 +896,7 @@ X.Event._MouseEventEx = {
 
 						// use a new event object, avoid overwrite the original mouseover/mouseout infos
 						var event = new MouseEvent(eventType, {
-							'view': window,
+							'view': win,
 							'bubbles': false,
 							'cancelable': true,
 							'target': currTarget,
@@ -949,7 +1071,7 @@ X.Event._IE = {
 		var wrapper = (function(e)
 			{
 				if (!e)
-					e = window.event;
+					e = win.event;
 				// add essential W3C fields
 				e.currentTarget = element;
 				e.eventPhase = (e.srcElement === element)? 2: 3;
@@ -1147,9 +1269,9 @@ if (document)
 	{
 		X.Event = Object.extend(X.Event, X.Event._IE);
 		X.Event.Methods = Object.extend(X.Event.Methods, X.Event._IEMethods);
-		if (window.Element)
+		if (win.Element)
 		{
-			var elemPrototype = window.Element.prototype;
+			var elemPrototype = win.Element.prototype;
 			elemPrototype.addEventListener = X.Event.addListener.methodize();
 			elemPrototype.removeEventListener = X.Event.removeListener.methodize();
 		}
@@ -1159,8 +1281,13 @@ if (document)
 Object.extend(X.Event, X.Event.Methods);
 // insert new methods to Event class
 var eproto = null;
+<<<<<<< HEAD
 if (Kekule.$jsRoot.window && Kekule.$jsRoot.window.Event)
 	eproto = window.Event.prototype;
+=======
+if (win.Event)
+	eproto = win.Event.prototype;
+>>>>>>> 2e1f63d6... Avoid some exceptions in old version of IE
 if (!eproto)
 {
 	if (document && document.createEvent)
