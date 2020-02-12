@@ -526,7 +526,11 @@ ObjSerializer = Class.create(
 				continue;
 
 			if (prop.serializable)  // a serialzable property, handle
-				this.doSaveObjectExProp(obj, prop, storageNode, options);
+			{
+				var needSerialize = (typeof(prop.serializable) === 'function')? prop.serializable.apply(obj): prop.serializable;
+				if (needSerialize)
+					this.doSaveObjectExProp(obj, prop, storageNode, options);
+			}
 		}
 	},
 	/**
@@ -792,7 +796,7 @@ ObjSerializer = Class.create(
 		{
 			var prop = props.getPropInfoAt(i);
 
-			if (!prop.serializable)  // not a serialzable property, bypass
+			if (!prop.serializable)  // not a serialzable property or serializable controlled by function, bypass
 				continue;
 
 			var customLoadMethod = this.getObjCustomPropLoadMethod(obj);
