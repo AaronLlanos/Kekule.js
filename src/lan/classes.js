@@ -549,11 +549,75 @@ Object._extendSupportMethods(String.prototype, {
 	},
 
 	capitalizeFirst: function() {
-		return this.charAt(0).toUpperCase() + this.substring(1);
-	},
-	include: function(pattern) {
-		return this.indexOf(pattern) > -1;
-	},
+    return this.charAt(0).toUpperCase() + this.substring(1);
+  },
+
+  underscore: function() {
+    //return this.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'#{1}_#{2}').gsub(/([a-z\d])([A-Z])/,'#{1}_#{2}').gsub(/-/,'_').toLowerCase();
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+		  .replace(/-/g, '_')
+		  .toLowerCase();
+  },
+
+  dasherize: function() {
+    //return this.gsub(/_/,'-');
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+		  .replace(/-/g, '-')
+		  .toLowerCase();
+  },
+
+  inspect: function(useDoubleQuotes) {
+    var escapedString = this.gsub(/[\x00-\x1f\\]/, function(match) {
+      var character = String.specialChar[match[0]];
+      return character ? character : '\\u00' + match[0].charCodeAt().toPaddedString(2, 16);
+    });
+    if (useDoubleQuotes) return '"' + escapedString.replace(/"/g, '\\"') + '"';
+    return "'" + escapedString.replace(/'/g, '\\\'') + "'";
+  },
+
+  toJSON: function() {
+    return this.inspect(true);
+  },
+
+  unfilterJSON: function(filter) {
+    return this.sub(filter || Prototype.JSONFilter, '#{1}');
+  },
+
+  isJSON: function() {
+    var str = this;
+    if (str.blank()) return false;
+    str = this.replace(/\\./g, '@').replace(/"[^"\\\n\r]*"/g, '');
+    return (/^[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]*$/).test(str);
+  },
+
+  evalJSON: function(sanitize) {
+    var json = this.unfilterJSON();
+    try {
+      if (!sanitize || json.isJSON()) return eval('(' + json + ')');
+    } catch (e) { }
+    throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+  },
+
+  include: function(pattern) {
+    return this.indexOf(pattern) > -1;
+  },
+
+  startsWith: function(pattern) {
+    return this.indexOf(pattern) === 0;
+  },
+
+  endsWith: function(pattern) {
+    var d = this.length - pattern.length;
+    return d >= 0 && this.lastIndexOf(pattern) === d;
+  },
+
+  empty: function() {
+    return this == '';
+  },
 
 	startsWith: function(pattern) {
 		return this.indexOf(pattern) === 0;
