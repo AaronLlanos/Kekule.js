@@ -4912,7 +4912,8 @@ Kekule.Editor.MolAtomIaController_OLD = Class.create(Kekule.Editor.BaseEditorIaC
 		 */
 		//setter.show();
 		setter._applied = false;
-		setter.show(null, null, Kekule.Widget.ShowHideType.POPUP);
+		setter.setStandaloneOnShowHide(true);
+		setter.show(this.getEditor(), null, Kekule.Widget.ShowHideType.POPUP);
 
 		(function(){
 			setter.focus();
@@ -5408,7 +5409,8 @@ Kekule.Editor.MolAtomIaController = Class.create(Kekule.Editor.BaseEditorIaContr
 		 */
 		//setter.show();
 		setter._applied = false;
-		setter.show(null, null, Kekule.Widget.ShowHideType.POPUP);
+		setter.setStandaloneOnShowHide(true);
+		setter.show(this.getEditor(), null, Kekule.Widget.ShowHideType.POPUP);
 
 		(function(){
 			inputBox.focus();
@@ -7522,7 +7524,8 @@ Kekule.Editor.FormulaIaController = Class.create(Kekule.Editor.BaseEditorIaContr
 		 style.marginLeft = -posAdjust + 'px';
 		 */
 		setter._applied = false;
-		setter.show(null, null, Kekule.Widget.ShowHideType.POPUP);
+		setter.setStandaloneOnShowHide(true);
+		setter.show(this.getEditor(), null, Kekule.Widget.ShowHideType.POPUP);
 		setter.selectAll();
 		setter.focus();
 	},
@@ -7929,7 +7932,8 @@ Kekule.Editor.TextBlockIaController = Class.create(Kekule.Editor.ContentBlockIaC
 		style.marginTop = -posAdjust + 'px';
 		style.marginLeft = -posAdjust + 'px';
 		*/
-		setter.show(null, null, Kekule.Widget.ShowHideType.POPUP);
+		setter.setStandaloneOnShowHide(true);
+		setter.show(this.getEditor(), null, Kekule.Widget.ShowHideType.POPUP);
 
 		(function()
 		{
