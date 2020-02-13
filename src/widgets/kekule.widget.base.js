@@ -1819,7 +1819,8 @@ Kekule.Widget.BaseWidget = Class.create(ObjectEx,
 			this.setShowHideCallerPageRect(EU.getElemBoundingClientRect((caller.getElement && caller.getElement()) || caller));
 		}
 
-		this.widgetShowStateChanged(true);
+		//this.widgetShowStateChanged(true);
+		(function(){self.widgetShowStateChanged(true);}).defer();  // important defer, called after DOM mutation events, ensure the true param is finally passed
 	},
 	/**
 	 * Show widget then hide it after a period of time.
@@ -1936,7 +1937,8 @@ Kekule.Widget.BaseWidget = Class.create(ObjectEx,
 				this.setDisplayed(false, true);
 			done();
 		}
-		this.widgetShowStateChanged(false);
+		//this.widgetShowStateChanged(false);
+		(function(){self.widgetShowStateChanged(false);}).defer();  // important defer, called after DOM mutation events, ensure the false param is finally passed
 	},
 
 	/*
@@ -5529,12 +5531,15 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 			var m = mutations[i];
 			if (m.type === 'childList')  // dom tree changes
 			{
+				//console.log('---------------------- Mutation --------------------');
+				//console.log(m, m.addedNodes, m.removedNodes);
 				var nodes = m.addedNodes;
 				for (var j = 0, k = nodes.length; j < k; ++j)
 				{
 					var node = nodes[j];
 					if (node.nodeType === Node.ELEMENT_NODE)
 					{
+						//console.log('DOM node added', node, node.parentNode);
 						this._handleDomAddedElem(node);
 					}
 				}
@@ -5544,6 +5549,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 					var node = nodes[j];
 					if (node.nodeType === Node.ELEMENT_NODE)
 					{
+						//console.log('DOM node removed', node, node.parentNode);
 						this._handleDomRemovedElem(node);
 					}
 				}
@@ -6448,6 +6454,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		*/
     widget.addClassName(CNS.SHOW_POPUP);
 		Kekule.ArrayUtils.pushUnique(this.getPopupWidgets(), widget);
+		//console.log('register', this.getPopupWidgets(), widget.getClassName());
 	},
 	/**
 	 * Notify the manager that an popup widget is hidden.
@@ -6462,6 +6469,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		*/
     widget.removeClassName(CNS.SHOW_POPUP);
 		Kekule.ArrayUtils.remove(this.getPopupWidgets(), widget);
+		//console.log('unregister', this.getPopupWidgets(), widget.getClassName());
 	},
 	/**
 	 * Notify the manager that an dialog widget is shown.
