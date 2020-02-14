@@ -2064,7 +2064,7 @@ Kekule.Widget.BaseWidget = Class.create(ObjectEx,
 	isInDomTree: function()
 	{
 		var elem = this.getElement();
-		return Kekule.DomUtils.isInDomTree(elem);
+		return Kekule.DomUtils.isInDomTree(elem, null, {acrossShadowRoot: true});
 	},
 
 	/**
