@@ -6005,6 +6005,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		// check if already in top most layer
 		var contextRootElem = this.getWidgetContextRootElement(invokerWidget);
 		var topmostLayer = this.getTopmostLayer(doc, true, contextRootElem);
+
 		var isOnTopLayer = popupElem.parentNode === topmostLayer;
 
 		// calc widget position
@@ -6039,7 +6040,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		}
 		else  // if (showType === ST.POPUP)
 		{
-			posInfo = this._calcPopupWidgetPosInfo(popupWidget, isOnTopLayer);
+			posInfo = this._calcPopupWidgetPosInfo(popupWidget, invokerWidget, isOnTopLayer);
 		}
 
 		if (autoAdjustSize && posInfo)  // check if need to adjust size of widget
@@ -6068,6 +6069,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 			this.moveElemToTopmostLayer(popupElem, null, contextRootElem);
 		else  // even is elem is on topmost layer, still append it to tail
 			this.moveElemToTopmostLayer(popupElem, true, contextRootElem);
+
 		if (posInfo)
 		{
 			// set style
@@ -6102,7 +6104,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		}
 	},
 	/** @private */
-	_calcPopupWidgetPosInfo: function(widget, isOnTopLayer)
+	_calcPopupWidgetPosInfo: function(widget, invokerWidget, isOnTopLayer)
 	{
 		var result;
 		var EU = Kekule.HtmlElementUtils;
@@ -6112,6 +6114,16 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		{
 			elem.style.visible = 'hidden';
 			elem.style.display = '';
+		}
+
+		var manualAppended = false;
+		var isolatedLayer;
+		if (!isOnTopLayer)  // move to isolate layer first to calculate dimensions
+		{
+			var contextRootElem = this.getWidgetContextRootElement(invokerWidget);
+			isolatedLayer = this.getIsolatedLayer(widget.getDocument(), true, contextRootElem);
+			isolatedLayer.appendChild(elem);
+			manualAppended = true;
 		}
 
 		var clientRect = EU.getElemBoundingClientRect(elem, true);  // include scroll offset
@@ -6128,6 +6140,13 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 				result.left = clientRect.left + 'px';
 			}
 		}
+
+		// then remove from DOM tree
+		if (manualAppended)
+		{
+			isolatedLayer.removeChild(elem);
+		}
+
 		return result;
 	},
 	/** @private */
@@ -6531,7 +6550,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 
 
 	/** @private */
-	prepareModalWidget: function(widget)
+	prepareModalWidget: function(widget, caller)
 	{
 		// create a modal background and then relocate dialog element on it
 		var doc = widget.getDocument();
@@ -6555,8 +6574,15 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 
 		if (bgElem.parentNode)
 			bgElem.parentNode.removeChild(bgElem);
+		/*
 		doc.body.appendChild(bgElem);
 		doc.body.appendChild(elem);  // append widget elem on background
+		*/
+
+		var rootElem = this.getWidgetContextRootElement(caller);
+		console.log(rootElem, widget);
+		rootElem.appendChild(bgElem);
+		rootElem.appendChild(elem);
 
 		this.registerModalWidget(widget);
 	},
