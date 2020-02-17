@@ -6571,6 +6571,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 			bgElem = doc.createElement('div');
 			bgElem.className = CNS.MODAL_BACKGROUND;
 			this.setPropStoreFieldValue('modalBackgroundElem', bgElem);
+			this._globalSysElems.push(bgElem);
 		}
 		var elem = widget.getElement();
 		widget.setModalInfo({
