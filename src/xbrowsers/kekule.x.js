@@ -80,6 +80,8 @@ if (Kekule.$jsRoot.window) {
 			//return Kekule.BrowserFeature.webgl;
 			return !!result;
 		})(),
+		htmlTemplate: !!win.HTMLTemplateElement,
+		htmlSlot: !!win.HTMLSlotElement,
 		downloadHref: (function(doc){ return 'download' in doc.createElement('a')})(document),
 		blob: !!window.Blob,
 		workers: !! window.Worker,
