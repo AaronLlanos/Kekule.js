@@ -5695,7 +5695,8 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		// dispatch to widget
 		if (targetWidget)
 		{
-				//console.log('event', e.getTarget().tagName, widget.getClassName());
+			this._htmlEventOnWidgetInvoked(targetWidget, e);
+			//console.log('event', e.getTarget().tagName, widget.getClassName());
 			targetWidget.reactUiEvent(e);
 		}
 
@@ -5749,6 +5750,13 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 			if (widgets[i].isShown())
 				widgets[i].autoResizeToClient();
 		}
+	},
+
+	/** @private */
+	_htmlEventOnWidgetInvoked: function(widget, event)
+	{
+		this.invokeEvent('htmlEventOnWidget', {'widget': widget, 'htmlEvent': event});
+		this.invokeEvent(event.getType(), {widget: widget, htmlEvent: event});
 	},
 
 	/** @private */
