@@ -39,6 +39,7 @@ Kekule.Widget.HtmlClassNames = Object.extend(Kekule.Widget.HtmlClassNames, {
 	PROPLISTEDITOR_READONLY: 'K-PropListEditor-ReadOnly',
 
 	OBJINSPECTOR: 'K-ObjInspector',
+	OBJINSPECTOR_FLEX_LAYOUT: 'K-ObjInspector-Flex-Layout',
 	OBJINSPECTOR_SUBPART: 'K-ObjInspector-SubPart',
 	OBJINSPECTOR_OBJSINFOPANEL: 'K-ObjInspector-ObjsInfoPanel',
 	OBJINSPECTOR_PROPINFOPANEL: 'K-ObjInspector-PropInfoPanel',
@@ -1256,7 +1257,15 @@ Kekule.Widget.ObjectInspector = Class.create(Kekule.Widget.BaseWidget,
 	/** @ignore */
 	doGetWidgetClassName: function()
 	{
-		return CNS.OBJINSPECTOR;
+		var result = CNS.OBJINSPECTOR;
+		if (this._isUsingFlexLayout())
+			result += ' ' + CNS.OBJINSPECTOR_FLEX_LAYOUT;
+		return result;
+	},
+	/** @private */
+	_isUsingFlexLayout: function()
+	{
+		return !!Kekule.BrowserFeature.cssFlex;
 	},
 	/** @ignore */
 	doBindElement: function($super, element)
@@ -1510,9 +1519,10 @@ Kekule.Widget.ObjectInspector = Class.create(Kekule.Widget.BaseWidget,
 	_updateChildElemSize: function()
 	{
 		var self = this;
-		// IMPORTANT, use set time out to let browser update DOM, else height often get 0
-		setTimeout(function()
-			{
+		if (!this._isUsingFlexLayout())
+		{
+			// IMPORTANT, use set time out to let browser update DOM, else height often get 0
+			setTimeout(function() {
 				var top;
 				if (self.getShowObjsInfoPanel())
 					top = SU.getComputedStyle(self._objsInfoElem, 'height');
@@ -1527,6 +1537,7 @@ Kekule.Widget.ObjectInspector = Class.create(Kekule.Widget.BaseWidget,
 				self._propListElem.style.top = top;
 				self._propListElem.style.bottom = bottom;
 			}, 100);
+		}
 	},
 
 	/** @ignore */
