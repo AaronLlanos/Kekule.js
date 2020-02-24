@@ -5742,23 +5742,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 		}
 		*/
 
-<<<<<<< HEAD
-		// check first if the component has event handler itself
-			var funcName = Kekule.Widget.getEventHandleFuncName(e.getType());
-
-		if (this[funcName])  // has own handler
-			this[funcName](e);
-
-		// dispatch to widget
-		if (targetWidget)
-		{
-			this._htmlEventOnWidgetInvoked(targetWidget, e);
-			//console.log('event', e.getTarget().tagName, widget.getClassName());
-			targetWidget.reactUiEvent(e);
-		}
-=======
 		this.doReactUiEvent(e, targetWidget);
->>>>>>> 4414ac90... Refine the touch event handle process related to shadow root
 
 		if (!e.ghostMouseEvent && !Kekule.BrowserFeature.pointerEvent && this.getEnableMouseEventToPointerPolyfill())
 		{
