@@ -65,8 +65,10 @@ Kekule.MolStandardizer = {
 			mol.unmarshalAllSubFragments(true);
 		if (op.cleanStructure)
 			mol.clean();
+		/*
 		if (op.clearHydrogens)
 			mol.clearExplicitHydrogens();
+		*/
 
 		/*
 		if (op.doStereoPerception)
@@ -87,6 +89,10 @@ Kekule.MolStandardizer = {
 		}
 		if (op.doStereoPerception)
 			mol.perceiveStereos(null, true, op);  // already canonicalized, no need to do again, what's more, canonicalization may clear the ring info already perceived
+
+		// Hydrongen should be cleared at last, since it may affect stereo perception
+		if (op.clearHydrogens)
+			mol.clearExplicitHydrogens();
 
 		return mol;
 	}
