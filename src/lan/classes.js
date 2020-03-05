@@ -659,11 +659,21 @@ Object._extendSupportMethods(String.prototype, {
   },
 
   underscore: function() {
-    return this.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'#{1}_#{2}').gsub(/([a-z\d])([A-Z])/,'#{1}_#{2}').gsub(/-/,'_').toLowerCase();
+    //return this.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'#{1}_#{2}').gsub(/([a-z\d])([A-Z])/,'#{1}_#{2}').gsub(/-/,'_').toLowerCase();
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+		  .replace(/-/g, '_')
+		  .toLowerCase();
   },
 
   dasherize: function() {
-    return this.gsub(/_/,'-');
+    //return this.gsub(/_/,'-');
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+		  .replace(/-/g, '-')
+		  .toLowerCase();
   },
 
   inspect: function(useDoubleQuotes) {
@@ -2571,6 +2581,7 @@ ObjectEx = Class.create(
 	 *  	getter: getter function,
 	 *  	setter: setter function, if set to null, the property will be read-only,
 	 *  	serializable: boolean, whether the property should be save or restore in serialization. Default is true.
+	 *      This field can also be set by a function returning boolean. When serializing object, this function will be called.
 	 *  	defaultValue: default value of property, can only be simple type (number, string, bool...)
 	 *  }
 	 *  @return {Object} Property info object added to property list.

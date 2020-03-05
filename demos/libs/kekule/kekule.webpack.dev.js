@@ -21,6 +21,7 @@ require("../src/core/kekule.structureBuilder.js");
 require("../src/core/kekule.reactions.js");
 require("../src/core/kekule.chemUtils.js");
 require("../src/chemdoc/kekule.glyph.base.js");
+require("../src/chemdoc/kekule.glyph.utils.js");
 require("../src/chemdoc/kekule.glyph.pathGlyphs.js");
 require("../src/chemdoc/kekule.glyph.lines.js");
 require("../src/chemdoc/kekule.glyph.chemGlyphs.js");
@@ -118,6 +119,8 @@ require("../src/widgets/chem/editor/modifiers/kekule.chemEditor.structureModifie
 require("../src/widgets/chem/editor/modifiers/kekule.chemEditor.glyphModifiers.js");
 require("../src/widgets/advCtrls/objInspector/kekule.widget.objInspector.chemPropEditors.js");
 require("../src/widgets/chem/editor/kekule.chemEditor.composers.js");
+require("../src/webComponents/kekule.webComponent.base.js");
+require("../src/webComponents/kekule.webComponent.widgetWrappers.js");
 require("../src/algorithm/kekule.graph.js");
 require("../src/algorithm/kekule.structures.helpers.js");
 require("../src/algorithm/kekule.structures.canonicalizers.js");

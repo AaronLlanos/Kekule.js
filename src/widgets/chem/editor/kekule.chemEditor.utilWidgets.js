@@ -298,7 +298,7 @@ Kekule.ChemWidget.StructureNodeSelectPanel = Class.create(Kekule.Widget.Panel,
 	{
 		var result = $super(doc, rootElem);
 
-		this.updatePanelContent(doc, rootElem);
+		this.updatePanelContent(doc, this.getChildrenHolderElement());
 		// Custom input
 
 		return result;
@@ -801,13 +801,14 @@ Kekule.ChemWidget.StructureNodeSetter = Class.create(Kekule.Widget.BaseWidget,
 		{
 			inputBox.setButtonKind(Kekule.Widget.Button.Kinds.DROPDOWN);
 			selectPanel.removeFromDom();
+			selectPanel.hide(null, null, Kekule.Widget.ShowHideType.DEFAULT);
 		}
 		else
 		{
 			inputBox.setButtonKind(Kekule.Widget.Button.Kinds.ENTER);
 			selectPanel.appendToElem(this.getCoreElement());
 			selectPanel.setStyleProperty('position', '');  // clear position:absolute value from previous dropdown show
-			selectPanel.show(null, null,  Kekule.Widget.ShowHideType.DEFAULT);
+			selectPanel.show(null, null, Kekule.Widget.ShowHideType.DEFAULT);
 		}
 	},
 
@@ -3177,7 +3178,7 @@ Kekule.ChemWidget.BaseGlyphElectronArrowSettingPanel = Class.create(Kekule.Widge
 	/** @ignore */
 	doCreateSubElements: function($super, doc, rootElem)
 	{
-		var result = $super();
+		var result = $super(doc, rootElem);
 		var secArrowPreset = this.doCreateArrowPresetSection(doc, rootElem, Kekule.$L('ChemWidgetTexts.CAPTION_ELECTRON_PUSHING_ARROW_TYPE'));
 		this._arrowPresetSelector = secArrowPreset.widget;
 		this._arrowPresetElem = secArrowPreset.elem;

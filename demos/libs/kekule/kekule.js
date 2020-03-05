@@ -318,6 +318,7 @@ var kekuleFiles = {
 			'core/kekule.chemUtils.js',
 
 			'chemdoc/kekule.glyph.base.js',
+			'chemdoc/kekule.glyph.utils.js',
 			'chemdoc/kekule.glyph.pathGlyphs.js',
 			'chemdoc/kekule.glyph.lines.js',
 			'chemdoc/kekule.glyph.chemGlyphs.js',
@@ -459,6 +460,14 @@ var kekuleFiles = {
 			'widgets/chem/editor/kekule.chemEditor.composers.js',
 		],
 		'category': 'chemWidget'
+	},
+
+	'webComponent': {
+		'requires': ['lan', 'root', 'common', 'core', 'html', 'io', 'render', 'algorithm', 'widget', 'chemWidget'],
+		'files': [
+			'webComponents/kekule.webComponent.base.js',
+			'webComponents/kekule.webComponent.widgetWrappers.js'
+		]
 	},
 
 	'algorithm': {
