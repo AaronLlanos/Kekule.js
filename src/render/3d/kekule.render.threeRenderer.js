@@ -16,38 +16,36 @@ var ObjectEx = require('../../lan/classes').ObjectEx
 var DataType = require('../../lan/classes').DataType
 var XmlUtility = require('../../lan/xmlJsons').XmlUtility
 module.exports = function(Kekule) {
-	if (Kekule.$jsRoot.THREE)
-	{
-		if (!THREE.Object3D.prototype.clear)
-			/** @ignore */
-			THREE.Object3D.prototype.clear = function(){
-				var children = this.children;
-				for (var i = children.length - 1; i >= 0; i--)
-				{
-					var child = children[i];
-					child.clear();
-					this.remove(child);
-				}
-			};
+if (Kekule.$jsRoot.THREE)
+{
+	var THREE = Kekule.$jsRoot.THREE
+	/** @ignore */
+	THREE.Object3D.prototype.clear = function(){
+		var children = this.children;
+		for (var i = children.length - 1; i >= 0; i--)
+		{
+			var child = children[i];
+			child.clear();
+			this.remove(child);
+		}
+	};
 
-		if (!THREE.Scene.prototype.clearMesh)
-			/** @ignore */
-			THREE.Scene.prototype.clearMesh = function()
+	/** @ignore */
+	THREE.Scene.prototype.clearMesh = function()
+	{
+		var children = this.children;
+		for (var i = children.length - 1; i >= 0; i--)
+		{
+			var child = children[i];
+			if ((child instanceof THREE.Mesh) || (child instanceof THREE.Line)
+				|| (child.__objGroup__))  // a special flag to indicate that this is a object created by createGroup
 			{
-				var children = this.children;
-				for (var i = children.length - 1; i >= 0; i--)
-				{
-					var child = children[i];
-					if ((child instanceof THREE.Mesh) || (child instanceof THREE.Line)
-						|| (child.__objGroup__))  // a special flag to indicate that this is a object created by createGroup
-					{
-						child.clear();
-						this.remove(child);
-					}
-				}
+				child.clear();
+				this.remove(child);
 			}
+		}
 	}
-};
+}
 
 /** @ignore */
 Kekule.Render.ThreeObjectCache = Class.create(
@@ -845,7 +843,7 @@ Kekule.Render.ThreeRendererBridge = Class.create(
 	exportToDataUri: function(context, dataType, options)
 	{
 		var renderer = context.getRenderer();
-		if (THREE.SVGRenderer && (renderer instanceof THREE.SVGRenderer))
+		if (renderer instanceof THREE.SVGRenderer)
 		{
 			var domElem = context.getRenderer().domElement;
 			//var svg = (new XMLSerializer()).serializeToString(domElem);
@@ -906,6 +904,5 @@ Kekule.Render.ThreeRendererBridge.CheckSupporting = function()
 //Kekule.ClassUtils.makeSingleton(Kekule.Render.ThreeRendererBridge);
 
 Kekule.Render.DrawBridge3DMananger.register(Kekule.Render.ThreeRendererBridge, 20);
-
 return Kekule;
 }
