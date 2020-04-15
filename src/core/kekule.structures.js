@@ -5493,7 +5493,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 						}
 					}
 					if (Object.keys(counts).length === 1) {
-						switch (counts[0]) {
+						switch (Object.keys(counts)[0]) {
 							case 'dash':
 								bond.setStereo(1);
 								break;
