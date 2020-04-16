@@ -44,7 +44,7 @@ Kekule.globalOptions.add('algorithm.stereoPerception', {
 	perceiveChiralNodes: true,
 	calcParity: true,
 	strictStereoBondGeometry: false,
-	strictStereoAtomGemoetry: false,
+	strictStereoAtomGeometry: false,
 	wedgeBondPrior: true
 });
 
