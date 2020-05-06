@@ -5103,22 +5103,20 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							if (result === 0) {
 								for (var i = 0, l = nodes1.length; i < l; ++i)
 								{
-									var node1 = nodes1[i];
-									var node2 = nodes2[i];
-									result = this.doCompareOnValue(node1, node2, options);
+									result = this.doCompareOnValue(nodes1[i], nodes2[i], options);
 									if (result !== 0)
 										break;
 									else
 									{
 										// check the neighbor node index to current node, avoid issue #86
-										var neighborNodeIndexes1 = _getNeighorNodeIndexes(node1, this);
-										var neighborNodeIndexes2 = _getNeighorNodeIndexes(node2, targetObj);
+										var neighborNodeIndexes1 = _getNeighorNodeIndexes(nodes1[i], this);
+										var neighborNodeIndexes2 = _getNeighorNodeIndexes(nodes2[i], targetObj);
 										result = Kekule.ArrayUtils.compare(neighborNodeIndexes1, neighborNodeIndexes2);
 										if (result !== 0)
 										{
 											break;
-										} 
-									}
+										}
+									}																		
 								}
 							}
 						}
