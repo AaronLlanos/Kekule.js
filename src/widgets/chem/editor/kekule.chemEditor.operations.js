@@ -65,6 +65,9 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 		// Filter out memory leak eventListeners that were not properly removed.
 		if (dest && dest.id && dest.id === curvedArrowNode.anchorObj) {
 			var anchorNode = this.getEditor().getChemObj().getObjById(curvedArrowNode.anchorObj)
+			if (!anchorNode) {
+				return; // nothing to do
+			}
 			// console.log('original coord2D', newCoord);
 			
 			if (anchorNode.coord2D) {
@@ -990,7 +993,9 @@ Kekule.ChemObjOperation.Remove = Class.create(Kekule.ChemObjOperation.Base,
 	{
 		var obj = this.getTarget();
 		if (obj instanceof Kekule.Glyph.PathGlyphArcConnectorControlNode) {
-			obj = obj.getParent().getParent();
+			if (obj.getParent()) {
+				obj = obj.getParent().getParent();
+			}
 		}
 		var parent = this.getParentObj();
 		var owner = this.getOwnerObj();
@@ -1694,6 +1699,29 @@ Kekule.ChemStructOperation.AnchorNodesPreview = Class.create(Kekule.ChemStructOp
 		}
 		finally
 		{
+		}
+		try {
+			if (fromNode instanceof Kekule.Glyph.PathGlyphNode &&  toNode instanceof Kekule.Bond) { // NGA-8759
+				var parent = toNode.getParent();
+				if (parent && parent instanceof Kekule.Molecule) {
+					var connectors = parent.getConnectors();
+					if (connectors && connectors.length) {
+						for (const connector of connectors) {
+							if (connector.id !== toNode.id) {
+								const attachedArcNodeIds = connector.getAttachedArcNodeIds();
+								if (attachedArcNodeIds[fromNode.id]) {
+									//console.log('********************** DUPLICATE Will Robinson!!!');
+									// make sure this Bond is only connected to a single PathGlyphNode (curved arrow)
+									delete attachedArcNodeIds[fromNode.id];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch(exception) {
+			console.error(exception);
 		}
 	},
 	/** @ignore */

@@ -4289,6 +4289,7 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 				if (o)
 					this.operationDone(o);
 			}
+			this._removeOrphans('undo');
 		}
 		return o;
 	},
@@ -4312,8 +4313,18 @@ Kekule.Editor.BaseEditor = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 				if (o)
 					this.operationDone(o)
 			}
+			this._removeOrphans('redo');
 		}
 		return o;
+	},
+	_removeOrphans: function(action) {
+		const chemSpace = this.getChemSpace();
+		if (chemSpace) {
+			const children = chemSpace.getChildren().filter(x => x.CLASS_NAME === 'Kekule.Glyph.PathGlyphArcConnectorControlNode');
+			for (const child of children) {
+	            child.getParent().removeChild(child);
+			}
+		}
 	},
 	/**
 	 * Undo all operations.
