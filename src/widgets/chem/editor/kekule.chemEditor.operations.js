@@ -1145,28 +1145,22 @@ Kekule.ChemStructOperation.RemoveNode = Class.create(Kekule.ChemObjOperation.Rem
 				if (parentNode)
 					parentNode.removeMarker(this.getTarget());
 		}
-		/*else
+		else
 		{
-			if (!this.getLinkedConnectors())
+			if (!this.getLinkedConnectorInfos())
 			{
-				this.setLinkedConnectors(Kekule.ArrayUtils.clone(this.getTarget().getLinkedConnectors()));
+				var node = this.getTarget();
+				var linkedConnectors = node.getLinkedConnectors();
+				var info = [];
+				for (var i = 0, l = linkedConnectors.length; i < l; ++i)
+				{
+					var connector = linkedConnectors[i];
+					var nodeIndex = connector.indexOfConnectedObj(node);
+					var refSibling = connector.getConnectedObjAt(nodeIndex + 1) || null;
+					info.push({'connector': connector, 'refSibling': refSibling});
+				}
+				this.setLinkedConnectorInfos(info);
 			}
-			$super();
-		}*/
-		
-		if (!this.getLinkedConnectorInfos())
-		{
-			var node = this.getTarget();
-			var linkedConnectors = node.getLinkedConnectors();
-			var info = [];
-			for (var i = 0, l = linkedConnectors.length; i < l; ++i)
-			{
-				var connector = linkedConnectors[i];
-				var nodeIndex = connector.indexOfConnectedObj(node);
-				var refSibling = connector.getConnectedObjAt(nodeIndex + 1) || null;
-				info.push({'connector': connector, 'refSibling': refSibling});
-			}
-			this.setLinkedConnectorInfos(info);
 		}
 		$super()
 	},
