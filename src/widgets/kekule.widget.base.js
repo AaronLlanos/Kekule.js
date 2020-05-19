@@ -17,7 +17,7 @@ var ObjectEx = require('../lan/classes').ObjectEx
 var DataType = require('../lan/classes').DataType
 var ObjSerializerFactory = require('../lan/serializations').ObjSerializerFactory
 module.exports = function(Kekule) {
-var Hammer = Kekule.$document ? require('hammerjs') : {}
+var Hammer = Kekule.$document && Object.keys(Kekule.$document).length ? require('hammerjs') : {}
 var AU = Kekule.ArrayUtils;
 var EU = Kekule.HtmlElementUtils;
 
@@ -4905,7 +4905,7 @@ Kekule.Widget.GlobalManager = Class.create(Kekule.Widget.BaseEventsReceiver,
 	/** @constructs */
 	initialize: function($super, doc)
 	{
-		this._document = doc || Kekule.$jsRoot.document;
+		this._document = doc || Kekule.$document;
 		this._touchEventSeq = [];  // internal, for detecting ghost mouse event
 		this._hammertime = null;  // private
 		this._globalSysElems = [];  // private, system elements such as top layer, isolated layer, etc.

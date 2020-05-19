@@ -11,6 +11,8 @@
 
 (function($jsRoot){
 
+var $setTimeout = typeof(window) === 'undefined' ? setTimeout : window.setTimeout;
+
 // ensure the $jsRoot refers to the global object in browser or node
 if (typeof(self) === 'object')
 	$jsRoot = self;
@@ -428,13 +430,13 @@ Object._extendSupportMethods(Function.prototype, {
   },
   delay: function() {
     var __method = this, args = __$A__(arguments), timeout = args.shift();
-    return window.setTimeout(function() {
+    return $setTimeout(function() {
       return __method.apply(__method, args);
     }, timeout);
   },
   defer: function() {
     var __method = this, args = __$A__(arguments), timeout = args.shift();
-    return window.setTimeout(function() {
+    return $setTimeout(function() {
       return __method.apply(__method, args);
     }, 10);
   }
