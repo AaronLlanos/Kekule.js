@@ -115,14 +115,17 @@ Kekule._registerAfterLoadProc = Kekule._ready;  // for backward
 /**
  * Root object of JavaScript environment, usually window.
  */
-Kekule.$jsRoot = this;
+Kekule.$jsRoot = this || (typeof(window) !== 'undefined' ? window : {});
 
-if (typeof(self) === 'object')
+if (typeof(self) === 'object') {
 	Kekule.$jsRoot = self;
-else if (typeof(window) === 'object' && window && window.document)
+}
+else if (typeof(window) === 'object' && window && window.document) {
 	Kekule.$jsRoot = window;
-else if (typeof(global) === 'object')  // node env
+}
+else if (typeof(global) === 'object') { // node env 
 	Kekule.$jsRoot = global;
+}
 
 Kekule.$jsRoot.Kekule = Kekule;
 
@@ -130,7 +133,7 @@ Kekule.$jsRoot.Kekule = Kekule;
  * Root document of JavaScript environment.
  * Can be null in Node.js.
  */
-Kekule.$document = (this && this.document) || null;
+Kekule.$document = (Kekule.$jsRoot && Kekule.$jsRoot.document) || {};
 
 if (!Kekule.scriptSrcInfo)  // scriptSrcInfo maybe set already in node.js environment
 {

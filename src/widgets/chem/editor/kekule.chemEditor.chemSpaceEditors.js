@@ -80,6 +80,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		this._screenSize = screenSize;
 		$super(parentOrElementOrDocument, chemObj, renderType, editorConfigs);
 		this._containerChemSpace = null;  // private field, used to mark that a extra chem space container is used
+		console.log("+++++++++++ HI!!! I'm CherryPickToApril Kekule.Editor.ChemSpaceEditor.");
 
 	},
 	/** @private */
