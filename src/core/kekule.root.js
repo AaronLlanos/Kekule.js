@@ -133,7 +133,7 @@ Kekule.$jsRoot.Kekule = Kekule;
  * Root document of JavaScript environment.
  * Can be null in Node.js.
  */
-Kekule.$document = (this && this.document) || {};
+Kekule.$document = (Kekule.$jsRoot && Kekule.$jsRoot.document) || {};
 
 if (!Kekule.scriptSrcInfo)  // scriptSrcInfo maybe set already in node.js environment
 {
