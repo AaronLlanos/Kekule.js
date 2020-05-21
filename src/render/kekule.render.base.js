@@ -1660,7 +1660,7 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	/** @private */
 	createLineBoundInfo: function(coord1, coord2, width, isElectron)
 	{
-		var increasingBondHitArea = 24;
+		var increasingBondHitArea = 15;
 		if (!isElectron) {
 			return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': increasingBondHitArea});
 		} else {
