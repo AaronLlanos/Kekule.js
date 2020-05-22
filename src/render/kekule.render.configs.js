@@ -376,6 +376,8 @@ Kekule.Render.LengthConfigs = Class.create(Kekule.AbstractConfigs,
 		// length for glyphs
 		this.addFloatConfigProp('glyphStrokeWidth', 1);
 		this.addFloatConfigProp('glyphStickOffsetRelLength', 0.1);  // 1/10 of default bond length
+		this.addFloatConfigProp('strokeWidth', 3);
+
 		// length for reaction
 		this.addFloatConfigProp('rxnMolMargin', 10, {'scope': PS.PUBLIC});
 
@@ -426,7 +428,7 @@ Kekule.Render.ColorConfigs = Class.create(Kekule.AbstractConfigs,
 		this.addStrConfigProp('atomColor', '#000000');
 		this.addStrConfigProp('bondColor', '#000000');
 		// color for glyphs
-		this.addStrConfigProp('glyphStrokeColor', '#999999');
+		this.addStrConfigProp('glyphStrokeColor', '#555555');
 		this.addStrConfigProp('glyphFillColor', '#999999');
 	}
 });
