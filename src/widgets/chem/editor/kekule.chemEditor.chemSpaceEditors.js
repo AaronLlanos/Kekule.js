@@ -80,7 +80,6 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 		this._screenSize = screenSize;
 		$super(parentOrElementOrDocument, chemObj, renderType, editorConfigs);
 		this._containerChemSpace = null;  // private field, used to mark that a extra chem space container is used
-		console.log("+++++++++++ HI!!! I'm CherryPickToApril Kekule.Editor.ChemSpaceEditor.");
 
 	},
 	/** @private */
@@ -321,7 +320,7 @@ Kekule.Editor.ChemSpaceEditor = Class.create(Kekule.Editor.BaseEditor,
 			var elem = this.getEditClientElem().parentNode;
 			var visibleClientSize = Kekule.HtmlElementUtils.getElemClientDimension(elem);
 			if (!restoreScrollPosition)
-				this.scrollClientTo(0, (screenSize.x * this.getCurrZoom() - visibleClientSize.width) / 2);
+				this.scrollClientTo((screenSize.y * currZoom - visibleClientSize.height) * .4, (screenSize.x * currZoom - visibleClientSize.width) / 2);
 			else
 				this.scrollClientTo(scrollPos.y, scrollPos.x);
 		}
