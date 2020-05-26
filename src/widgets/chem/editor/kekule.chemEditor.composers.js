@@ -2379,7 +2379,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 	 */
 	createCommonToolbar: function()
 	{
-		var parentElem = this.getTopRegionElem();
+		var parentElem = this.getBottomRegionElem();
 		var toolbar = this.createInnerToolbar(parentElem);
 		toolbar.addClassName(CCNS.COMPOSER_COMMON_TOOLBAR);
 		// add buttons

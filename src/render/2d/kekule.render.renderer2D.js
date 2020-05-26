@@ -2642,7 +2642,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 		var needDrawCharge = (node.getCharge() && !node.fetchChargeMarker(false));
 		var needDrawRadical = (node.getRadical() && !node.fetchRadicalMarker(false));
 		var nodeWithLabel = false;
-		var nodeBoundInfoRadius = 10;
+		var nodeBoundInfoRadius = 7;
 		if (this.getObjNeedDrawLabel(context, node))  // draw label
 		{
 			nodeWithLabel = true;
