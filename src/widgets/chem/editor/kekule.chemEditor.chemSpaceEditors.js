@@ -2523,6 +2523,37 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			return null;
 	},
 
+	/** @private */
+	_getMagneticNodeMergeDest: function(node, nodeScreenCoord, excludedObjs)
+	{
+		var editor = this.getEditor();
+		var self = this;
+		var filterFunc = function(bound)
+		{
+			var obj = bound.obj;
+			return (node !== obj) && (excludedObjs.indexOf(obj) < 0)
+					&& ((obj instanceof Kekule.ChemStructureNode) || (obj instanceof Kekule.ChemMarker.UnbondedElectronSet))
+					&& self._canMergeNodes(node, obj);
+		};
+		if (nodeScreenCoord)
+		{
+			var boundInfos = editor.getBoundInfosAtCoord(nodeScreenCoord, filterFunc, this.getCurrBoundInflation());
+			//console.log('boundInfos', boundInfos);
+			/*
+			var overlapBoundInfo = this._findSuitableMergeTargetBoundInfo(boundInfos, excludedObjs, Kekule.ChemStructureNode,
+					function(destObj)
+					{
+						return self._canMergeNodes(node, destObj);
+					}
+			);
+			*/
+			var overlapBoundInfo = boundInfos.length? boundInfos[boundInfos.length - 1]: null;
+			return overlapBoundInfo? overlapBoundInfo.obj: null;
+		}
+		else
+			return null;
+	},
+
 	/** @ignore */
 	moveManipulatedObjs: function($super, endScreenCoord)
 	{
