@@ -1867,6 +1867,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 		this._suppressConstrainedRotating = false;  // used internally
 		this._isInDirectedMoving = false;
 		this._directedMovingDirection = null;  // used internally
+		this._message = null;
 	},
 	/** @private */
 	initProperties: function()
@@ -4037,8 +4038,22 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 	},
 
 	/** @private */
+	_traceMouse(e) {
+		const coord = this._getEventMouseCoord(e);
+		const boundItem = this.getEditor().getTopmostBoundInfoAtCoord(coord, null, this.getCurrBoundInflation());
+		if (boundItem && boundItem.obj) {
+			const message = `${boundItem.obj.CLASS_NAME}.${boundItem.obj.id} at x: ${coord.x}, y: ${coord.y}`;
+			if (this._message !== message) {
+				console.log(message);
+				this._message = message;
+			}
+		}
+	},
+
+	/** @private */
 	react_pointermove: function($super, e)
 	{
+		this._traceMouse(e);
 		// check if ALT key is pressed, if so, constrained move/rotate mode should be disabled
 		this._suppressConstrainedMoving = e.getAltKey();
 		this._suppressConstrainedRotating = e.getAltKey();
