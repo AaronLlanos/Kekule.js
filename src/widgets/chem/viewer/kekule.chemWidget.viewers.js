@@ -224,7 +224,6 @@ Kekule.ChemWidget.Viewer = Class.create(Kekule.ChemWidget.ChemObjDisplayer,
 		this.doResize();  // adjust caption and drawParent size
 
 		this.addIaController('default', new Kekule.ChemWidget.ViewerBasicInteractionController(this), true);
-		console.log("+++++++++++ HI!!! I'm CherryPickToApril Kekule.ChemWidget.Viewer.");
 	},
 	/** @private */
 	doFinalize: function($super)
