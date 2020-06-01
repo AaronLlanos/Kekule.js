@@ -4160,7 +4160,7 @@ Kekule.Widget.InteractionController = Class.create(ObjectEx,
 		if (boundItem && boundItem.obj) {
 			const message = `${boundItem.obj.CLASS_NAME}.${boundItem.obj.id} at x: ${coord.x}, y: ${coord.y}`;
 			if (this._message !== message) {
-				console.log(message);
+				//console.log(message); TODO: Add a feature flag to enable/disable it
 				this._message = message;
 			}
 		}
