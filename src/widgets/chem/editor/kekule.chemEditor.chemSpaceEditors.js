@@ -2598,6 +2598,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 				);
 				if (checkResult)
 				{
+					this._mergeJustReversed = false;
 					magneticMergeObjIndexes = [0];
 					magneticMergeObjs = [checkResult.magneticObj];
 					magneticMergeDests = [checkResult.magneticDest];
