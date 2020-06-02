@@ -2248,7 +2248,7 @@ Kekule.Editor.ActionComposerSetRepositoryPathOpenArrowArcController = Kekule.Edi
 	'ArrowLineIaController',
 	'ArrowLineIaController-OpenArrowArc',
 	{
-		'glyphClass': Kekule.Glyph.BaseArc,
+		'glyphClass': Kekule.Glyph.Arc,
 		'glyphInitialParams': {
 			'endArrowType': Kekule.Glyph.ArrowType.OPEN,
 			'endArrowWidth': 0.25,
@@ -2268,7 +2268,7 @@ Kekule.Editor.ActionComposerSetRepositoryPathSingleSideOpenArrowArcController = 
 	'ArrowLineIaController',
 	'ArrowLineIaController-SingleSideOpenArrowArc',
 	{
-		'glyphClass': Kekule.Glyph.BaseArc,
+		'glyphClass': Kekule.Glyph.Arc,
 		'glyphInitialParams': {
 			'endArrowType': Kekule.Glyph.ArrowType.OPEN,
 			'endArrowSide': Kekule.Glyph.ArrowSide.REVERSED,

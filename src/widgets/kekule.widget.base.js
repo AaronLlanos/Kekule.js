@@ -4152,6 +4152,18 @@ Kekule.Widget.InteractionController = Class.create(ObjectEx,
 		var result = Kekule.CoordUtils.substract(coord, offset);
 		return result;
 		*/
+	},
+
+	traceMouse(e) {
+		const coord = this._getEventMouseCoord(e);
+		const boundItem = this.getEditor().getTopmostBoundInfoAtCoord(coord, null, this.getCurrBoundInflation());
+		if (boundItem && boundItem.obj) {
+			const message = `${boundItem.obj.CLASS_NAME}.${boundItem.obj.id} at x: ${coord.x}, y: ${coord.y}`;
+			if (this._message !== message) {
+				//console.log(message); TODO: Add a feature flag to enable/disable it
+				this._message = message;
+			}
+		}
 	}
 });
 

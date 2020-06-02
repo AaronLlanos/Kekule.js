@@ -119,6 +119,9 @@ Kekule.ChemObjOperation.Base = Class.create(Kekule.Operation,
 	},
 	removeListenersOnCurveArrow: function(arrowNode, toNode)
 	{
+		if (!arrowNode || !arrowNode.getAnchorObj || !arrowNode.setAnchorObj) {
+			return;
+		}
 		if (!toNode) {
 			toNode = this.getEditor().getChemObj().getObjById(arrowNode.getAnchorObj())
 		}
