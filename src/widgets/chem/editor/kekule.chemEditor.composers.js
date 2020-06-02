@@ -2534,6 +2534,7 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 	/** @private */
 	changeAssocToolbarRegion: function(toLeftRegion)
 	{
+		/*
 		var toolbar = this.getAssocBtnGroup();
 		if (!toolbar)
 			toolbar = this.createAssocToolbar();
@@ -2557,6 +2558,16 @@ Kekule.Editor.Composer = Class.create(Kekule.ChemWidget.AbstractWidget,
 				// insert as the first elem
 				parent.insertBefore(toolbar.getElement(), refElem);
 			}
+		}
+		*/
+		const toolbar = this.getAssocBtnGroup() || this.createAssocToolbar();
+		const parent = this.getBottomRegionElem();
+		if (toolbar.getElement().parentNode !== parent)
+		{
+			toolbar.setLayout(Kekule.Widget.Layout.HORIZONTAL);
+			var refElem = Kekule.DomUtils.getFirstChildElem(parent);
+			// insert as the first elem
+			parent.insertBefore(toolbar.getElement(), refElem);
 		}
 	},
 	/**
