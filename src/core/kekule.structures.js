@@ -5057,13 +5057,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							this.hydrateExplicitHydrogenBonds();
 							targetObj.hydrateExplicitHydrogenBonds();							
 
-							if (result === 0 && hydrogen_display_type !== 'BONDED') 
+							/*if (result === 0 && hydrogen_display_type !== 'BONDED') 
 							{
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
                             	Kekule.MolStandardizer.standardize(this, options);
                                 Kekule.MolStandardizer.standardize(targetObj, options);
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
-							}							
+							}*/							
 
 							if (result === 0) 
 							{
