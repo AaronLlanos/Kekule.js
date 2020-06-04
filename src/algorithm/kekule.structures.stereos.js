@@ -32,6 +32,14 @@ Kekule.RotationDir = {
 	ANTICLOCKWISE: -1,
 	UNKNOWN: 0
 };
+Kekule.RotationDirLabel = (r) => {
+  switch (r) {
+    case Kekule.RotationDir.CLOCKWISE: return 'RotationDir.CLOCKWISE';
+    case Kekule.RotationDir.ANTICLOCKWISE: return 'RotationDir.ANTICLOCKWISE';
+    case Kekule.RotationDir.UNKNOWN: return 'RotationDir.UNKNOWN';
+  }
+  return `RotationDir.${r}`;
+};
 var RD = Kekule.RotationDir;
 
 /**
@@ -690,7 +698,12 @@ Kekule.MolStereoUtils = {
 	 * @param {Bool} refCoordBehind
 	 * @returns {Int} Value from {@link Kekule.RotationDir}, clockwise, anti-clockwise or unknown.
 	 */
-	calcRotationDirection: function(centerCoord, refCoord, coord1, coord2, coord3, refCoordBehind)
+	calcRotationDirection: function(centerCoord, refCoord, coord1, coord2, coord3, refCoordBehind) {
+		const result = this.calcRotationDirection_1(centerCoord, refCoord, coord1, coord2, coord3, refCoordBehind);
+		if (Kekule.miguel.log) console.log('calcRotationDirection', Kekule.miguel.nodeCounter, '=>', result, Kekule.RotationDirLabel(result));
+		return result;
+	},
+	calcRotationDirection_1: function(centerCoord, refCoord, coord1, coord2, coord3, refCoordBehind)
 	{
 		// calc the looking direction vector
 		var lookingVector = refCoordBehind? CU.substract(centerCoord, refCoord):
@@ -898,6 +911,12 @@ Kekule.MolStereoUtils = {
 	 * @returns {Int} Value from {@link Kekule.RotationDir}, clockwise, anti-clockwise or unknown.
 	 */
 	calcTetrahedronChiralCenterRotationDirectionEx: function(centerNode, refSibling, siblings, options)
+	{
+		const result = this.calcTetrahedronChiralCenterRotationDirectionEx_1(centerNode, refSibling, siblings, options);
+		if (Kekule.miguel.log) console.log('calcTetrahedronChiralCenterRotationDirectionEx', Kekule.miguel.nodeCounter, '=>', result, Kekule.RotationDirLabel(result));
+		return result;
+	},
+	calcTetrahedronChiralCenterRotationDirectionEx_1: function(centerNode, refSibling, siblings, options)
 	{
 		var ops = Object.extend({
 			implicitFischerProjection: true,
@@ -1108,6 +1127,16 @@ Kekule.MolStereoUtils = {
 	 * @returns {Int} Value from {@link Kekule.StereoParity}.
 	 */
 	calcTetrahedronChiralNodeParity: function(node, coordMode, options)
+	{
+		Kekule.miguel.nodeCounter = Kekule.miguel.nodeCounter || 0;
+		Kekule.miguel.nodeCounter += 1;
+
+		if (Kekule.miguel.log) console.log('calcTetrahedronChiralNodeParity', Kekule.miguel.nodeCounter);
+		const result = this.calcTetrahedronChiralNodeParity_1(node, coordMode, options);
+		if (Kekule.miguel.log) console.log('calcTetrahedronChiralNodeParity', Kekule.miguel.nodeCounter, '=>', result, Kekule.StereoParityLabel(result));
+		return result;
+	},
+	calcTetrahedronChiralNodeParity_1: function(node, coordMode, options)
 	{
 		var ops = Object.create(options || null);
 		if (!coordMode)

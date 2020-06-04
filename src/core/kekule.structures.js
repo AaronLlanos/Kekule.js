@@ -880,6 +880,16 @@ Kekule.StereoParity = {
 	EVEN: 2,
 	UNKNOWN: 0
 };
+Kekule.StereoParityLabel = (r) => {
+  switch (r) {
+    case Kekule.StereoParity.NONE: return 'StereoParity.ODD';
+    case Kekule.StereoParity.LINEAR: return 'StereoParity.LINEAR';
+    case Kekule.StereoParity.ODD: return 'StereoParity.ODD';
+    case Kekule.StereoParity.EVEN: return 'StereoParity.EVEN';
+    case Kekule.StereoParity.UNKNOWN: return 'StereoParity.UNKNOWN';
+  }
+  return `StereoParity.${r}`;
+};
 
 /**
  * Represent an abstract structure node (atom, atom group, etc.).
@@ -4997,7 +5007,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 	//// this is where most of the molcule grading happens
 	doCompare: function($super, targetObj, options)
 	{
-		//console.log('do compare structure', options);
+		if (Kekule.miguel.log) console.log('do compare structure', options);
 		var result = $super(targetObj, options);
 		var _getNeighorNodeIndexes = function(nodeOrConnector, parent)
 		{
@@ -5057,13 +5067,13 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 							this.hydrateExplicitHydrogenBonds();
 							targetObj.hydrateExplicitHydrogenBonds();							
 
-							/*if (result === 0 && hydrogen_display_type !== 'BONDED') 
+							if (result === 0 && hydrogen_display_type !== 'BONDED') 
 							{
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = true;
                             	Kekule.MolStandardizer.standardize(this, options);
                                 Kekule.MolStandardizer.standardize(targetObj, options);
                                 Kekule.globalOptions.algorithm.molStandardization.clearHydrogens = false;
-							}*/							
+							}							
 
 							if (result === 0) 
 							{
