@@ -5107,30 +5107,14 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 											{
 												break;
 											} else {
-												// comparing if are same kind of bond
-												for (var j = 0, le = wedgesDashesCount1.length; j < le; ++j) 
-												{
-													for (var k = 0, lg = wedgesDashesCount2.length; k < lg; ++k)
-													{
-														if (wedgesDashesCount1[j].getStereo() === wedgesDashesCount2[k].getStereo())
-														{
-															wedgesDashesCount2.splice(k, 1);
-														} 
-													}
-												}
-												result = wedgesDashesCount2.length;
+												// curved arrows check
+												result = JSON.stringify(nodes1[i].getAttachedArcNodeIds()) === JSON.stringify(nodes2[i].getAttachedArcNodeIds()) ? 0 : 1;
 												if (result !== 0)
 												{
 													break;
 												}
 											} 
 										}
-										// curved arrows check
-										result = JSON.stringify(nodes1[i].getAttachedArcNodeIds()) === JSON.stringify(nodes2[i].getAttachedArcNodeIds()) ? 0 : 1;
-										if (result !== 0)
-										{
-											break;
-										}	
 									}																		
 								}
 							}
