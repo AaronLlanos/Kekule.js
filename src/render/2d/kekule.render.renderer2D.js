@@ -687,6 +687,15 @@ Kekule.Render.ChemObj2DRenderer = Class.create(Kekule.Render.Base2DRenderer,
 	/** @private */
 	CLASS_NAME: 'Kekule.Render.ChemObj2DRenderer',
 
+	/** @ignore */
+	_getRenderSortIndex: function($super)
+	{
+		var obj = this.getChemObj();
+		if (obj && obj.coordStickTarget && obj.getCoordStickTarget())
+			return 1;
+		return $super();
+	},
+
 	/** @private */
 	doEstimateSelfObjBox: function(context, options, allowCoordBorrow)
 	{
@@ -819,6 +828,10 @@ Kekule.Render.ChemObj2DRenderer = Class.create(Kekule.Render.Base2DRenderer,
 		if (!objBox)
 		{
 			objBox = this.estimateObjBox(context, drawOptions, result.allowCoordBorrow);
+		}
+		if (!objBox)  // object is actually empty, use a fake one to avoid exceptions
+		{
+			objBox = {'x1': 0, 'x2': 1, 'y1': 0, 'y2': 1};
 		}
 		var boxCenter = {'x': (objBox.x1 + objBox.x2) / 2, 'y': (objBox.y1 + objBox.y2) / 2};
 
@@ -1574,6 +1587,20 @@ Kekule.Render.Ctab2DRenderer = Class.create(Kekule.Render.ChemObj2DRenderer,
 	/** @private */
 	CHILD_TRANSFORM_MATRIX_FIELD: '__$childTransMatrix__',
 
+	/** ignore */
+	_getRenderSortIndex: function($super)
+	{
+		var ctab = this.getChemObj();
+		var nodes = ctab.getExposedNodes();
+		for (var i = 0, l = nodes.length; i < l; ++i)
+		{
+			var obj = nodes[i];
+			if (obj && obj.coordStickTarget && obj.getCoordStickTarget())
+				return 1;
+		}
+		return $super();
+	},
+
 	/** @private */
 	doEstimateSelfObjBox: function(context, options, allowCoordBorrow)
 	{
@@ -1650,6 +1677,17 @@ Kekule.Render.Ctab2DRenderer = Class.create(Kekule.Render.ChemObj2DRenderer,
 	doPrepare: function($super, context, chemObj, baseCoord, options)
 	{
 		$super(context, chemObj, baseCoord, options);
+		this.doPrepareLayout(context, chemObj, baseCoord, options);
+	},
+	/**
+	 * Prepare the actual drawing coord and bound of chemObj (and its children).
+	 * The bound of actually drawing child objects should be reported to boundRecorder of base renderer.
+	 * Descendants may override this method.
+	 * @private
+	 */
+	doPrepareLayout: function(context, chemObj, baseCoord, options)
+	{
+		// do nothing here
 	},
 	/** @private */
 	handleNodeSpecifiedRenderOptions: function(currObj, parentOptions)
@@ -2313,7 +2351,6 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 	/** @private */
 	doPrepare: function($super, context, chemObj, baseCoord, options)
 	{
-		$super(context, chemObj, baseCoord, options);
 		/*
 		// generate draw options
 		var c = this.getRenderCache(context);
@@ -2338,6 +2375,13 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 
 		//this.getRenderCache(context).appliedOptions = options;
 
+		$super(context, chemObj, baseCoord, options);
+	},
+	/** @ignore */
+	doPrepareLayout: function($super, context, chemObj, baseCoord, options)
+	{
+		$super(context, chemObj, baseCoord, options);
+
 		// iterate through nodes to see whether node label need to be set
 		var nodes = chemObj.getExposedNodes();
 		for (var i = 0, l = nodes.length; i < l; ++i)
@@ -2347,6 +2391,8 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			//node[this.NODE_NEED_LABEL_FIELD] = needDrawLabel;
 			this.setObjNeedDrawLabel(context, node, needDrawLabel);
 		}
+		// calculate the actual drawing coord and bound of nodes/connectors
+
 	},
 	/*
 	 * @private
@@ -2589,11 +2635,14 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 		if (atomicNumber && atomicNumber >= 113 && node.getSymbol() != 'D' && node.getCharge() != 0) {
 			node.setCharge(0);
 		}
+		if (atomicNumber && atomicNumber >= 113 && node.getSymbol() != 'D' && node.getExplicitHydrogenCount()) {
+			node.setExplicitHydrogenCount(undefined);
+		}
 		var hasChargeOrRadical = node.getCharge() || node.getRadical();
 		var needDrawCharge = (node.getCharge() && !node.fetchChargeMarker(false));
 		var needDrawRadical = (node.getRadical() && !node.fetchRadicalMarker(false));
 		var nodeWithLabel = false;
-		var nodeBoundInfoRadius = 10;
+		var nodeBoundInfoRadius = 7;
 		if (this.getObjNeedDrawLabel(context, node))  // draw label
 		{
 			nodeWithLabel = true;
@@ -2602,7 +2651,10 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			 var renderOptions = Object.extend(renderConfigs, localOptions);
 			 */
 			// if a label is drawn, all hydrogens should be marked
-			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node, options);
+			//var hdisplayLevel = Kekule.Render.HydrogenDisplayLevel.ALL; //this._getNodeHydrogenDisplayLevel(node);
+			var hdisplayLevel = this._getNodeHydrogenDisplayLevel(node, nodeRenderOptions);
+			if (hdisplayLevel === Kekule.Render.HydrogenDisplayLevel.LABELED)  // when label is shown, always show hydrogens
+				hdisplayLevel = Kekule.Render.HydrogenDisplayLevel.ALL;
 			//console.log(hdisplayLevel);
 			var needShowChargeInLabel = !!(needDrawCharge || needDrawRadical);
 			//console.log(node.getCharge(), node.getRadical(), needDrawCharge, needDrawRadical, needShowChargeInLabel);
@@ -2780,6 +2832,17 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			default:
 				return EXPLICIT
 		}
+		//if (this.getMoleculeDisplayType() === Kekule.Render.MoleculeDisplayType.CONDENSED)  // condensed, need display all hydrogens defaultly
+		// var localRenderOptions = node.getOverriddenRenderOptions();
+		// var localLevel = Kekule.Render.RenderOptionUtils.getHydrogenDisplayLevel(localRenderOptions);
+		// var hdisplayLevel = Kekule.ObjUtils.notUnset(localLevel)?
+		// 	localLevel:
+		// 	/*((drawOptions.moleculeDisplayType === Kekule.Render.MoleculeDisplayType.CONDENSED)?
+		// 			Kekule.Render.HydrogenDisplayLevel.ALL:*
+		// 			drawOptions.hydrogenDisplayLevel);*/
+		// 	drawOptions.hydrogenDisplayLevel;
+		// 			//this.getRenderConfigs().getMoleculeDisplayConfigs().getDefHydrogenDisplayLevel());
+		// return hdisplayLevel;
 	},
 
 	/**
@@ -2865,13 +2928,14 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 
 					var hDisplayLevel = this._getNodeHydrogenDisplayLevel(node, drawOptions);
 					var HDL = Kekule.Render.HydrogenDisplayLevel;
-					if ((hDisplayLevel === HDL.ALL) || (hDisplayLevel === HDL.NONE))
+					if ((hDisplayLevel === HDL.ALL)/* || (hDisplayLevel === HDL.NONE)*/)
 					{
 						return true;
 					}
 					else if (hDisplayLevel === HDL.UNMATCHED_EXPLICIT)
 					{
-						return (node.getImplicitHydrogenCount() !== node.getExplicitHydrogenCount());
+						var explicitHCount = node.getExplicitHydrogenCount();
+						return (Kekule.ObjUtils.notUnset(explicitHCount) && node.getImplicitHydrogenCount() !== explicitHCount);
 					}
 					else  // explicit
 						return Kekule.ObjUtils.notUnset(node.getExplicitHydrogenCount());
@@ -4120,6 +4184,14 @@ Kekule.Render.StructFragment2DRenderer = Class.create(Kekule.Render.ChemObj2DRen
 			this._concreteRenderer.finalize();
 			this._concreteRenderer = null;
 		}
+	},
+	/** ignore */
+	_getRenderSortIndex: function($super)
+	{
+		if (this._concreteRenderer)
+			return this._concreteRenderer._getRenderSortIndex();
+		else
+			return $super();
 	},
 	/** @private */
 	initConcreteRenderer: function()

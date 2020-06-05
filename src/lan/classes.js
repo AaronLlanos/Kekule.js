@@ -11,6 +11,8 @@
 
 (function($jsRoot){
 
+var $setTimeout = typeof(window) === 'undefined' ? setTimeout : window.setTimeout;
+
 // ensure the $jsRoot refers to the global object in browser or node
 if (typeof(self) === 'object')
 	$jsRoot = self;
@@ -45,7 +47,11 @@ var Class = {
         if (!properties[0])
         {
           if (properties.length > 1)
-            throw 'Can not create new class, base class not found';
+          {
+          	var exProps = properties[1];
+          	var currClassName = (exProps && exProps.CLASS_NAME);
+	          throw 'Can not create new class' + (currClassName? ' ' + currClassName: '') + ' , base class not found';
+          }
         }
         if (Object.isFunction(properties[0]))
             parent = properties.shift();
@@ -424,13 +430,13 @@ Object._extendSupportMethods(Function.prototype, {
   },
   delay: function() {
     var __method = this, args = __$A__(arguments), timeout = args.shift();
-    return window.setTimeout(function() {
+    return $setTimeout(function() {
       return __method.apply(__method, args);
     }, timeout);
   },
   defer: function() {
     var __method = this, args = __$A__(arguments), timeout = args.shift();
-    return window.setTimeout(function() {
+    return $setTimeout(function() {
       return __method.apply(__method, args);
     }, 10);
   }
@@ -545,11 +551,75 @@ Object._extendSupportMethods(String.prototype, {
 	},
 
 	capitalizeFirst: function() {
-		return this.charAt(0).toUpperCase() + this.substring(1);
-	},
-	include: function(pattern) {
-		return this.indexOf(pattern) > -1;
-	},
+    return this.charAt(0).toUpperCase() + this.substring(1);
+  },
+
+  underscore: function() {
+    //return this.gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/,'#{1}_#{2}').gsub(/([a-z\d])([A-Z])/,'#{1}_#{2}').gsub(/-/,'_').toLowerCase();
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+		  .replace(/-/g, '_')
+		  .toLowerCase();
+  },
+
+  dasherize: function() {
+    //return this.gsub(/_/,'-');
+	  return this.replace(/::/g, '/')
+		  .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+		  .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+		  .replace(/-/g, '-')
+		  .toLowerCase();
+  },
+
+  inspect: function(useDoubleQuotes) {
+    var escapedString = this.gsub(/[\x00-\x1f\\]/, function(match) {
+      var character = String.specialChar[match[0]];
+      return character ? character : '\\u00' + match[0].charCodeAt().toPaddedString(2, 16);
+    });
+    if (useDoubleQuotes) return '"' + escapedString.replace(/"/g, '\\"') + '"';
+    return "'" + escapedString.replace(/'/g, '\\\'') + "'";
+  },
+
+  toJSON: function() {
+    return this.inspect(true);
+  },
+
+  unfilterJSON: function(filter) {
+    return this.sub(filter || Prototype.JSONFilter, '#{1}');
+  },
+
+  isJSON: function() {
+    var str = this;
+    if (str.blank()) return false;
+    str = this.replace(/\\./g, '@').replace(/"[^"\\\n\r]*"/g, '');
+    return (/^[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]*$/).test(str);
+  },
+
+  evalJSON: function(sanitize) {
+    var json = this.unfilterJSON();
+    try {
+      if (!sanitize || json.isJSON()) return eval('(' + json + ')');
+    } catch (e) { }
+    throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
+  },
+
+  include: function(pattern) {
+    return this.indexOf(pattern) > -1;
+  },
+
+  startsWith: function(pattern) {
+    return this.indexOf(pattern) === 0;
+  },
+
+  endsWith: function(pattern) {
+    var d = this.length - pattern.length;
+    return d >= 0 && this.lastIndexOf(pattern) === d;
+  },
+
+  empty: function() {
+    return this == '';
+  },
 
 	startsWith: function(pattern) {
 		return this.indexOf(pattern) === 0;
@@ -801,7 +871,18 @@ var StringUtils = {
 						case StringUtils.SDATEPREFIX:  // may be date
 							{
 								var s = str.substr(1);
-								return new Date(s);
+								try
+								{
+									var d =	new Date(s);
+									if (!isNaN(d.getTime()))
+										return d;
+									else
+										return str;
+								}
+								catch(e)
+								{
+									return str;
+								}
 							}
 						default:
 							return str;
@@ -1686,6 +1767,7 @@ var ClassEx = {
 			if (parent)
 				ClassEx._ensurePropertySystem(parent);
 			ClassEx._createPropertyList(aClass);
+			ClassEx._remapPropGetters(aClass);  // remap possible overrided methods
 			if (proto.hasOwnProperty('initProperties'))  // prevent call parent initProperties method
 				proto.initProperties.apply(proto);
 		}
@@ -2183,6 +2265,7 @@ ObjectEx = Class.create(
 	/** @private */
 	_initPropertySystem: function()  // used internally for create property list
 	{
+		/*
 		if (!this.getPrototype().hasOwnProperty('properties'))
 		{
       //console.log('init prop system', this.getClassName());
@@ -2198,12 +2281,17 @@ ObjectEx = Class.create(
 			if (this.getPrototype().hasOwnProperty('initProperties'))  // prevent call parent initProperties method
 				this.getPrototype().initProperties.apply(this.getPrototype());
 		}
+		*/
+		ClassEx._ensurePropertySystem(this.getClass());
 	},
 	/** @private */
 	_createPropertyList: function()  // used internal, create property list
 	{
+		/*
 		if (!this.getPrototype().hasOwnProperty('properties'))
 			this.getPrototype().properties = new Class.PropList();
+		*/
+		ClassEx._createPropertyList(this.getClass());
 	},
   /** @private */
   _remapPropGetters: function()
@@ -2318,6 +2406,20 @@ ObjectEx = Class.create(
 		else
 			return null;
 	},
+	/**
+	 * Change the class of an existing object.
+	 * This method is quite dangerous, call it with caution.
+	 * @param {Class} aClass
+	 */
+	__changeClass__: function(aClass)
+	{
+		var proto = ClassEx.getPrototype(aClass);
+		this.prototype = proto;
+		this.__proto__ = proto;
+		this.constructor = aClass;
+		this.objectChange(['__proto__']);  // notify object changed
+		return this;
+	},
 	/*
 	getPropList: function()
 	{
@@ -2381,6 +2483,7 @@ ObjectEx = Class.create(
 	 *  	getter: getter function,
 	 *  	setter: setter function, if set to null, the property will be read-only,
 	 *  	serializable: boolean, whether the property should be save or restore in serialization. Default is true.
+	 *      This field can also be set by a function returning boolean. When serializing object, this function will be called.
 	 *  	defaultValue: default value of property, can only be simple type (number, string, bool...)
 	 *  }
 	 *  @return {Object} Property info object added to property list.
@@ -3145,7 +3248,7 @@ ObjectEx = Class.create(
     this[methodName] = function _delegator_()
     {
       var args = Array.prototype.slice.call(arguments);
-      args.unshift(oldMethod.bind(self));
+      args.unshift(oldMethod && oldMethod.bind(self));
       return newMethod.apply(self, args);
     };
     return this;

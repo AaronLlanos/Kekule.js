@@ -41,6 +41,7 @@ var CW = Kekule.ChemWidget;
 /** @ignore */
 Kekule.ChemWidget.HtmlClassNames = Object.extend(Kekule.ChemWidget.HtmlClassNames, {
 	CHEMOBJSETTER: 'K-Chem-Obj-Setter',
+	CHEMOBJSETTER_FLEX_LAYOUT: 'K-Chem-Obj-Setter-Flex-Layout',  // a special class indicating that the composer is using CSS flex layout
 	CHEMOBJSETTER_TOOLBAR_AREA: 'K-Chem-Obj-Setter-Toolbar-Area',
 	CHEMOBJSETTER_CLIENT: 'K-Chem-Obj-Setter-Client',
 	CHEMOBJSETTER_VIEWER: 'K-Chem-Obj-Setter-Viewer',
@@ -260,7 +261,14 @@ Kekule.ChemWidget.ChemObjInserter = Class.create(Kekule.ChemWidget.AbstractWidge
 	doGetWidgetClassName: function($super)
 	{
 		var result = $super() + ' ' + CCNS.CHEMOBJSETTER;
+		if (this._isUsingFlexLayout())
+			result += ' ' + CCNS.CHEMOBJSETTER_FLEX_LAYOUT;
 		return result;
+	},
+	/** @private */
+	_isUsingFlexLayout: function()
+	{
+		return Kekule.BrowserFeature.cssFlex;
 	},
 
 	/** @ignore */
@@ -290,6 +298,12 @@ Kekule.ChemWidget.ChemObjInserter = Class.create(Kekule.ChemWidget.AbstractWidge
 		this.createTabs(rootElem);
 
 		return result;
+	},
+
+	/** @ignore */
+	elementBound: function(element)
+	{
+		this.setObserveElemResize(true);
 	},
 
 	/** @ignore */
@@ -356,32 +370,39 @@ Kekule.ChemWidget.ChemObjInserter = Class.create(Kekule.ChemWidget.AbstractWidge
 	 */
 	adjustChildrenSizes: function()
 	{
-		//var selfRect = this.getBoundingClientRect();
-		var selfRect = this.getPageRect();
-		//var toolbarRect = Kekule.HtmlElementUtils.getElemBoundingClientRect(this._toolbarParentElem);
-		var toolbarRect = Kekule.HtmlElementUtils.getElemPageRect(this._toolbarParentElem);
-		var tabs = this.getTabs();
-		//var tabRect = tabs && tabs.getBoundingClientRect();
-		var tabRect = tabs && tabs.getPageRect();
-		var h = tabRect.top - toolbarRect.bottom;
-		//console.log(selfRect.height, toolbarRect.height, tabRect.height, h);
-		this.getClientPanel().setHeight(h + 'px');
-		//console.log('set height', h, tabRect, toolbarRect);
+		if (this._isUsingFlexLayout())
+		{
+			// do nothing here
+		}
+		else // traditional absolute layout
+		{
+			//var selfRect = this.getBoundingClientRect();
+			var selfRect = this.getPageRect();
+			//var toolbarRect = Kekule.HtmlElementUtils.getElemBoundingClientRect(this._toolbarParentElem);
+			var toolbarRect = Kekule.HtmlElementUtils.getElemPageRect(this._toolbarParentElem);
+			var tabs = this.getTabs();
+			//var tabRect = tabs && tabs.getBoundingClientRect();
+			var tabRect = tabs && tabs.getPageRect();
+			var h = tabRect.top - toolbarRect.bottom;
+			//console.log(selfRect.height, toolbarRect.height, tabRect.height, h);
+			this.getClientPanel().setHeight(h + 'px');
+			//console.log('set height', h, tabRect, toolbarRect);
+			/*
+			if (tabRect)
+			{
+				// client
+				var panel = this.getClientPanel();
+				var style = panel.getElement().style;
+				style.top = tabRect.height + 'px';
+				style.bottom = '0px';
+				panel.resized();
+				// viewer
+				this.getViewer().resized();
+			}
+			*/
+		}
 		this.getViewer().resized();
 		//var clientRect = this.getClientPanel().getBoundingClientRect();
-		/*
-		if (tabRect)
-		{
-			// client
-			var panel = this.getClientPanel();
-			var style = panel.getElement().style;
-			style.top = tabRect.height + 'px';
-			style.bottom = '0px';
-			panel.resized();
-			// viewer
-			this.getViewer().resized();
-		}
-		*/
 	},
 
 	/** @private */

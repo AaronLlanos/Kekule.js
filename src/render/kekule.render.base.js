@@ -103,7 +103,7 @@ Kekule.Render.NodeLabelDisplayMode = {
 	SMART: 0,
 	/** Default is SMART */
 	DEFAULT: 0
-}
+};
 
 /**
  * Enumeration of hydrongen display strategy (espcially in 2D renderer).
@@ -116,11 +116,13 @@ Kekule.Render.HydrogenDisplayLevel = {
 	EXPLICIT: 1,
 	/** Display explicit hydrogens only when the count is not the same as implicit. */
 	UNMATCHED_EXPLICIT: 2,
-	/** Display all hydrogens, whether explicit and implicit ones. */
-	ALL: 10,
 	/** Display only display implicit hydrogen count */
 	IMPLICIT: 12,
-	/** Default is EXPLICIT. */
+	/** Display all hydrogens on all atoms, whether explicit or implicit ones. */
+	ALL: 10,
+	/** Always display hydrogen on all labeled atoms. */
+	LABELED: 30,
+	/** Default is LABELED. */
 	DEFAULT: 1
 };
 
@@ -543,6 +545,11 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	},
 	finalize: function($super)
 	{
+		var boundRecorder = this.getPropStoreFieldValue('boundInfoRecorder');  // do not auto create
+		if (boundRecorder)
+		{
+			boundRecorder.finalize();
+		}
 		//console.log('release renderer', this.getClassName());
 		this.setPropValue('chemObj', null, true);
 		this.setDrawBridge(null);
@@ -596,8 +603,43 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 			}
 		});
 
+		// private object to record all bound infos
+		this.defineProp('boundInfoRecorder', {'dataType': 'Kekule.Render.BoundInfoRecorder', 'serializable': false, 'setter': null,
+			'getter': function(disableAutoCreate)
+			{
+				if (!this.isRootRenderer())
+				{
+					var p = this.getRootRenderer();
+					return p && p.getBoundInfoRecorder(disableAutoCreate);
+				}
+				else
+				{
+					var result = this.getPropStoreFieldValue('boundInfoRecorder');
+					if (!result && !disableAutoCreate)
+					{
+						result = this._createBoundInfoRecorder();
+					}
+					return result;
+				}
+			}
+		});
+
 		this.defineEvent('clear');
 		this.defineEvent('updateBasicDrawObject');
+	},
+
+	/** @private */
+	_createBoundInfoRecorder: function()
+	{
+		// ensure the old one is finalized
+		var old = this.getPropStoreFieldValue('boundInfoRecorder');
+		if (old)
+			old.finalize();
+		// create new
+		//console.log('create recorder', this.getClassName());
+		var result = new Kekule.Render.BoundInfoRecorder(this);
+		this.setPropStoreFieldValue('boundInfoRecorder', result);
+		return result;
 	},
 
 	/**
@@ -612,6 +654,21 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	getHigherLevelObj: function()
 	{
 		return this.getParent();
+	},
+
+	/**
+	 * Returns the root renderer of this child renderer.
+	 * @returns {Kekule.Render.BoundInfoRecorder}
+	 */
+	getRootRenderer: function()
+	{
+		if (this.isRootRenderer())
+			return this;
+		else
+		{
+			var p = this.getParentRenderer();
+			return p? p.getRootRenderer(): this;
+		}
 	},
 
 	/**
@@ -630,6 +687,12 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	{
 		var rType = this.getRendererType();
 		return (rType === Kekule.Render.RendererType.R3D)? Kekule.CoordMode.COORD3D: Kekule.CoordMode.COORD2D;
+	},
+
+	/** @private */
+	_getRenderSortIndex: function()
+	{
+		return 0;
 	},
 
 	/**
@@ -771,6 +834,9 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 		try
 		{
 			this.__isDrawing = true;  // flag avoid duplicated draw
+
+			this.getBoundInfoRecorder();  // ensure boundInfo recorder is created;
+
 			var ops = {};
 			// actual draw options should also inherited from parent renderer
 			var parentOps;
@@ -1528,6 +1594,48 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 			return false;
 	},
 
+	/**
+	 * Returns the rendering bound of object.
+	 * @param {Object} context
+	 * @param {Kekule.ChemObject} obj
+	 * @param {Bool} shadowOnCoordStickTarget If true, when obj has coordStickTarget, returns the the bound of this target.
+	 * @returns {Object}
+	 * @private
+	 */
+	getObjRenderBound: function(context, obj, shadowOnCoordStickTarget)
+	{
+		var boundRecorder = this.getBoundInfoRecorder();
+		var concreteObj = obj;
+		if (shadowOnCoordStickTarget && obj.getCoordStickTarget)
+		{
+			concreteObj = obj.getCoordStickTarget() || concreteObj;
+		}
+		return boundRecorder && boundRecorder.getBound(context, concreteObj);
+	},
+	/**
+	 * Returns the rendering bound of sticking target of object.
+	 * @param {Object} context
+	 * @param {Kekule.ChemObject} obj
+	 * @returns {Object}
+	 * @private
+	 */
+	getStickingTargetRenderBound: function(context, obj)
+	{
+		var targetObj;
+		if (obj.getCoordStickTarget)
+		{
+			targetObj = obj.getCoordStickTarget();
+		}
+		if (targetObj)
+		{
+			var boundRecorder = this.getBoundInfoRecorder();
+
+			return boundRecorder && boundRecorder.getBound(context, targetObj, true);
+		}
+		else
+			return null;
+	},
+
 	/** @private */
 	createBoundInfo: function(boundType, coords, additionalInfos)
 	{
@@ -1552,13 +1660,7 @@ Kekule.Render.AbstractRenderer = Class.create(ObjectEx,
 	/** @private */
 	createLineBoundInfo: function(coord1, coord2, width, isElectron)
 	{
-		var increasingBondHitArea = 24;
-		if (!isElectron) {
-			return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': increasingBondHitArea});
-		} else {
-			increasingBondHitArea = 8;
-			return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': increasingBondHitArea});
-		}
+		return this.createBoundInfo(Kekule.Render.BoundShapeType.LINE, [coord1, coord2], {'width': isElectron ? 8 : 15});
 	},
 	/** @private */
 	createRectBoundInfo: function(coord1, coord2)
@@ -1643,6 +1745,21 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 	{
 		this.reset();
 		$super();
+	},
+
+	/** ignore */
+	_getRenderSortIndex: function($super)
+	{
+		var result = $super();
+		var renderers = this.prepareChildRenderers();
+		for (var i = 0, l = renderers.length; i < l; ++i)
+		{
+			var r = renderers[i];
+			var childIndex = r._getRenderSortIndex();
+			if (childIndex > result)
+				result = childIndex;
+		}
+		return result;
 	},
 
 	/** @ignore */
@@ -1892,6 +2009,10 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 		var group = this.createDrawGroup(context);
 		var childRenderers = this.getChildRenderers();
 
+		// TODO: A temp solution for auto offset of coord stick glyphs
+		// sort child renderers, the child with coord sticking will draw after all other children
+		this._sortChildRenderers(childRenderers);
+
 		var ops = Object.create(options);
 
 		this.getRenderCache(context).childDrawOptions = ops;
@@ -1915,6 +2036,15 @@ Kekule.Render.CompositeRenderer = Class.create(Kekule.Render.AbstractRenderer,
 		}
 		//console.log('draw children', this.getClassName(), group, childRenderers.length, this.getTargetChildObjs());
 		return group;
+	},
+	/** @private */
+	_sortChildRenderers: function(renderers)
+	{
+		renderers.sort(function(r1, r2){
+			var index1 = r1._getRenderSortIndex();
+			var index2 = r2._getRenderSortIndex();
+			return index1 - index2;
+		});
 	},
 	/** @private */
 	doClear: function($super, context)

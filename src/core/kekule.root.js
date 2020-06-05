@@ -12,7 +12,7 @@ module.exports = function(Kekule) {
 var Kekule = {
 	LIBNAME: 'Kekule.js',
 	LIBNAME_CORE: 'Kekule',
-	VERSION: '0.8.1.19021500',
+	VERSION: '0.9.5.20022800',
 	/**
 	 * A flag that indicate whether all essential Kekule modules are loaded into document.
 	 * @ignore
@@ -48,7 +48,9 @@ Kekule._loaded = function()
 	{
 		var proc = procs.shift();
 		if (proc)
+		{
 			proc();
+		}
 	}
 
 	var procs = Kekule._afterLoadUserProcedures;
@@ -113,14 +115,17 @@ Kekule._registerAfterLoadProc = Kekule._ready;  // for backward
 /**
  * Root object of JavaScript environment, usually window.
  */
-Kekule.$jsRoot = this;
+Kekule.$jsRoot = this || (typeof(window) !== 'undefined' ? window : {});
 
-if (typeof(self) === 'object')
+if (typeof(self) === 'object') {
 	Kekule.$jsRoot = self;
-else if (typeof(window) === 'object' && window.document)
+}
+else if (typeof(window) === 'object' && window && window.document) {
 	Kekule.$jsRoot = window;
-else if (typeof(global) === 'object')  // node env
+}
+else if (typeof(global) === 'object') { // node env 
 	Kekule.$jsRoot = global;
+}
 
 Kekule.$jsRoot.Kekule = Kekule;
 
@@ -128,8 +133,7 @@ Kekule.$jsRoot.Kekule = Kekule;
  * Root document of JavaScript environment.
  * Can be null in Node.js.
  */
-
-Kekule.$document = Kekule.$jsRoot && Kekule.$jsRoot.document;
+Kekule.$document = (Kekule.$jsRoot && Kekule.$jsRoot.document) || {};
 
 if (!Kekule.scriptSrcInfo)  // scriptSrcInfo maybe set already in node.js environment
 {
@@ -170,6 +174,45 @@ if (!Kekule.scriptSrcInfo && Kekule.$jsRoot.document)  // script info not found,
 		}
 		return null;
 	})();
+}
+
+Kekule.environment = {
+	isNode: !!((typeof process === 'object') && (typeof process.versions === 'object') && (typeof process.versions.node !== 'undefined')),
+	isWeb: !!(typeof window === 'object' && window.document)
+};  // current runtime environment details
+
+if (Kekule.scriptSrcInfo)
+{
+	Kekule.environment.nodeModule = Kekule.scriptSrcInfo.nodeModule;
+	Kekule.environment.nodeRequire = Kekule.scriptSrcInfo.nodeRequire;
+}
+
+if (Kekule.$jsRoot['__$kekule_scriptfile_utils__'])  // script file util methods
+{
+	Kekule._ScriptFileUtils_ = Kekule.$jsRoot['__$kekule_scriptfile_utils__'];
+	Kekule.ScriptFileUtils = Kekule._ScriptFileUtils_;  // a default ScriptFileUtils impl, overrided by domUtils.js file
+	Kekule.modules = function(modules, callback)   // util function to load additional modules in a existing Kekule environment, useful in node.js
+	{
+		var actualModules = [];
+		if (typeof(modules) === 'string')  // a single string module param
+			actualModules = [modules];
+		else
+			actualModules = modules;  // array param
+
+		var scriptSrcInfo = Kekule.scriptSrcInfo;
+		if (scriptSrcInfo)
+		{
+			var details = Kekule._ScriptFileUtils_.loadModuleScriptFiles(actualModules, scriptSrcInfo.useMinFile, Kekule.scriptSrcInfo.path, scriptSrcInfo, function(error){
+				if (callback)
+					callback(error);
+			});
+			//console.log(details);
+			return this;
+		}
+		else
+			return this;
+	};
+	Kekule.loadModules = Kekule.modules;  // alias of function Kekule.modules
 }
 
 Kekule.getScriptPath = function()

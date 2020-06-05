@@ -526,7 +526,11 @@ ObjSerializer = Class.create(
 				continue;
 
 			if (prop.serializable)  // a serialzable property, handle
-				this.doSaveObjectExProp(obj, prop, storageNode, options);
+			{
+				var needSerialize = (typeof(prop.serializable) === 'function')? prop.serializable.apply(obj): prop.serializable;
+				if (needSerialize)
+					this.doSaveObjectExProp(obj, prop, storageNode, options);
+			}
 		}
 	},
 	/**
@@ -792,7 +796,7 @@ ObjSerializer = Class.create(
 		{
 			var prop = props.getPropInfoAt(i);
 
-			if (!prop.serializable)  // not a serialzable property, bypass
+			if (!prop.serializable)  // not a serialzable property or serializable controlled by function, bypass
 				continue;
 
 			var customLoadMethod = this.getObjCustomPropLoadMethod(obj);
@@ -1021,6 +1025,8 @@ XmlObjSerializer = Class.create(ObjSerializer,
 	/** @private */
 	TYPE_TAG_NAME: 'dataType',
 	/** @private */
+	UNSUIT_PROPNAME_PREFIX: '__.',
+	/** @private */
 	//ARRAY_ITEM_VALUE_ATTRIB: 'value',
 	/** @private */
 	//STRUE: '$TRUE',
@@ -1150,6 +1156,34 @@ XmlObjSerializer = Class.create(ObjSerializer,
 		}
 		*/
 	},
+
+	/** @ignore */
+	propNameToStorageName: function(name)
+	{
+		// in simple object, propName may be a numberic string (e.g. '2') that is not suitable for XML element name, so here we add a prefix
+		var firstChar = name.toString().charAt(0).toLowerCase();
+		if (firstChar === '_' || (firstChar >= 'a') && (firstChar <= 'z'))  // a legal XML element name
+			return name;
+		else
+			return this.UNSUIT_PROPNAME_PREFIX + name;
+	},
+	/** @ignore */
+	storageNameToPropName: function(name)
+	{
+		if (typeof(name) !== 'string')
+			return name;
+		else
+		{
+			if (name.indexOf(this.UNSUIT_PROPNAME_PREFIX) === 0)  // is number name
+			{
+				var s = name.substr(this.UNSUIT_PROPNAME_PREFIX.length);
+				return s;
+			}
+			else
+				return name;
+		}
+	},
+
 	/** @private */
 	createChildStorageNode: function(storageNode, name, isForArray)
 	{
