@@ -2908,9 +2908,11 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			{
 				var obj = manipulatedObjs[i];
 				if (!objCanBeMerged(obj))
-				continue;
+					continue;
 				var currInfo = currManipulateInfoMap.get(obj);
-				var currCoord = currInfo.screenCoord;
+				var currCoord;
+				if (currInfo)
+					currCoord = currInfo.screenCoord;
 				if (currCoord)
 				{
 					var boundInfos = editor.getBoundInfosAtCoord(currCoord, null, this.getCurrBoundInflation());
@@ -2994,10 +2996,12 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 									var info = currManipulateInfoMap.get(obj);
 									if (info.screenCoord)
 									{
-										var newCoord = CU.add(info.screenCoord, coordTranslate);
-										info.screenCoord = newCoord;
-										if (this._getMagneticArrowNodeMergeDest(obj, newCoord, excludedObjs))  // move position can do another magnetic merge
-										needReApply = true;
+										if (info && info.screenCoord) {
+											var newCoord = CU.add(info.screenCoord, coordTranslate);
+											info.screenCoord = newCoord;
+											if (this._getMagneticArrowNodeMergeDest(obj, newCoord, excludedObjs))  // move position can do another magnetic merge
+											needReApply = true;
+										}										
 									}
 								}
 							}

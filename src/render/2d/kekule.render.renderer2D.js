@@ -2635,6 +2635,9 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 		if (atomicNumber && atomicNumber >= 113 && node.getSymbol() != 'D' && node.getCharge() != 0) {
 			node.setCharge(0);
 		}
+		if (atomicNumber && atomicNumber >= 113 && node.getSymbol() != 'D' && node.getExplicitHydrogenCount()) {
+			node.setExplicitHydrogenCount(undefined);
+		}
 		var hasChargeOrRadical = node.getCharge() || node.getRadical();
 		var needDrawCharge = (node.getCharge() && !node.fetchChargeMarker(false));
 		var needDrawRadical = (node.getRadical() && !node.fetchRadicalMarker(false));
