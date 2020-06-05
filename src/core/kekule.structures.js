@@ -5097,7 +5097,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 									}
 									if (this._getComparisonOptionFlagValue(options, 'compareStereo')) 
 									{
-										if (nodes1[i].getIsotopeId() === 'C' && nodes2[i].getIsotope() === 'C') 
+										if (nodes1[i].getIsotopeId() === 'C' && nodes2[i].getIsotopeId() === 'C') 
 										{
 											// checking that the amount of wedge or dash bonds is equal comparing stereos
 											const wedgesDashesCount1 = nodes1[i].getLinkedConnectors().filter(_getWedgeOrDash);
@@ -5106,8 +5106,31 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 											if (result !== 0)
 											{
 												break;
-											}
-										}									
+											} else {
+												// comparing if are same kind of bond
+												for (var j = 0, le = wedgesDashesCount1.length; j < le; ++j) 
+												{
+													for (var k = 0, lg = wedgesDashesCount2.length; k < lg; ++k)
+													{
+														if (wedgesDashesCount1[j].getStereo() === wedgesDashesCount2[k].getStereo())
+														{
+															wedgesDashesCount2.splice(k, 1);
+														} 
+													}
+												}
+												result = wedgesDashesCount2.length;
+												if (result !== 0)
+												{
+													break;
+												}
+											} 
+										}
+										// curved arrows check
+										result = JSON.stringify(nodes1[i].getAttachedArcNodeIds()) === JSON.stringify(nodes2[i].getAttachedArcNodeIds()) ? 0 : 1;
+										if (result !== 0)
+										{
+											break;
+										}	
 									}																		
 								}
 							}
