@@ -2488,7 +2488,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 			var obj = bound.obj;
 			var stickTargetObj = self._getCoordStickActualTarget(obj);
 			return (node !== obj) && (excludedObjs.indexOf(obj) < 0)
-					&& ((obj instanceof Kekule.BaseStructureNode && self._canMergeNodes(node, obj))
+					&& (((obj instanceof Kekule.BaseStructureNode || obj instanceof Kekule.ChemMarker.UnbondedElectronSet) && self._canMergeNodes(node, obj))
 						|| (self._canStickNode(node, stickTargetObj)));
 		};
 		if (nodeScreenCoord)
@@ -2642,6 +2642,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 
 		if (!isMovingOneBond && !isMovingOneArrowNode && !isMovingOneArrowArc && this.getEnableMagneticMerge())
 		{
+			this._mergeJustReversed = true;
 			var currManipulateInfoMap = this.getManipulateObjCurrInfoMap();
 			var manipulateInfoMap = this.getManipulateObjInfoMap();
 			var self = this;
@@ -3212,7 +3213,7 @@ Kekule.Editor.BasicMolManipulationIaController = Class.create(Kekule.Editor.Basi
 
 		// no merge, just reverse old one and do normal move
 		var oldMergeOpers = this.getMergeOperationsInManipulating();
-		if (oldMergeOpers && oldMergeOpers.length)
+		if (this._mergeJustReversed && oldMergeOpers && oldMergeOpers.length)
 		{
 			this._mergeOperationsChanged(0, [], []);  // also notify that no merge should be done here
 			this.reverseMergeOpers(oldMergeOpers);
