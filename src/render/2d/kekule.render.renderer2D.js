@@ -2620,7 +2620,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 			//label.charDirection = !nodeRenderOptions.charDirection ? this._decideNodeLabelCharDirection(context, node) : nodeRenderOptions.charDirection;
 			var labelCharDirection = !nodeRenderOptions.charDirection ? this._decideNodeLabelCharDirection(context, node) : nodeRenderOptions.charDirection;
 			if (atomicNumber && atomicNumber >= 113 && node.getSymbol() != 'D' && node.getLinkedConnectors().length === 1) {
-				var splittedMultiatom = label.anchorItem.anchorItem.text.split(/(?=[A-Z])/);
+				var splittedMultiatom = labelCharDirection === 1 ? label.anchorItem.anchorItem.text.split("") : label.anchorItem.anchorItem.text.split("").reverse();
 				if (splittedMultiatom.length > 1) {
 					label.anchorItem.anchorItem.text = splittedMultiatom[0];
 					label.anchorItem.items[0].text = splittedMultiatom[0];
@@ -2629,7 +2629,7 @@ Kekule.Render.ChemCtab2DRenderer = Class.create(Kekule.Render.Ctab2DRenderer,
 						var newItem = {charDirection: 0, items: []};
 						newItem.charDirection = label.anchorItem.anchorItem.charDirection;
 						var item = {text: ''};						
-						item.text = labelCharDirection === 1 ? splittedMultiatom[i] : splittedMultiatom[i].split("").reverse().join("");
+						item.text = splittedMultiatom[i];
 						newItem.items.push(item);
 						label.items.push(newItem);
 					}
