@@ -5039,6 +5039,25 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
   {
     return connector.getStereo() >= 1 && connector.getStereo() <= 4;
   },
+  hasWedgeDashBridgeConnectorOnNode: function(node) {
+    let result = false
+
+    const wedgeDashConnectors = node.getLinkedConnectors()
+      .filter(this.isWedgeOrDashConnector)
+
+    for (let i = 0; i < wedgeDashConnectors.length; i++) {
+      const isBridgeConnector = wedgeDashConnectors[i]
+        .getConnectedChemNodes()
+        .filter(n => !Object.is(n, node))
+        .map(m => m.getLinkedSiblings().filter(n => !Object.is(n, node)).length > 0)[0]
+      if(isBridgeConnector) {
+        result = true;
+        break;
+      }
+    }
+
+    return result;
+  },
 	//// this is where most of the molcule grading happens
 	doCompare: function($super, targetObj, options)
 	{
@@ -5088,7 +5107,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 					var hasFormula1 = this.hasFormula();
 					var hasFormula2 = targetObj.hasFormula && targetObj.hasFormula();
 					result = hasFormula1? (hasFormula2? 0: 1): (hasFormula2? -1: 0);
-				}
+        }
 				
 				// both has ctab, comparing child nodes and connectors
 				if (!result && this.hasCtab())
@@ -5102,7 +5121,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 
 						if (result !== 0) {
 							return result;
-						}
+            }
 
 						var hydrogen_display_type = this._getComparisonOptionFlagValue(options, 'hydrogen_display_type') || 'BONDED';
 						if (result === 0)
@@ -5122,7 +5141,7 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
                     _clearHydrogens()
                   }
                 }
-							}							
+              }
 
 							if (result === 0) 
 							{
@@ -5131,11 +5150,11 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 								result = nodes1.length - nodes2.length;
 							}							
 
-                            if (result === 0 && this._getComparisonOptionFlagValue(options, 'compareStereo')) {
-                                const stereoBonds1 = this.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
-                                const stereoBonds2 = targetObj.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
-                                result = this.compareStereoBonds(stereoBonds1, stereoBonds2);
-                            }
+              if (result === 0 && this._getComparisonOptionFlagValue(options, 'compareStereo')) {
+                const stereoBonds1 = this.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
+                const stereoBonds2 = targetObj.getConnectors().filter(Kekule.MolStereoUtils.isStereoBond);
+                result = this.compareStereoBonds(stereoBonds1, stereoBonds2);
+              }
 							
 							if (result === 0) {
 								for (var i = 0, l = nodes1.length; i < l; ++i)
@@ -5158,18 +5177,29 @@ Kekule.StructureFragment = Class.create(Kekule.ChemStructureNode,
 									{
                     if (nodes1[i].getIsotopeId() === 'C' && nodes2[i].getIsotopeId() === 'C') 
 										{
-                      // checking that the amount of wedge or dash bonds is equal comparing stereos
-                      if(hydrogen_display_type === 'IMPLICIT') {
-                        const wedgesDashesCount1 = nodes1[i].getLinkedConnectors().filter(_getWedgeOrDash);
-                        const wedgesDashesCount2 = nodes2[i].getLinkedConnectors().filter(_getWedgeOrDash);
-                        result = wedgesDashesCount1.length - wedgesDashesCount2.length;
+                      if(
+                        hydrogen_display_type === 'IMPLICIT' &&
+                        !this.hasWedgeDashBridgeConnectorOnNode(nodes1[i]) &&
+                        !targetObj.hasWedgeDashBridgeConnectorOnNode(nodes2[i])
+                      ) {
+                        const nodeWedgesDashesCount1 = nodes1[i].getLinkedConnectors().filter(this.isWedgeOrDashConnector);
+                        const nodeWedgesDashesCount2 = nodes2[i].getLinkedConnectors().filter(this.isWedgeOrDashConnector);
+                        result = nodeWedgesDashesCount1.length - nodeWedgesDashesCount2.length;
                         if (result !== 0) {
                           break;
                         } 
+                      } else {
+                        const wedgesDashesTotalCount1 = this.getConnectors().filter(this.isWedgeOrDashConnector).length;
+                        const wedgesDashesTotalCount2 = targetObj.getConnectors().filter(this.isWedgeOrDashConnector).length;
+                        if(wedgesDashesTotalCount1 === 1 || wedgesDashesTotalCount2 === 1) {
+                          result = 1
+                          break;
+                        }
                       }
                       // curved arrows check
                       result = JSON.stringify(nodes1[i].getAttachedArcNodeIds()) === JSON.stringify(nodes2[i].getAttachedArcNodeIds()) ? 0 : 1;
                       if (result !== 0) {
+                        console.log('curved arrows check', result)
                         break;
                       }
 										}
